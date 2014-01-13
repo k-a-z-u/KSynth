@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWin</class>
+ <widget class="QMainWindow" name="MainWin">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="mnuRack">
+    <property name="title">
+     <string>Rack</string>
+    </property>
+    <widget class="QMenu" name="menuRackAddElement">
+     <property name="title">
+      <string>add Element</string>
+     </property>
+    </widget>
+    <addaction name="menuRackAddElement"/>
+    <addaction name="separator"/>
+    <addaction name="menuRackReset"/>
+   </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="menuFileSave"/>
+    <addaction name="menuFileLoad"/>
+    <addaction name="separator"/>
+    <addaction name="menuFileImportMidi"/>
+    <addaction name="separator"/>
+    <addaction name="menuFileExit"/>
+   </widget>
+   <widget class="QMenu" name="menuTracks">
+    <property name="title">
+     <string>Tracks</string>
+    </property>
+    <addaction name="menuTracksClear"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="mnuRack"/>
+   <addaction name="menuTracks"/>
+  </widget>
+  <action name="actionLol">
+   <property name="text">
+    <string>lol</string>
+   </property>
+  </action>
+  <action name="menuFileExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="menuFileSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="menuFileLoad">
+   <property name="text">
+    <string>Load</string>
+   </property>
+  </action>
+  <action name="menuFileImportMidi">
+   <property name="text">
+    <string>Import MIDI</string>
+   </property>
+  </action>
+  <action name="actionLol_2">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>lol</string>
+   </property>
+  </action>
+  <action name="menuRackReset">
+   <property name="text">
+    <string>reset</string>
+   </property>
+  </action>
+  <action name="menuTracksClear">
+   <property name="text">
+    <string>clear</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,32 @@
+new dialog for loading samples
+some fixes (race conditions) for the rack (new interface)
+some other minor fixes
+
+
+--This line, and those below, will be ignored--
+
+M    ControlPanelWidget.cpp
+M    KSynthGUI.pro
+M    KSynthGUI.pro.user
+A    SampleChooserDialog.cpp
+A    SampleChooserDialog.h
+AM   SampleChooserDialog.ui
+M    controller/Controller.cpp
+M    controller/CtrlHelper.cpp
+M    controller/CtrlHelper.h
+M    controls/PinConnector.cpp
+M    controls/SequencerTrackItem.cpp
+M    controls/SequencerTracksWidget.cpp
+M    main.cpp
+M    model/Context.cpp
+M    model/Context.h
+M    model/WorkspaceLoader.cpp
+M    model/WorkspaceLoader.h
+M    model/WorkspaceSaver.cpp
+M    model/WorkspaceSaver.h
+M    rack/DrumComputer1.cpp
+M    rack/DrumComputer1.h
+M    rack/MasterTarget1.cpp
+M    rack/MasterTarget1.h
+M    rack/Rack.cpp
+M    rack/RackElement.h
