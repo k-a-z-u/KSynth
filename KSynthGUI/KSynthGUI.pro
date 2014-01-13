@@ -127,7 +127,7 @@ SOURCES += \
 
 # add KLib
 INCLUDEPATH += \
-        ../KLib
+        ../lib/KLib
 
 # add KSynth
 INCLUDEPATH += \
