@@ -1,4 +1,3 @@
-
 # About the Project
 KSynth aims to be (someday) a small software (using Qt) for composing songs using e.g. samplers and synthesizers using MIDI-Integreation for external devices like keyboards, a Launchpad, etc.
 Additionally the code should work on several operating-systems such as Linux, Windows or maybe Mac OS.
@@ -27,16 +26,16 @@ the external dependencies differ by your needs and your operating system. Curren
 
 * If you want to compose songs using the GUI, you ned booth, **KSynth** and **KSynthGUI** while the latter is just a Qt-Project and can be built using the **qtcreator**
 
-Some parts of the code might depend on my KLib library, currently providing some streaming APIs or file-access methods. While most of those methods were intended for another project, i decided to combine them within a single library to re-use them for other projects in the future.
+Some parts of the code depend on my **KLib** library (https://github.com/k-a-z-u/KLib), currently providing some streaming APIs or file-access methods. While most of those methods were intended for another project, i decided to combine them within a single library to re-use them for other projects in the future.
 
 The directory structure for compiling the GUI version should look as follows:
 
 ```
  |--ROOT
-    |--KLib             # some helper functions
     |--KSynth           # backend (mainly header files, standalone)
-    |--KSynthGUI        # Qt-Project using above components
+    |--KSynthGUI        # Qt-Project, using above component
        |--lib
+          |--KLib       # some helper functions. clone from https://github.com/k-a-z-u/KLib
           |--rtmidi     # accessing midi devices
           |--tinyxml2   # (de)serializing workspace, etc
 ```
