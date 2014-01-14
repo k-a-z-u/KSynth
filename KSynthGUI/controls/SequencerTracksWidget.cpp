@@ -3,9 +3,10 @@
 #include "model/Context.h"
 #include <QVBoxLayout>
 #include "SequencerTrackItem.h"
+#include "../controller/Controller.h"
 
 SequencerTracksWidget::SequencerTracksWidget(Context& ctx, QWidget *parent) :
-	QWidget(parent), ctx(ctx), lay(nullptr) {
+	QWidget(parent), ctx(ctx), lay(nullptr), selected(nullptr) {
 
 	ctx.getSequencer()->addTrackListener(this);
 
@@ -23,6 +24,15 @@ SequencerTracksWidget::~SequencerTracksWidget() {
 
 }
 
+//void SequencerTracksWidget::addListener(SequencerTracksListener* l) {
+//	listeners.push_back(l);
+//}
+
+//void SequencerTracksWidget::removeListener(SequencerTracksListener* l) {
+//	auto match = [l] (const SequencerTracksListener* other) {return other == l;};
+//	listeners.erase( std::remove_if(listeners.begin(), listeners.end(), match), listeners.end() );
+//}
+
 
 void SequencerTracksWidget::onTracksChanged() {
 	emit refreshMe();
@@ -37,19 +47,22 @@ void RemoveLayout (QWidget* widget) {
 	delete widget->layout();
 }
 
+SequencerTrackItem* SequencerTracksWidget::getSelectedItem() {
+	return selected;
+}
+
+void SequencerTracksWidget::setSeleceted(SequencerTrackItem& item) {
+	if (selected) {selected->setSelected(false);}
+	selected = &item;
+	selected->setSelected(true);
+//	for (SequencerTracksListener* l : listeners) {l->selectedTrackChanged(&item.getTrack());}
+	emit onCurrentItemChanged( &item.getTrack() );
+}
+
 #include <QSpacerItem>
 void SequencerTracksWidget::refreshMe() {
 
-	//	if (lay) {
-	//		while (lay->children().size()) {
-	//			//delete lay->children().at(0);
-	//			//lay->children().removeFirst();
-	//			lay->removeWidget( (QWidget*) lay->children().at(0));
-	//		}
-	//		delete lay;
-	//	}
 	RemoveLayout(this);
-
 
 	lay = new QVBoxLayout();
 	lay->setMargin(1);
@@ -57,7 +70,7 @@ void SequencerTracksWidget::refreshMe() {
 
 	//qDeleteAll(findChildren<QWidget*>());
 	for (SequencerTrack& st : *ctx.getSequencer()->getTracks()) {
-		lay->addWidget(new SequencerTrackItem(*ctx.getRack(), st));
+		lay->addWidget(new SequencerTrackItem(*this, *ctx.getRack(), st));
 	}
 	lay->addItem(new QSpacerItem(0,0,QSizePolicy::Minimum,QSizePolicy::Expanding));
 

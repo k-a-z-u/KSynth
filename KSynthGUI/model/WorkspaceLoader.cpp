@@ -44,7 +44,7 @@ void WorkspaceLoader::load(const K::File& file) {
 		std::string xml = lis.readAll();
 		parseXML(xml);
 #else
-		throw WorkspaceSaverException("can't load compressed XML as zlib support is not compiled!");
+		throw WorkspaceLoaderException("can't load compressed XML as zlib support is not compiled!");
 #endif
 
 	} else {
@@ -220,14 +220,14 @@ void WorkspaceLoader::loadTracks(XMLElement* nTracks) {
 
 		// load all events
 		for (
-			 XMLElement* nEvent = nEvents->FirstChildElement("Event");
+			 XMLElement* nEvent = nEvents->FirstChildElement("E");
 			 nEvent;
-			 nEvent = nEvent->NextSiblingElement("Event")
+			 nEvent = nEvent->NextSiblingElement("E")
 			 ) {
 
 			// get event params
-			int time = nEvent->IntAttribute("time");
-			int status = nEvent->IntAttribute("status");
+			int time = nEvent->IntAttribute("t");
+			int status = nEvent->IntAttribute("s");
 			int d1 = nEvent->IntAttribute("d1");
 			int d2 = nEvent->IntAttribute("d2");
 

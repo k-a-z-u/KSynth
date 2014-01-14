@@ -13,11 +13,14 @@
 #include "../rack/RackElement.h"
 #include "../model/RackElementModel.h"
 #include "../misc/Helper.h"
+#include "SequencerTracksWidget.h"
 
-SequencerTrackItem::SequencerTrackItem(Rack& rack, SequencerTrack& st, QWidget *parent) :
-	QWidget(parent), rack(rack), st(st) {
+SequencerTrackItem::SequencerTrackItem(SequencerTracksWidget& tracks, Rack& rack, SequencerTrack& st, QWidget *parent) :
+	QWidget(parent), tracks(tracks), rack(rack), focused(false), st(st) {
 
 	//cmbMdl = new RackElementModel(rack);
+
+	setFocusPolicy(Qt::ClickFocus);
 
 	// tool tip
 	setToolTip( st.getDescription().c_str() );
@@ -60,6 +63,30 @@ SequencerTrackItem::~SequencerTrackItem() {
 	//delete cmbMdl;
 }
 
+SequencerTrack& SequencerTrackItem::getTrack() {
+	return st;
+}
+
+void SequencerTrackItem::focusInEvent(QFocusEvent* e) {
+	Q_UNUSED(e);
+//	this->focused = true;
+//	emit repaint();
+	tracks.setSeleceted(*this);
+}
+
+void SequencerTrackItem::focusOutEvent(QFocusEvent* e) {
+	Q_UNUSED(e);
+//	this->focused = false;
+//	emit repaint();
+}
+
+
+void SequencerTrackItem::setSelected(bool sel) {
+	bool changed = focused != sel;
+	this->focused = sel;
+	if (changed) {emit repaint();}
+}
+
 void SequencerTrackItem::updateCombo() {
 
 	cmbDevice->blockSignals(true); {
@@ -86,7 +113,15 @@ void SequencerTrackItem::paintEvent (QPaintEvent* event) {
 	Q_UNUSED(event);
 	QPainter p(this);
 	static QImage imgBg = Helper::getSkinImage("skin/sequencerTrack.png", "PNG");
+
+	if (focused) {
+		p.setBrush(QColor(192,192,255));
+	} else {
+		p.setBrush(QColor(255,255,255));
+	}
+	p.drawRect(0,0,width(),height());
 	p.drawImage(0,0, imgBg);
+
 }
 
 

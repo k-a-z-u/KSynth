@@ -4,6 +4,7 @@
 #include <QDockWidget>
 
 class Context;
+class Editor;
 
 namespace Ui {
 	class SequencerWidget;
@@ -27,6 +28,8 @@ private:
 	Ui::SequencerWidget *ui;
 
 	Context& ctx;
+
+	Editor* editor;
 
 };
 

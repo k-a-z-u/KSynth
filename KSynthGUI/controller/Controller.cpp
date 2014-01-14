@@ -63,6 +63,8 @@ void Controller::load() {
 	}
 }
 
+
+
 void Controller::addNewRackElement(const std::string str) {
 	RackElement* re = ctx.getRackFactory()->getByString(str, ctx);
 	ctx.getRack()->add(re);
@@ -91,3 +93,5 @@ void Controller::importMidi() {
 		}
 	} catch (...) {;}
 }
+
+

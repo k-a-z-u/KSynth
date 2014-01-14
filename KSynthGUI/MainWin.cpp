@@ -9,6 +9,9 @@ MainWin::MainWin(Context& ctx, QWidget *parent) :
 	QMainWindow(parent), ui(new Ui::MainWin), ctx(ctx) {
 
 	ui->setupUi(this);
+	setWindowTitle("KSynth");
+
+	setGeometry(0,0, 1200,600);
 
 	// available rack elements
 	for (std::string& str : ctx.getRackFactory()->getDevices()) {

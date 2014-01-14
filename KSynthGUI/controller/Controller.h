@@ -5,6 +5,8 @@
 
 class Context;
 class RackElement;
+class SequencerTrack;
+
 
 class Controller{
 
@@ -32,6 +34,7 @@ public:
 
 	/** reset the rack to an initial state */
 	void resetRack();
+
 
 
 	/** import a new midi file */

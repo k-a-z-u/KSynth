@@ -62,7 +62,14 @@ SOURCES += main.cpp\
     model/WorkspaceLoader.cpp \
     model/WorkspaceSaver.cpp \
     controls/TextLabel.cpp \
-    SampleChooserDialog.cpp
+    SampleChooserDialog.cpp \
+    controls/editor/Editor.cpp \
+    controls/editor/EditorTimeline.cpp \
+    controls/editor/EditorSlider.cpp \
+    controls/editor/EditorSheet.cpp \
+    controls/editor/EditorSheetNote.cpp \
+    controls/scroll/AdvScrollArea.cpp \
+    controls/editor/EditorSheetHeader.cpp
 
 HEADERS  += \
     controls/Knob.h \
@@ -102,6 +109,14 @@ HEADERS  += \
     rack/Rack.h \
     controls/PinConnector.h \
     SampleChooserDialog.h \
+    controls/editor/Editor.h \
+    controls/editor/EditorTimeline.h \
+    controls/editor/EditorSlider.h \
+    controls/editor/EditorSheet.h \
+    controls/editor/EditorSheetNote.h \
+    controls/editor/EditorNote.h \
+    controls/scroll/AdvScrollArea.h \
+    controls/editor/EditorSheetHeader.h
 
 FORMS    += \
     SynthWin.ui \
@@ -139,7 +154,7 @@ INCLUDEPATH += \
 
 # OS specific stuff
 linux-g++ | linux-g++-64 | linux-g++-32 {
-        QMAKE_CXXFLAGS += -D__LINUX_ALSA__ -DWITH_ALSA -DWITH_LAME -DWITH_FLAC -DWITH_ZLIB
+        QMAKE_CXXFLAGS += -D__LINUX_ALSA__ -DWITH_ALSA -DWITH_LAME -DWITH_FLAC -DWWITH_ZLIB -DWITH_FFTW3
 	LIBS    += \
 		-lFLAC \
 		-lasound \

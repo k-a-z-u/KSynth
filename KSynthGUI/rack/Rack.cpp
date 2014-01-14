@@ -22,12 +22,6 @@ Rack::~Rack() {
 
 	setRefreshing(false);
 
-	//	// remove all elements
-	//	mutex.lock();
-	//	for (RackElement* el : elems) {delete el;}
-	//	elems.clear();
-	//	mutex.unlock();
-
 	// stop refresh thread
 	running = false;
 	thread->join();

@@ -12,7 +12,7 @@ class QCheckBox;
 class Context;
 class Rack;
 class RackElementModel;
-
+class SequencerTracksWidget;
 
 class SequencerTrackItem : public QWidget {
 	Q_OBJECT
@@ -20,10 +20,13 @@ class SequencerTrackItem : public QWidget {
 public:
 
 	/** ctor */
-	explicit SequencerTrackItem(Rack& ctx, SequencerTrack& st, QWidget *parent = 0);
+	explicit SequencerTrackItem(SequencerTracksWidget& tracks, Rack& ctx, SequencerTrack& st, QWidget *parent = 0);
 
 	/** dtor */
 	~SequencerTrackItem();
+
+	/** get the underlying track */
+	SequencerTrack& getTrack();
 
 protected:
 
@@ -31,10 +34,17 @@ protected:
 
 	void resizeEvent(QResizeEvent* event) override;
 
+	void focusInEvent(QFocusEvent *) override;
+	void focusOutEvent(QFocusEvent *) override;
+
+	friend class SequencerTracksWidget;
+	void setSelected(bool sel);
+
 private:
 
-
+	SequencerTracksWidget& tracks;
 	Rack& rack;
+	bool focused;
 
 	/** the track's name */
 	QLineEdit* txtName;

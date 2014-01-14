@@ -11,7 +11,7 @@
 #include <cmath>
 #include "../misc/DataTypes.h"
 
-#define noteToFreq(note)	Frequency( pow(2, (( (int)noteNr - 69) / 12.0)) * 440.0 )
+#define noteToFreq(note)	Frequency( std::pow(2, (int(note) - 69) / 12.0f) * 440.0f )
 #define freqToNote(freq)	12*log2(freq/440)
 
 
