@@ -13,13 +13,16 @@
 #include <KSynth/Sequencer.h>
 #include <KSynth/midi/MidiParser.h>
 
-#include <klib/fs/File.h>
+#include <KLib/fs/File.h>
+
+#include <KSynth/Generator.h>
 
 Controller::Controller(Context& ctx) : ctx(ctx) {
 	;
 }
 
 void Controller::exit() {
+	ctx.getGenerator()->stop();
 	ctx.getRack()->setRefreshing(false);
 	QApplication::quit();
 }
@@ -50,6 +53,7 @@ void Controller::removeRackElement(RackElement* re) {
 }
 
 void Controller::resetRack() {
+	ctx.getGenerator()->stop();
 	ctx.getRack()->reset();
 }
 

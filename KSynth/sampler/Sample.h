@@ -8,7 +8,7 @@
 #ifndef SAMPLE_H_
 #define SAMPLE_H_
 
-#include <klib/fs/File.h>
+#include <KLib/fs/File.h>
 #include "../misc/DataTypes.h"
 #include <vector>
 #include <string>
@@ -41,7 +41,7 @@ public:
 
 	/** get the sample's length in milliseconds */
 	unsigned int getLengthMilliSeconds() {
-		return pcm.size() * 1000 / this->sRate;
+		return (unsigned int) pcm.size() * 1000 / this->sRate;
 	}
 
 	/** get the amount of used memory (in bytes) */
@@ -87,6 +87,7 @@ public:
 
 	/** get PCM data for the given channel */
 	std::vector<Amplitude>* getAudioData(unsigned int channel) {
+		// TODO: implement: more than one channel
 		return &pcm;
 	}
 

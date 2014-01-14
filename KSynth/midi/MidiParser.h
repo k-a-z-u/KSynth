@@ -8,8 +8,8 @@
 #ifndef MIDIPARSER_H_
 #define MIDIPARSER_H_
 
-#include <klib/fs/File.h>
-#include <klib/streams/Endian.h>
+#include <KLib/fs/File.h>
+#include <KLib/streams/Endian.h>
 
 class MidiParserException : public std::exception {
 public:

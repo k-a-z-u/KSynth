@@ -12,20 +12,24 @@ Knob::Knob(QWidget* parent) :
 	setMinimumSize(KNOB_S, KNOB_S+4);
 	setMaximumSize(KNOB_S, KNOB_S+4);
 
-	value.value = 0;
+	mouseWheelSteps = 5;
 	value.min = 0;
 	value.max = 127;
+	value.value = -1;
+	setValue(0);
 
 	title = "misc";
 
 }
 
-Knob::Knob(const std::string& title, int min, int max, int val, QWidget* parent) :
+Knob::Knob(const std::string& title, int min, int max, int val, unsigned int mouseWheelSteps, QWidget* parent) :
 	Knob(parent) {
 	setTitle(title);
+	this->mouseWheelSteps = mouseWheelSteps;
 	value.min = min;
 	value.max = max;
-	value.value = val;
+	value.value = -1;
+	setValue(val);
 }
 
 ParamValue Knob::getValueAsParam() const {
@@ -49,12 +53,17 @@ void Knob::setValue(int v) {
 	int newValue = value.value;
 
 	// value changed? -> repaint
-	if (oldValue != newValue) {emit repaint();}
+	if (oldValue != newValue) {
+		setToolTip(QString::number(newValue));
+		emit repaint();
+	}
 
 }
 
+void Knob::setMouseWheelSteps(unsigned int steps) {
+	this->mouseWheelSteps = steps;
+}
 
-#include <iostream>
 void Knob::mouseReleaseEvent (QMouseEvent* e) {
 	Q_UNUSED(e);
 	mouseState.isDown = false;
@@ -92,14 +101,25 @@ void Knob::mouseMoveEvent(QMouseEvent* e) {
 
 	}
 
-
 }
+
+#include <QWheelEvent>
+void Knob::wheelEvent(QWheelEvent *event) {
+	int steps = event->delta() / 120;
+	int oldVal = getValue();
+	int newVal = oldVal + (steps * mouseWheelSteps);
+	if (oldVal != newVal) {
+		setValue( newVal );
+		emit onChange();
+	}
+}
+
 
 void Knob::setTitle(const std::string &str) {
 	this->title = str;
 }
 
-void Knob::addSnap(int val, int size) {
+void Knob::addSnap(int val, unsigned int size) {
 	snapper.add(val, size);
 }
 

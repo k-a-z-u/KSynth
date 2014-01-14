@@ -63,6 +63,13 @@ void ImgSpin::onPrev() {
 	emit onChange();
 }
 
+#include <QWheelEvent>
+void ImgSpin::wheelEvent(QWheelEvent *event) {
+	int steps = event->delta() / 120;
+	if (steps < 0) {emit onPrev();}
+	if (steps > 0) {emit onNext();}
+}
+
 unsigned int ImgSpin::getSelectedIndex() {
 	return curIdx;
 }

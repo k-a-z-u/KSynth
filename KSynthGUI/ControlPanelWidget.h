@@ -29,6 +29,8 @@ protected:
 
 	void onStatusChange(SequencerStatus status) override;
 
+	void onSettingsChange() override;
+
 private slots:
 
 	void onStop();

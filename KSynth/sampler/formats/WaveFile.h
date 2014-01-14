@@ -8,7 +8,7 @@
 #ifndef WAVEFILE_H_
 #define WAVEFILE_H_
 
-#include <klib/fs/File.h>
+#include <KLib/fs/File.h>
 
 class WaveFileException : public std::exception {
 public:

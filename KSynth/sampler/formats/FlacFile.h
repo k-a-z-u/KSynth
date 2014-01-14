@@ -13,7 +13,7 @@
 #include <FLAC/all.h>
 //#include "../../lib/flac/all.h"
 //#include "../../lib/flac/decode.h"
-#include <klib/streams/FileInputStream.h>
+#include <KLib/streams/FileInputStream.h>
 
 typedef enum { RAW, WAV, AIF, FLAC, OGGFLAC } FileFormat;
 
@@ -27,6 +27,7 @@ public:
 
 	/** get the PCM data for the given channel */
 	const std::vector<Amplitude>& get(unsigned int channel) const {
+		// TODO: implement: more than one channel
 		return state.pcm;
 	}
 

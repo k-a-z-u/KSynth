@@ -26,7 +26,7 @@ union SSEfloat {
 		float v2;
 		float v3;
 		float v4;
-	};
+	} f;
 
 	/** empty ctor */
 	SSEfloat() {;}

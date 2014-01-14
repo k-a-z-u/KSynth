@@ -80,7 +80,7 @@ void Rack::add(RackElement* re) {
 	// attach
 	re->onRackAttach();
 
-	emit entryAdded(elems.size() - 1);
+	emit entryAdded( (unsigned int) elems.size() - 1);
 	emit onRackChanged();
 
 }
@@ -124,7 +124,7 @@ void Rack::remove(RackElement* re) {
 
 void Rack::reset() {
 
-	unsigned int cnt = elems.size();
+	unsigned int cnt = (unsigned int) elems.size();
 	while (cnt--) {
 		RackElement* re = elems[0];
 		remove(elems[0]);

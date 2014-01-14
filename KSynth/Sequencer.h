@@ -118,7 +118,7 @@ class Sequencer : public RtMidiEventListener {
 public:
 
 	/** ctor */
-	Sequencer() : curBeat(0), frm(0), done(false) {
+	Sequencer() : curBeat(0), frm(0), status(SequencerStatus::STOPPED), done(false) {
 		setBeatsPerMinute(1^20);
 
 		// MIDI TEST
@@ -162,34 +162,55 @@ public:
 		for (SequencerTrackListener* l : listeners.track) {l->onTracksChanged();}
 	}
 
-	/** attach a SequencerBeatListenerr */
-	void bind(SequencerBeatListener* seq) {
+	/** add a new beat listener */
+	void addBeatListener(SequencerBeatListener* l) {
+		if (std::find(listeners.beat.begin(), listeners.beat.end(), l) != listeners.beat.end()) {
+			throw SequencerException("the given beat-listener is already bound!");
+		}
 		listeners.beatLock.lock();
-		listeners.beat.push_back(seq);
+		listeners.beat.push_back(l);
 		listeners.beatLock.unlock();
 	}
 
-	/** detach a SequencerBeatListener */
-	void unbind(SequencerBeatListener* seq) {
+	/** remove an existing beat listener */
+	void removeBeatListener(SequencerBeatListener* l) {
 		listeners.beatLock.lock();
-		for (unsigned int i = 0; i < listeners.beat.size(); ++i) {
-			if (listeners.beat[i] == seq) {
-				listeners.beat.erase(listeners.beat.begin()+i);
-				break;
-			}
-		}
+		auto match = [l] (const SequencerBeatListener* other) {return other == l;};
+		listeners.beat.erase( std::remove_if(listeners.beat.begin(), listeners.beat.end(), match), listeners.beat.end());
 		listeners.beatLock.unlock();
 	}
 
 	/** add a new status listener */
-	void addListener(SequencerStatusListener* l) {
+	void addStatusListener(SequencerStatusListener* l) {
+		if (std::find(listeners.status.begin(), listeners.status.end(), l) != listeners.status.end()) {
+			throw SequencerException("the given status-listener is already bound!");
+		}
 		this->listeners.status.push_back(l);
+		l->onStatusChange(status);
+		l->onSettingsChange();
 	}
 
+	/** remove an existing status listener */
+	void removeStatusListener(SequencerStatusListener* l) {
+		auto match = [l] (const SequencerStatusListener* other) {return other == l;};
+		listeners.status.erase( std::remove_if(listeners.status.begin(), listeners.status.end(), match), listeners.status.end());
+	}
+
+
 	/** add a new track listener */
-	void addListener(SequencerTrackListener* l) {
+	void addTrackListener(SequencerTrackListener* l) {
+		if (std::find(listeners.track.begin(), listeners.track.end(), l) != listeners.track.end()) {
+			throw SequencerException("the given track-listener is already bound!");
+		}
 		this->listeners.track.push_back(l);
 	}
+
+	/** remove an existing track listeners */
+	void removeTrackListener(SequencerTrackListener *l) {
+		auto match = [l] (const SequencerTrackListener* other) {return other == l;};
+		listeners.track.erase( std::remove_if(listeners.track.begin(), listeners.track.end(), match), listeners.track.end());
+	}
+
 
 	/** add a new track to the sequencer */
 	void addTrack(SequencerTrack st) {
@@ -243,6 +264,7 @@ public:
 	/** set the beats per minute to use */
 	void setBeatsPerMinute(unsigned int bpm) {
 		this->beatsPerMinute = bpm;
+		for (SequencerStatusListener* l : listeners.status) {l->onSettingsChange();}
 	}
 
 	/** get current beats per minute configuration */
@@ -370,17 +392,27 @@ protected:
 
 	}
 
+	/** get the sequencer's current status (playing, stopped, ..) */
+	SequencerStatus getStatus() const {
+		return status;
+	}
 
+	/** start the sequencer */
 	void start() {
-		for (SequencerStatusListener* l : listeners.status) {l->onStatusChange(SequencerStatus::PLAYING);}
+		status = SequencerStatus::PLAYING;
+		for (SequencerStatusListener* l : listeners.status) {l->onStatusChange(status);}
 	}
 
+	/** stop the sequencer */
 	void stop() {
-		for (SequencerStatusListener* l : listeners.status) {l->onStatusChange(SequencerStatus::STOPPED);}
+		status = SequencerStatus::STOPPED;
+		for (SequencerStatusListener* l : listeners.status) {l->onStatusChange(status);}
 	}
 
+	/** TODO start the sequencer in recording mode */
 	void record() {
-		for (SequencerStatusListener* l : listeners.status) {l->onStatusChange(SequencerStatus::RECORDING);}
+		status = SequencerStatus::RECORDING;
+		for (SequencerStatusListener* l : listeners.status) {l->onStatusChange(status);}
 	}
 
 private:
@@ -393,6 +425,9 @@ private:
 
 	Time time;
 	SampleFrame frm;
+
+	/** the current status */
+	SequencerStatus status;
 
 	/** all tracks within the sequencer */
 	std::vector<SequencerTrack> tracks;

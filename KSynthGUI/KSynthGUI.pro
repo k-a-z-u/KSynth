@@ -21,6 +21,7 @@ QMAKE_CXXFLAGS += -std=c++11
 
 
 #QMAKE_CXXFLAGS += -Weffc++
+QMAKE_CXXFLAGS += -Wall -Wextra -pedantic
 QMAKE_CXXFLAGS += -Wconversion -Werror=return-type -Werror=maybe-uninitialized -Wreorder -Werror=reorder
 QMAKE_CXXFLAGS += -Werror=uninitialized
 QMAKE_CXXFLAGS += -isystem "/usr/include/qt4"
@@ -127,7 +128,7 @@ SOURCES += \
 
 # add KLib
 INCLUDEPATH += \
-        ../lib/KLib
+        ../lib
 
 # add KSynth
 INCLUDEPATH += \

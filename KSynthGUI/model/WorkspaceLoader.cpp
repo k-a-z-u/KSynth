@@ -57,7 +57,14 @@ void WorkspaceLoader::load(const K::File& file) {
 
 
 void WorkspaceLoader::loadSettings(XMLElement* nSettings) {
-	;
+
+	XMLElement* nSeq = nSettings->FirstChildElement("Sequencer");
+	if (!nSeq) {throw WorkspaceLoaderException("the Settings node is missing a child for Sequencer");}
+
+	// sequencer settings
+	unsigned int bpm = nSeq->IntAttribute("bpm");
+	ctx.getSequencer()->setBeatsPerMinute(bpm);
+
 }
 
 
@@ -189,7 +196,7 @@ void WorkspaceLoader::loadTracks(XMLElement* nTracks) {
 			int d2 = nEvent->IntAttribute("d2");
 
 			// add event
-			MidiEvent evt(time, status, d1, d2);
+			MidiEvent evt(time, (uint8_t) status, (uint8_t) d1, (uint8_t) d2);
 			st.addEvent(evt);
 
 		}

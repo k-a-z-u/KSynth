@@ -14,7 +14,7 @@ public:
 	explicit Knob(QWidget* parent = 0);
 
 	/** ctor with title */
-	explicit Knob(const std::string& title, int min = 0, int max = 100, int value = 0, QWidget* parent = 0);
+	explicit Knob(const std::string& title, int min = 0, int max = 100, int value = 0, unsigned int mouseWheelSteps = 5, QWidget* parent = 0);
 
 
 	/** set the knob's value */
@@ -34,7 +34,11 @@ public:
 	void setTitle(const std::string& str);
 
 	/** add a new snapping point */
-	void addSnap(int val, int size);
+	void addSnap(int val, unsigned int size);
+
+	/** the number of steps the controll will move when the mouse-wheel is used */
+	void setMouseWheelSteps(unsigned int steps);
+
 
 protected:
 
@@ -44,6 +48,7 @@ protected:
 	void mousePressEvent (QMouseEvent* e) override;
 	void mouseMoveEvent(QMouseEvent* e) override;
 
+	void wheelEvent(QWheelEvent *event) override;
 
 signals:
 
@@ -55,6 +60,7 @@ public slots:
 
 private:
 
+	/** track mouse-state */
 	struct {
 		int x;
 		int y;
@@ -68,6 +74,9 @@ private:
 		int min;
 		int max;
 	} value;
+
+	/** the number of steps the controll will move when the mouse-wheel is used */
+	unsigned int mouseWheelSteps;
 
 	/** the knob's title */
 	std::string title;

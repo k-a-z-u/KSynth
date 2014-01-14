@@ -23,41 +23,41 @@ Synth1::Synth1(Context& ctx, QWidget *parent) :
 	//elements.label = new TextLabel(this);
 	elements.con = new PinConnector(ctx, this, this);
 
-	elements.kFilterFreq = new Knob("freq", 0, 100, 0, this);
-	elements.kFilterRes = new Knob("res", 0, 100, 0, this);
-	elements.kMix = new Knob("mix", 0, 100, 50, this);
+	elements.kFilterFreq = new Knob("freq", 0, 100, 0, 5, this);
+	elements.kFilterRes = new Knob("res", 0, 100, 0, 5, this);
+	elements.kMix = new Knob("mix", 0, 100, 50, 5, this);
 	elements.kMix->addSnap(50, 3);
-	elements.sldVolume = new Slider1("vol", 0, 127, 0, this);
+	elements.sldVolume = new Slider1("vol", 0, 127, 0, 5, this);
 	elements.sldVolume->addSnap(100, 5);
 
-	elements.gosc[0].kFineOffset = new Knob("fine", -10, 10, 0, this);
-	elements.gosc[0].kOctave = new Knob("octave", 0, 8, 0, this);
-	elements.gosc[0].kSemi = new Knob("semi", 0, 11, 0, this);
+	elements.gosc[0].kFineOffset = new Knob("fine", -10, 10, 0, 1, this);
+	elements.gosc[0].kOctave = new Knob("octave", 0, 8, 0, 1, this);
+	elements.gosc[0].kSemi = new Knob("semi", 0, 11, 0, 1, this);
 	elements.gosc[0].chkKey = new CheckBox("kbd", true, this);
-	elements.gosc[0].kPhase = new Knob("phase", 0, 100, 0, this);
+	elements.gosc[0].kPhase = new Knob("phase", 0, 100, 0, 5, this);
 
-	elements.gosc[1].kFineOffset = new Knob("fine", -10, 10, 0, this);
-	elements.gosc[1].kOctave = new Knob("octave", 0, 8, 0, this);
-	elements.gosc[1].kSemi = new Knob("semi", 0, 11, 0, this);
+	elements.gosc[1].kFineOffset = new Knob("fine", -10, 10, 0, 1, this);
+	elements.gosc[1].kOctave = new Knob("octave", 0, 8, 0, 1, this);
+	elements.gosc[1].kSemi = new Knob("semi", 0, 11, 0, 1, this);
 	elements.gosc[1].chkKey = new CheckBox("kbd", true, this);
-	elements.gosc[1].kPhase = new Knob("phase", 0, 100, 0, this);
+	elements.gosc[1].kPhase = new Knob("phase", 0, 100, 0, 5, this);
 
-	elements.oscHuell.sA = new Slider1("A", 0, 100, 5, this);
-	elements.oscHuell.sD = new Slider1("D", 0, 100, 5, this);
-	elements.oscHuell.sS = new Slider1("S", 0, 100, 75, this);
-	elements.oscHuell.sR = new Slider1("R", 0, 1000, 50, this);
+	elements.oscHuell.sA = new Slider1("A", 0, 100, 5, 5, this);
+	elements.oscHuell.sD = new Slider1("D", 0, 100, 5, 5, this);
+	elements.oscHuell.sS = new Slider1("S", 0, 100, 75, 5, this);
+	elements.oscHuell.sR = new Slider1("R", 0, 1000, 50, 50, this);
 
-	elements.filterHuell.sA = new Slider1("A", 0, 100, 5, this);
-	elements.filterHuell.sD = new Slider1("D", 0, 100, 5, this);
-	elements.filterHuell.sS = new Slider1("S", 0, 100, 75, this);
-	elements.filterHuell.sR = new Slider1("R", 0, 1000, 50, this);
+	elements.filterHuell.sA = new Slider1("A", 0, 100, 5, 5, this);
+	elements.filterHuell.sD = new Slider1("D", 0, 100, 5, 5, this);
+	elements.filterHuell.sS = new Slider1("S", 0, 100, 75, 5, this);
+	elements.filterHuell.sR = new Slider1("R", 0, 1000, 50, 50, this);
 
 	elements.gosc[0].spnMode = new ImgSpin(this);
 	elements.gosc[1].spnMode = new ImgSpin(this);
 
 	elements.glfo[0].spnMode = new ImgSpin(this);
-	elements.glfo[0].kFreq = new Knob("freq", 0, 100, 0, this);
-	elements.glfo[0].kAmount = new Knob("amount", 0, 100, 0, this);
+	elements.glfo[0].kFreq = new Knob("freq", 0, 100, 0, 5, this);
+	elements.glfo[0].kAmount = new Knob("amount", 0, 100, 0, 5, this);
 
 
 	elements.cRingMod = new CheckBox("rmod", true, this);
@@ -115,13 +115,6 @@ Synth1::Synth1(Context& ctx, QWidget *parent) :
 
 }
 
-//RackElement* Synth1::createFromPrototype(Context& ctx) const {
-//	return new Synth1( (QWidget*) parent() );
-//}
-
-//std::string Synth1::getDeviceType() const {
-//	return "Synth1";
-//}
 
 void Synth1::onParamChange() {
 

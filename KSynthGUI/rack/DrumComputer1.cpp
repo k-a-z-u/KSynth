@@ -44,7 +44,7 @@ DrumComputer1::DrumComputer1(Context& ctx, QWidget* parent) :
 		elements.banks[i].chkEdit = new CheckBox(this);
 		elements.grpBanks->add(elements.banks[i].chkEdit);
 		elements.banks[i].chkEdit->connectTo(i, this, SLOT(selectBank()));
-		elements.banks[i].kVol = new Knob("vol", 0, 127, 0, this);
+		elements.banks[i].kVol = new Knob("vol", 0, 127, 0, 5, this);
 		elements.banks[i].kVol->connectTo((int)SimpleDrumComputerParameter::BANK1_VOLUME+i, this, SLOT(onParamChange()));
 		elements.banks[i].kVol->addSnap(100, 5);
 		elements.banks[i].ledBeat = new LED1(this);
@@ -56,7 +56,7 @@ DrumComputer1::DrumComputer1(Context& ctx, QWidget* parent) :
 	}
 
 	elements.vu = new VUMeter(this);
-	elements.sldVol = new Slider1("main", 0, 127, 0, this);
+	elements.sldVol = new Slider1("main", 0, 127, 0, 5, this);
 	elements.sldVol->addSnap(100, 5);
 	elements.sldVol->connectTo((int)SimpleDrumComputerParameter::MAIN_VOLUME, this, SLOT(onParamChange()));
 	elements.memory.lbl = new QLabel(this);
@@ -110,12 +110,12 @@ void DrumComputer1::openSample() {
 
 void DrumComputer1::onRackAttach() {
 	// attach to sequencer
-	ctx.getSequencer()->bind(this);
+	ctx.getSequencer()->addBeatListener(this);
 }
 
 void DrumComputer1::onRackDetach() {
 	// detach from sequencer
-	ctx.getSequencer()->unbind(this);
+	ctx.getSequencer()->removeBeatListener(this);
 }
 
 

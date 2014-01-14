@@ -6,9 +6,12 @@
 Slider1::Slider1(QWidget *parent) :
 	MidiUI(parent) {
 
-	value.value = 0;
 	value.min = 0;
 	value.max = 127;
+	value.value = -1;
+	setValue(0);
+
+	mouseWheelSteps = 5;
 
 	size.uBorder = 6;
 	size.lBorder = 16;
@@ -23,21 +26,27 @@ Slider1::Slider1(QWidget *parent) :
 }
 
 
-Slider1::Slider1(const std::string& title, int min, int max, int value, QWidget *parent) :
+Slider1::Slider1(const std::string& title, int min, int max, int val, unsigned int mouseWheelSteps, QWidget *parent) :
 	Slider1(parent) {
 	setTitle(title);
-	this->value.min = min;
-	this->value.max = max;
-	this->value.value = value;
+	value.min = min;
+	value.max = max;
+	value.value = -1;
+	setValue(val);
+	this->mouseWheelSteps = mouseWheelSteps;
 }
 
-void Slider1::addSnap(int val, int size) {
+void Slider1::addSnap(int val, unsigned int size) {
 	snapper.add(val, size);
 }
 
 void Slider1::setTitle(const std::string &title){
 	this->title = title;
 	emit repaint();
+}
+
+void Slider1::setMouseWheelSteps(unsigned int steps) {
+	this->mouseWheelSteps = steps;
 }
 
 void Slider1::setValue(int v) {
@@ -49,7 +58,10 @@ void Slider1::setValue(int v) {
 	int newValue = value.value;
 
 	// repaint only if value changed
-	if (oldValue != newValue) {emit repaint();}
+	if (oldValue != newValue) {
+		setToolTip(QString::number(newValue));
+		emit repaint();
+	}
 
 }
 
@@ -79,6 +91,17 @@ void Slider1::mousePressEvent (QMouseEvent* e) {
 }
 void Slider1::mouseMoveEvent(QMouseEvent* e) {
 	recalc(e->x(), e->y());
+}
+
+#include <QWheelEvent>
+void Slider1::wheelEvent(QWheelEvent *event) {
+	int steps = event->delta() / 120;
+	int oldVal = getValue();
+	int newVal = oldVal + (steps * mouseWheelSteps);
+	if (oldVal != newVal) {
+		setValue( newVal );
+		emit onChange();
+	}
 }
 
 #include <QToolTip>

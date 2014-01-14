@@ -29,7 +29,9 @@ MasterTarget1::MasterTarget1(Context& ctx, QWidget *parent) :
 }
 
 MasterTarget1::~MasterTarget1() {
-	delete fft;		fft = nullptr;
+#ifdef WITH_FFTW3
+	delete fft;	fft = nullptr;
+#endif
 }
 
 void MasterTarget1::process(Amplitude** inputs, Amplitude** outputs) {

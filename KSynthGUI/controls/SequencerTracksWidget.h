@@ -14,6 +14,9 @@ public:
 	/** ctor */
 	explicit SequencerTracksWidget(Context& ctx, QWidget *parent = 0);
 
+	/** dtor */
+	~SequencerTracksWidget();
+
 protected:
 
 	void onTracksChanged();

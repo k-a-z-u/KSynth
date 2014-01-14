@@ -101,7 +101,10 @@ private:
 
 	} elements;
 
+
+#ifdef WITH_FFTW3
 	FFTAnalyzer* fft;
+#endif
 
 	FFTLCD lcd;
 

@@ -1,7 +1,7 @@
 #ifndef WORKSPACESAVER_H
 #define WORKSPACESAVER_H
 
-#include <klib/fs/File.h>
+#include <KLib/fs/File.h>
 #include "../lib/tinyxml2/tinyxml2.h"
 
 class RackElement;

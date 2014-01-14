@@ -72,7 +72,7 @@ struct MidiEvent {
 
 	/** get the midi event type behind the status byte */
 	MidiEventType getType() const {
-		uint8_t idx = (status >> 4) & 0b0111;
+		uint8_t idx = (status >> 4) & 7; // 0b0111;
 		return (MidiEventType)idx;
 	}
 
@@ -98,12 +98,12 @@ struct MidiEvent {
 
 	/** set the midi event type within the status byte */
 	void setType(MidiEventType t) {
-		status = uint8_t( (status & 0b1111) | 0b10000000 | (t << 4) );
+		status = uint8_t( (status & 15) | 128 | (t << 4) );		//15 = 0b1111	128 = 0b10000000
 	}
 
 	/** get the channel behind the status byte */
 	uint8_t getChannel() const {
-		return status & 0b1111;
+		return status & 15;		// 15 = 0b1111
 	}
 
 

@@ -2,10 +2,10 @@
 #include "ui_ControlPanelWidget.h"
 #include "model/Context.h"
 
-#include <iomanip>
 #include <KSynth/Sequencer.h>
 #include <KSynth/Generator.h>
 
+#include <QMessageBox>
 
 
 ControlPanelWidget::ControlPanelWidget(Context& ctx, QWidget *parent) :
@@ -18,10 +18,18 @@ ControlPanelWidget::ControlPanelWidget(Context& ctx, QWidget *parent) :
 	connect(ui->btnRec, SIGNAL(clicked()), this, SLOT(onRec()));
 	connect(ui->spnBPM, SIGNAL(valueChanged(int)), this, SLOT(onBPM()));
 
-	ctx.getSequencer()->bind(this);
+	ctx.getSequencer()->addStatusListener(this);
+	ctx.getSequencer()->addBeatListener(this);
 
 }
 
+ControlPanelWidget::~ControlPanelWidget() {
+	ctx.getSequencer()->removeStatusListener(this);
+	ctx.getSequencer()->removeBeatListener(this);
+	delete ui;
+}
+
+#include <iomanip>
 static std::string timeToStr(Time t) {
 	unsigned int msec = int( (t - Time(int(t))) * 1000 );
 	unsigned int sec = (int)t % 60;
@@ -33,9 +41,6 @@ static std::string timeToStr(Time t) {
 	return ss.str();
 }
 
-ControlPanelWidget::~ControlPanelWidget() {
-	delete ui;
-}
 
 
 
@@ -46,11 +51,13 @@ void ControlPanelWidget::onBeat(Beat beat, Time time) {
 }
 
 void ControlPanelWidget::onStatusChange(SequencerStatus status) {
-
 	ui->btnPlay->setEnabled(status == SequencerStatus::STOPPED);
 	ui->btnStop->setEnabled(status != SequencerStatus::STOPPED);
 	ui->btnRec->setEnabled(status == SequencerStatus::STOPPED);
+}
 
+void ControlPanelWidget::onSettingsChange() {
+	ui->spnBPM->setValue(ctx.getSequencer()->getBeatsPerMinute());
 }
 
 void ControlPanelWidget::_onBeat(unsigned int beat, float time) {
@@ -72,10 +79,15 @@ void ControlPanelWidget::onStop() {
 }
 
 void ControlPanelWidget::onPlay() {
-	ctx.getGenerator()->start();
+	try {
+		ctx.getGenerator()->start();
+	} catch (GeneratorException& e) {
+		QMessageBox::critical(this, "error", e.what());
+	}
 }
 
 void ControlPanelWidget::onRec() {
+	// TODO
 	ctx.getGenerator()->start();
 }
 

@@ -20,16 +20,16 @@ Mixer1::Mixer1(Context& ctx, QWidget *parent) :
 	elements.connector = new PinConnector(ctx, this, this);
 
 	elements.vuMeter = new VUMeter(this);
-	elements.sldMainVol = new Slider1("main", 0, 127, 100, this);
+	elements.sldMainVol = new Slider1("main", 0, 127, 100, 5, this);
 	elements.sldMainVol->addSnap(100, 5);
 
 	for (unsigned int i = 0; i < 9; ++i) {
-		elements.gslots[i].sldVolume = new Slider1("vol " + std::to_string(i+1), 0, 127, 100, this);
+		elements.gslots[i].sldVolume = new Slider1("vol " + std::to_string(i+1), 0, 127, 100, 5, this);
 		elements.gslots[i].sldVolume->addSnap(100, 5);
 		elements.gslots[i].vuMeter = new VUMeter(this);
-		elements.gslots[i].kHighPass = new Knob(" HP", 0, 100, 0, this);
-		elements.gslots[i].kLowPass = new Knob(" LP", 0, 100, 0, this);
-		elements.gslots[i].kPan = new Knob("pan", 0, 100, 50, this);
+		elements.gslots[i].kHighPass = new Knob(" HP", 0, 100, 0, 5, this);
+		elements.gslots[i].kLowPass = new Knob(" LP", 0, 100, 0, 5, this);
+		elements.gslots[i].kPan = new Knob("pan", 0, 100, 50, 5, this);
 		elements.gslots[i].kPan->addSnap(50, 4);
 		elements.gslots[i].ledLowPass = new LED1(this);
 		elements.gslots[i].ledHighPass = new LED1(this);

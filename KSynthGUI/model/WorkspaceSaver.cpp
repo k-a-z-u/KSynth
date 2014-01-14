@@ -24,12 +24,13 @@ void WorkspaceSaver::save(const K::File& file) {
 	tinyxml2::XMLElement* nTracks = doc.NewElement("Tracks");
 
 	doc.InsertEndChild(nRoot);
+	nRoot->InsertEndChild(nSettings);
 	nRoot->InsertEndChild(nRack);
 	nRoot->InsertEndChild(nBindings);
 	nRoot->InsertEndChild(nTracks);
 
 	// export settings
-
+	addSettings(&doc, nSettings);
 
 	// export each rack element
 	for (const RackElement* elem : ctx.getRack()->getElements()) {
@@ -87,6 +88,8 @@ void WorkspaceSaver::addSettings(tinyxml2::XMLDocument *doc, tinyxml2::XMLElemen
 
 	tinyxml2::XMLElement* nSeq = doc->NewElement("Sequencer");
 	nSeq->SetAttribute("bpm", ctx.getSequencer()->getBeatsPerMinute());
+
+	nSettings->InsertEndChild(nSeq);
 
 }
 

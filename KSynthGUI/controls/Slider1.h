@@ -4,14 +4,17 @@
 #include "MidiUI.h"
 #include "Snapper.h"
 
-class Slider1 : public MidiUI{
+class Slider1 : public MidiUI {
 	Q_OBJECT
 
 public:
 
+	/** ctor */
 	explicit Slider1(QWidget *parent = 0);
 
-	explicit Slider1(const std::string& title, int min = 0, int max = 100, int value = 0, QWidget *parent = 0);
+	/** convenience ctor with set-up values */
+	explicit Slider1(const std::string& title, int min = 0, int max = 100, int value = 0, unsigned int mouseWheelSteps = 5, QWidget *parent = 0);
+
 
 	/** get the slider's current value */
 	int getValue();
@@ -28,7 +31,11 @@ public:
 	void setValueFromParam(ParamValue val) override;
 
 	/** add one snapping value */
-	void addSnap(int val, int size);
+	void addSnap(int val, unsigned int size);
+
+	/** the number of steps the controll will move when the mouse-wheel is used */
+	void setMouseWheelSteps(unsigned int steps);
+
 
 protected:
 
@@ -38,9 +45,15 @@ protected:
 	void mousePressEvent (QMouseEvent* e) override;
 	void mouseMoveEvent(QMouseEvent* e) override;
 
+	void wheelEvent(QWheelEvent *event) override;
+
+
 private:
 
 	void recalc(int x, int y);
+
+	/** the number of steps the controll will move when the mouse-wheel is used */
+	unsigned int mouseWheelSteps;
 
 	/** the slider's value */
 	struct {
@@ -48,13 +61,6 @@ private:
 		int min;
 		int max;
 	} value;
-
-//	/** the mouse down position */
-//	struct {
-//		int x;
-//		int y;
-//		bool isDown;
-//	} mouseDown;
 
 	/** sizeing information */
 	struct {

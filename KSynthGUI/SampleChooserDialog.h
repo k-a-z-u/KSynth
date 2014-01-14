@@ -6,7 +6,7 @@
 class QFileSystemModel;
 class QModelIndex;
 
-#include <klib/fs/File.h>
+#include <KLib/fs/File.h>
 #include <KSynth/sampler/SampleFactory.h>
 
 namespace Ui {

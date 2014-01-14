@@ -8,7 +8,7 @@
 #ifndef MIDIFILE_H_
 #define MIDIFILE_H_
 
-#include <klib/fs/File.h>
+#include <KLib/fs/File.h>
 #include "MidiTrack.h"
 
 /**

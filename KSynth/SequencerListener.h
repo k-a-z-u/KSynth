@@ -43,6 +43,9 @@ public:
 	/** the sequencer changed its status */
 	virtual void onStatusChange(SequencerStatus status) = 0;
 
+	/** the sequencer settings (like bpm) have changed */
+	virtual void onSettingsChange() = 0;
+
 };
 
 /** listen for track changes */

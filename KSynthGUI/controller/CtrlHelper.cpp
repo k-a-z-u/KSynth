@@ -1,6 +1,6 @@
 #include "CtrlHelper.h"
 
-#include <klib/fs/File.h>
+#include <KLib/fs/File.h>
 
 
 #include <QFileDialog>

@@ -7,13 +7,22 @@
 SequencerTracksWidget::SequencerTracksWidget(Context& ctx, QWidget *parent) :
 	QWidget(parent), ctx(ctx), lay(nullptr) {
 
-	ctx.getSequencer()->addListener(this);
+	ctx.getSequencer()->addTrackListener(this);
+
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	//setMinimumSize(200, 400);
 	setMaximumHeight(999999);
 	setMaximumWidth(192);
 
 }
+
+SequencerTracksWidget::~SequencerTracksWidget() {
+
+	// unreigster
+	ctx.getSequencer()->removeTrackListener(this);
+
+}
+
 
 void SequencerTracksWidget::onTracksChanged() {
 	emit refreshMe();

@@ -1,7 +1,7 @@
 #include "Helper.h"
 
 #include <QPainter>
-#include <klib/fs/File.h>
+#include <KLib/fs/File.h>
 
 QImage Helper::getSkinImage(const std::string& file, const std::string& type) {
 
