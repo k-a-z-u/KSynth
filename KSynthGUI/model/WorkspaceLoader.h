@@ -10,7 +10,7 @@ class RackElement;
 using namespace tinyxml2;
 
 /** exception handling */
-class WorkspaceLoaderException : std::exception {
+class WorkspaceLoaderException : public std::exception {
 public:
 	WorkspaceLoaderException(const std::string& msg) : msg(msg) {;}
 	const char* what() const throw() {return msg.c_str();}
@@ -38,6 +38,10 @@ public:
 
 
 private:
+
+	/** parse loaded XML string */
+	void parseXML(const std::string& xml);
+
 
 	/** load all workspace settings */
 	void loadSettings(XMLElement* nSettings);

@@ -139,12 +139,13 @@ INCLUDEPATH += \
 
 # OS specific stuff
 linux-g++ | linux-g++-64 | linux-g++-32 {
-	QMAKE_CXXFLAGS += -D__LINUX_ALSA__ -DWITH_ALSA -DWITH_LAME -DWITH_FLAC
+        QMAKE_CXXFLAGS += -D__LINUX_ALSA__ -DWITH_ALSA -DWITH_LAME -DWITH_FLAC -DWITH_ZLIB
 	LIBS    += \
 		-lFLAC \
 		-lasound \
 		-lfftw3 \
-		-lmp3lame
+                -lmp3lame \
+                -lz
 }
 
 win32 {

@@ -12,6 +12,18 @@ class SequencerTrack;
 
 #include <unordered_map>
 
+/** exception handling */
+class WorkspaceSaverException : public std::exception {
+public:
+	WorkspaceSaverException(const std::string& msg) : msg(msg) {;}
+	const char* what() const throw() {return msg.c_str();}
+private:
+	std::string msg;
+};
+
+/**
+ * save workspace as XML
+ */
 class WorkspaceSaver {
 
 public:
@@ -24,6 +36,10 @@ public:
 
 
 private:
+
+	/** create XML output */
+	std::string getXML();
+
 
 	/** export the given RackElement */
 	void add(const RackElement* elem, tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* node);

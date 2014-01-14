@@ -20,13 +20,13 @@
 #include "../misc/SoundSource.h"
 #include "../notes/NoteDevice.h"
 #include <cassert>
-#include "../misc/SSE.h"
 //#include "../lib/misc/RingBuffer.h"
 #include "SimpleSynthADSR.h"
 #include "AGC.h"
 #include <memory>
 
 //#define USE_SSE
+//#include "../misc/SSE.h"
 
 struct SimpleSynthNoteDescription : public NoteDescription {
 

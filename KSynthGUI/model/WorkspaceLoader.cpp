@@ -8,6 +8,9 @@
 #include <KSynth/misc/SoundBase.h>
 #include <KSynth/Generator.h>
 
+#include <KLib/streams/FileInputStream.h>
+#include <KLib/streams/LineInputStream.h>
+#include <KLib/streams/GzipInputStream.h>
 
 WorkspaceLoader::WorkspaceLoader(Context& ctx) : ctx(ctx) {
 	;
@@ -19,12 +22,44 @@ WorkspaceLoader::~WorkspaceLoader() {
 
 void WorkspaceLoader::load(const K::File& file) {
 
+	// clear rack
 	ctx.getRack()->reset();
 	ctx.getSequencer()->clearTracks();
 
+	// check extension
+	std::string ext = file.getExtensionMulti();
+
+	// load
+	if (ext == "xml") {
+		K::FileInputStream fis(file);
+		K::LineInputStream lis(fis);
+		std::string xml = lis.readAll();
+		parseXML(xml);
+
+	} else if (ext == "xml.gz") {
+#ifdef WITH_ZLIB
+		K::FileInputStream fis(file);
+		K::GzipInputStream gis(fis, K::GzipOutputStreamHeader::MODE_GZIP);
+		K::LineInputStream lis(gis);
+		std::string xml = lis.readAll();
+		parseXML(xml);
+#else
+		throw WorkspaceSaverException("can't load compressed XML as zlib support is not compiled!");
+#endif
+
+	} else {
+		throw WorkspaceLoaderException("unsupported file-format: " + ext);
+
+	}
+
+}
+
+void WorkspaceLoader::parseXML(const std::string& xml) {
+
 	// open
 	XMLDocument doc;
-	bool ok = doc.LoadFile(file.getAbsolutePath().c_str());
+	doc.Parse(xml.c_str());
+	//bool ok = doc.LoadFile(file.getAbsolutePath().c_str());
 	//if (!ok) {throw "error while loading file!";}
 
 	// root
@@ -37,6 +72,7 @@ void WorkspaceLoader::load(const K::File& file) {
 	XMLElement* nTracks = nRoot->FirstChildElement("Tracks");
 
 	// sanity check
+	if (!nSettings)	{throw WorkspaceLoaderException("the file is missing an element for 'Settings'");}
 	if (!nRack)		{throw WorkspaceLoaderException("the file is missing an element for 'Rack'");}
 	if (!nBindings)	{throw WorkspaceLoaderException("the file is missing an element for 'Bindings'");}
 	if (!nTracks)	{throw WorkspaceLoaderException("the file is missing an element for 'Tracks'");}

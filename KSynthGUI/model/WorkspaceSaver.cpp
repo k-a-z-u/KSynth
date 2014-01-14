@@ -3,17 +3,51 @@
 #include <KSynth/misc/SoundBase.h>
 #include <KSynth/Generator.h>
 
+#include <KLib/streams/FileOutputStream.h>
+#include <KLib/streams/GzipOutputStream.h>
+
 #include "../lib/tinyxml2/tinyxml2.h"
 
 #include "../rack/RackElement.h"
 #include "../model/Context.h"
 #include "../rack/Rack.h"
 
-WorkspaceSaver::WorkspaceSaver(Context& ctx) : ctx(ctx) {
 
+WorkspaceSaver::WorkspaceSaver(Context& ctx) : ctx(ctx) {
+	;
 }
 
 void WorkspaceSaver::save(const K::File& file) {
+
+	// create xml
+	std::string xml = getXML();
+
+	// open file
+	std::string ext = file.getExtensionMulti();
+	K::FileOutputStream fos(file);
+
+	// export
+	if (ext == "xml") {
+		fos.write( (uint8_t*) xml.c_str(), (unsigned int) xml.length());
+		fos.close();
+
+	} else if (ext == "xml.gz") {
+#ifdef WITH_ZLIB
+		K::GzipOutputStream gos(fos, K::GzipOutputStreamHeader::MODE_GZIP, 9);
+		gos.write( (uint8_t*) xml.c_str(), (unsigned int) xml.length());
+		gos.close();
+#else
+		throw WorkspaceSaverException("can't save compressed XML as zlib support is not compiled!");
+#endif
+
+	} else {
+		throw WorkspaceSaverException("unsupported file-format: " + ext);
+
+	}
+
+}
+
+std::string WorkspaceSaver::getXML() {
 
 	tinyxml2::XMLDocument doc;
 	tinyxml2::XMLElement* nRoot = doc.NewElement("KSynth");
@@ -53,7 +87,10 @@ void WorkspaceSaver::save(const K::File& file) {
 		add(st, &doc, nTracks);
 	}
 
-	doc.SaveFile(file.getAbsolutePath().c_str());
+	// create XML
+	tinyxml2::XMLPrinter pr;
+	doc.Print( &pr );
+	return std::string(pr.CStr());
 
 }
 
@@ -127,10 +164,10 @@ void WorkspaceSaver::add(const SequencerTrack& st, tinyxml2::XMLDocument* doc, t
 
 	// now export all midi events
 	for (const MidiEvent& evt : st.getEvents()) {
-		tinyxml2::XMLElement* nEvt = doc->NewElement("Event");
+		tinyxml2::XMLElement* nEvt = doc->NewElement("E");
 		nEvts->InsertEndChild(nEvt);
-		nEvt->SetAttribute("time", evt.getDelay());
-		nEvt->SetAttribute("status", evt.getStatus());
+		nEvt->SetAttribute("t", evt.getDelay());
+		nEvt->SetAttribute("s", evt.getStatus());
 		nEvt->SetAttribute("d1", evt.getData1());
 		nEvt->SetAttribute("d2", evt.getData2());
 	}

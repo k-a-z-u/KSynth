@@ -1,3 +1,5 @@
+
+
 #include <QApplication>
 #include <QMessageBox>
 
@@ -51,6 +53,7 @@ public:
 	virtual bool notify(QObject* receiver, QEvent* event) {
 		try {
 			return QApplication::notify(receiver, event);
+
 		} catch(std::exception& e) {
 			showError(e.what());
 
@@ -204,9 +207,9 @@ int main(int argc, char *argv[]) {
 	}
 	*/
 
-	MidiFile midi;
-	MidiParser(K::File("/data/midi/fzero_intro.mid"), midi);
-	ctx.seq->import(midi,0);
+//	MidiFile midi;
+//	MidiParser(K::File("/data/midi/fzero_intro.mid"), midi);
+//	ctx.seq->import(midi,0);
 
 	//ctx.getController()->addNewRackElement("SimpleSynth");
 	//SoundBase* sb = ctx.getRack()->getElements().at(i)->
@@ -221,10 +224,10 @@ int main(int argc, char *argv[]) {
 	ctx.gen->getBinder().addBinding(0, mixer, 0, dst);
 	ctx.gen->getBinder().addBinding(1, mixer, 1, dst);
 
-	ctx.seq->bind(2, synth);
-	ctx.seq->bind(3, synth);
-	ctx.seq->bind(4, synth);
-	ctx.seq->bind(5, synth);
+//	ctx.seq->bind(2, synth);
+//	ctx.seq->bind(3, synth);
+//	ctx.seq->bind(4, synth);
+//	ctx.seq->bind(5, synth);
 
 
 	ctx.seq->setBeatsPerMinute(90);

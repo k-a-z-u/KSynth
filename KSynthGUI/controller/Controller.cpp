@@ -1,7 +1,9 @@
 #include "Controller.h"
 
-#include "../model/Context.h"
 #include <QApplication>
+#include <QMessageBox>
+
+#include "../model/Context.h"
 #include "../rack/RackElement.h"
 #include "../rack/RackFactory.h"
 #include "../rack/Rack.h"
@@ -10,12 +12,11 @@
 #include "../model/WorkspaceLoader.h"
 #include "CtrlHelper.h"
 
+#include <KSynth/Generator.h>
 #include <KSynth/Sequencer.h>
 #include <KSynth/midi/MidiParser.h>
 
 #include <KLib/fs/File.h>
-
-#include <KSynth/Generator.h>
 
 Controller::Controller(Context& ctx) : ctx(ctx) {
 	;
@@ -28,7 +29,15 @@ void Controller::exit() {
 }
 
 void Controller::save() {
-	std::string file = CtrlHelper::saveFile("Save Workspace", "KSynth Workspace", "xml");
+
+	// supported formats
+	std::vector<FileDialogFilter> formats;
+	formats.push_back( FileDialogFilter("KSynth Workspace", "xml") );
+#ifdef WITH_ZLIB
+	formats.push_back( FileDialogFilter("KSynth Workspace (compressed)", "xml.gz") );
+#endif
+
+	std::string file = CtrlHelper::saveFile("Save Workspace", formats);
 	if (!file.empty()) {
 		WorkspaceSaver ws(ctx);
 		ws.save( K::File(file) );
@@ -36,10 +45,21 @@ void Controller::save() {
 }
 
 void Controller::load() {
-	std::string file = CtrlHelper::openFile("Load Workspace", "KSynth Workspace", "*.xml");
-	if (!file.empty()) {
-		WorkspaceLoader wl(ctx);
+
+	// supported formats
+	std::vector<FileDialogFilter> formats;
+	formats.push_back( FileDialogFilter("KSynth Workspace", "xml") );
+#ifdef WITH_ZLIB
+	formats.push_back( FileDialogFilter("KSynth Workspace (compressed)", "xml.gz") );
+#endif
+
+	std::string file = CtrlHelper::openFile("Load Workspace", formats);
+	if (file.empty()) {return;}
+	WorkspaceLoader wl(ctx);
+	try {
 		wl.load( K::File(file) );
+	} catch (std::exception& e) {
+		QMessageBox::critical(0, "error while loading file", e.what());
 	}
 }
 
@@ -63,7 +83,7 @@ void Controller::clearTracks() {
 
 void Controller::importMidi() {
 	try {
-		std::string file = CtrlHelper::openFile("Import MIDI-File", "MIDI-File", "*.mid");
+		std::string file = CtrlHelper::openFile("Import MIDI-File", FileDialogFilter("MIDI-File", "mid") );
 		if (!file.empty()) {
 			MidiFile midi;
 			MidiParser( K::File(file), midi );
