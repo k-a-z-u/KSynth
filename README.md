@@ -22,6 +22,34 @@ the external dependencies differ by your needs and your operating system. Curren
 
 
 # Compiling
+
+## For those who are very impatient:
+```
+mkdir target
+cd target/
+
+# checkout main project
+git clone https://github.com/k-a-z-u/KSynth.git
+
+# now you need to checkout the dependendy "KLib".
+# you have several alternatives:
+
+ # alternative 1) checkout KLib as project
+ cd KSynth/lib/
+ git clone https://github.com/k-a-z-u/KLib.git
+ cd ../../
+
+ # alternative 2) checkout KLib as submodule
+ cd KSynth/
+ git submodule add https://github.com/k-a-z-u/KLib.git lib/KLib
+ cd ..
+
+# open project in qtcreator
+qtcreator KSynthGUI/KSynthGUI.pro
+```
+
+## Details
+
 * If you simply need some way to e.g. load MIDI files and play them using synthesizers while adding some pattern-based drum loops within your code, simply go for the **KSynth** subfolder and add it to your project's include path.
 
 * If you want to compose songs using the GUI, you ned booth, **KSynth** and **KSynthGUI** while the latter is just a Qt-Project and can be built using the **qtcreator**
