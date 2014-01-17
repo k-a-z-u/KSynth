@@ -2,6 +2,10 @@
 KSynth aims to be (someday) a small software (using Qt) for composing songs using e.g. samplers and synthesizers using MIDI-Integreation for external devices like keyboards, a Launchpad, etc.
 Additionally the code should work on several operating-systems such as Linux, Windows or maybe Mac OS.
 
+# Screenshots
+
+![Screenshot](http://imageshack.com/a/img849/2286/aos6.png)
+
 # Structure
 The code is distributed among two parts:
 * **KSynth** is the backend (mainly header files) which can be used on its own. The backend contains samplers, synthesizers, generators, midi specific classes, audio outputs/exporters etc.
@@ -74,9 +78,12 @@ Then just open the **KSynthGUI/KSynthGUI.pro**, hit F5 and have fun ;)
 * As i just started working on this project a few weeks ago, there are still many things todo like fixing some horrible race-conditions in some areas ;)
 * Most important parts are Widgets for displaying and modifing MIDI events (or, lets say: notes), adding the missing parts for loading/saving workspace, exporting your beautiful tracks to MP3 or Wave.
 * Additional sound-outputs like Pulse, Core-Audio.
-* Better Synthesizer(s)
+* More and Better Synthesizers
+ * Probabliy many glitches or other audio issues due to my limited knowledge
 * MIDI Integeration for event-binding between MIDI-Devices and the elements within your workspace
 * And many many more :)
+
+As I just started working on audio related stuff, my knowledge is very limited. Thus I appreciate any help / hints / etc. to improve audio rendering in both speed and quality :)
 
 # License
 Apache License Version 2.0
