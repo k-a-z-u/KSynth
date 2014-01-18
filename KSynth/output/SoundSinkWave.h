@@ -8,7 +8,7 @@
 #ifndef SOUNDSINKWAVE_H_
 #define SOUNDSINKWAVE_H_
 
-#include <klib/fs/File.h>
+#include <KLib/fs/File.h>
 #include "../misc/AudioFormat.h"
 #include <cstdint>
 #include <fstream>

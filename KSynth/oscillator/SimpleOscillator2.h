@@ -12,12 +12,26 @@
 #include <cmath>
 
 
+/**
+ * the size (number of entries) to use for look-up-tables
+ * this should be a power of 2 as those values allow bit-masking (&)
+ * instead of modulo (%) for region clamping.
+ */
+#define SO_LUT_SIZE		65536
+
+
+/**
+ * all supported modes for the simple oscillator
+ */
 enum class SimpleOscillator2Mode {
 	NONE,
 	SINE,
 	SQUARE,
+	SQUARE_NO_ALIAS,
 	SAW,
+	SAW_NO_ALIAS,
 	INV_SAW,
+	INV_SAW_NO_ALIAS,
 	TRIANGLE,
 	NOISE,
 
@@ -25,24 +39,55 @@ enum class SimpleOscillator2Mode {
 };
 
 
+/**
+ * provides some generator functions converting phase [0:1] to an amplitude.
+ */
 struct SimpleOscillator2Func {
 
-	static Amplitude null(const float phase)	{(void) phase; return (Amplitude) 0;}
+	/** slightly smoothes the given funtion to reduce aliasing effects */
+	static Amplitude smooth( Amplitude (*generator) (float phase), float phase ) {
+		Amplitude ret = 0;
+		for (int i = -5; i <= 5; ++i) {ret += generator(phase + 1.0f + float(i) * 0.01f);}
+		return ret / 10;
+	}
 
-	static Amplitude sine(const float phase)	{return Amplitude( std::sin(K_PI2 * phase) );}
 
-	static Amplitude square(const float phase)	{return (Amplitude)  1.0 - (Amplitude) 2.0 * (std::fmod(phase,1.0) > (Amplitude)0.5);}
+	/** dummy function. returns 0 */
+	static Amplitude null(const float phase)		{(void) phase; return (Amplitude) 0;}
 
-	static Amplitude saw(const float phase)		{return (Amplitude) -1.0 + (Amplitude) 2.0 * std::fmod(phase+0.5f, 1.0f);}
 
+	/** a sine function */
+	static Amplitude sine(const float phase)		{return Amplitude( std::sin(K_PI2 * phase) );}
+
+
+	/** creates a raw square [-1/+1] only -> aliasing effects! */
+	static Amplitude square(const float phase)		{return (Amplitude)  1.0 - (Amplitude) 2.0 * (std::fmod(phase,1.0) > (Amplitude)0.5);}
+
+	/** slightly smothed square -> less aliasing */
+	static Amplitude squareNoAlias(const float phase) {return smooth(&square, phase);}
+
+
+	/** create a saw-tooth wave */
+	static Amplitude saw(const float phase)			{return (Amplitude) -1.0 + (Amplitude) 2.0 * std::fmod(phase+0.5f, 1.0f);}
+
+	/** create a smothed sawtooth -> less aliasing */
+	static Amplitude sawNoAlias(const float phase)	{return smooth(&saw, phase);}
+
+
+	/** inverted sawtooth */
 	static Amplitude invSaw(const float phase)	{return -saw(phase);}
+
+	/** create a smothed inverted sawtooth -> less aliasing */
+	static Amplitude invSawNoAlias(const float phase)	{return smooth(&invSaw, phase);}
 
 
 };
 
 
-#define SO_LUT_SIZE		65536
 
+/**
+ * provides several access-methods to sound generating functions above
+ */
 class SimpleOscillator2 {
 
 public:
@@ -61,14 +106,20 @@ public:
 	void setMode(SimpleOscillator2Mode mode) {
 		this->mode = mode;
 		switch (mode) {
-		case SimpleOscillator2Mode::NONE:		generator = &SimpleOscillator2Func::null;		break;
-		case SimpleOscillator2Mode::SINE:		generator = &SimpleOscillator2Func::sine;		break;
-		case SimpleOscillator2Mode::SQUARE:		generator = &SimpleOscillator2Func::square;		break;
-		case SimpleOscillator2Mode::SAW:		generator = &SimpleOscillator2Func::saw;		break;
-		case SimpleOscillator2Mode::INV_SAW:	generator = &SimpleOscillator2Func::invSaw;		break;
-		case SimpleOscillator2Mode::TRIANGLE:	generator = &SimpleOscillator2Func::null;		break;
-		case SimpleOscillator2Mode::NOISE:		generator = &SimpleOscillator2Func::null;		break;
-		case SimpleOscillator2Mode::_END:		break;
+			case SimpleOscillator2Mode::NONE:				generator = &SimpleOscillator2Func::null;			break;
+			case SimpleOscillator2Mode::SINE:				generator = &SimpleOscillator2Func::sine;			break;
+			case SimpleOscillator2Mode::SQUARE:				generator = &SimpleOscillator2Func::square;			break;
+			case SimpleOscillator2Mode::SQUARE_NO_ALIAS:	generator = &SimpleOscillator2Func::squareNoAlias;	break;
+
+			case SimpleOscillator2Mode::SAW:				generator = &SimpleOscillator2Func::saw;			break;
+			case SimpleOscillator2Mode::SAW_NO_ALIAS:		generator = &SimpleOscillator2Func::sawNoAlias;		break;
+
+			case SimpleOscillator2Mode::INV_SAW:			generator = &SimpleOscillator2Func::invSaw;			break;
+			case SimpleOscillator2Mode::INV_SAW_NO_ALIAS:	generator = &SimpleOscillator2Func::invSawNoAlias;	break;
+
+			case SimpleOscillator2Mode::TRIANGLE:			generator = &SimpleOscillator2Func::null;			break;
+			case SimpleOscillator2Mode::NOISE:				generator = &SimpleOscillator2Func::null;			break;
+			case SimpleOscillator2Mode::_END:				break;
 		}
 		buildLUT();
 	}

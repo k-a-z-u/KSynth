@@ -9,13 +9,16 @@
 #define SEQUENCER_H_
 
 #include <vector>
+#include <exception>
+
 #include "midi/MidiFile.h"
 #include "midi/rt/RtMidiWrapper.h"
 #include "pattern/PatternSequencer.h"
 #include "SequencerListener.h"
-#include <exception>
+#include "SequencerTrack.h"
 
-/** exception handling */
+
+/** exception handling within sequencer */
 class SequencerException : std::exception {
 public:
 	SequencerException(const std::string& msg) : msg(msg) {;}
@@ -23,90 +26,6 @@ public:
 private:
 	std::string msg;
 };
-
-/**
- * one track (full of events) within the sequencer
- */
-class SequencerTrack {
-
-
-public:
-
-	/** ctor */
-	SequencerTrack() : curEventIdx(0), dev(nullptr), name("") {;}
-
-
-	/** get the track's name */
-	const std::string& getName() const {
-		return name;
-	}
-
-	/** set this track's name */
-	void setName(const std::string& name) {
-		this->name = name;
-	}
-
-	/** get a textual description for this track */
-	const std::string& getDescription() const {
-		return desc;
-	}
-
-	/** set a textual description for this track */
-	void setDescription(const std::string& desc) {
-		this->desc = desc;
-	}
-
-	/** get the attached note device, or nullptr if none */
-	NoteDevice* getDevice() const {
-		return dev;
-	}
-
-	/** attach a new note-device */
-	void setDevice(NoteDevice* dev) {
-
-		// stop all notes within the old device
-		if (this->dev) {this->dev->stopNotes();}
-
-		// attach new device
-		this->dev = dev;
-
-	}
-
-	/** get the vector containing all midi-events */
-	const std::vector<MidiEvent>& getEvents() const {
-		return evt;
-	}
-
-	/** add a new midievent to this track */
-	void addEvent(MidiEvent e) {
-		evt.push_back(e);
-	}
-
-
-private:
-
-	friend class Sequencer;
-
-	/** track the current event's index */
-	unsigned int curEventIdx;
-
-	/** all events within this track */
-	std::vector<MidiEvent> evt;
-
-	/** the device attached to this track (if any) */
-	NoteDevice* dev;
-
-	/** the track's name */
-	std::string name;
-
-	/** some textual description for this track */
-	std::string desc;
-
-
-
-};
-
-
 
 
 /**
@@ -247,7 +166,7 @@ public:
 				lastDelay += evt.delay;
 
 				// append event to track
-				track.evt.push_back(evtN);
+				track.events.add(evtN);
 
 			}
 
@@ -368,15 +287,15 @@ protected:
 			for (SequencerTrack& st : tracks) {
 
 				// skip empty tracks
-				if (st.evt.size() <= st.curEventIdx) {continue;}
+				if (st.events.size() <= st.curEventIdx) {continue;}
 
 				done = false;
 
 				// execute all pending events
-				while(th128 >= st.evt[st.curEventIdx].delay) {					
-					fire(st.dev, st.evt[st.curEventIdx]);
+				while(th128 >= st.events[st.curEventIdx]->delay) {
+					fire(st.dev, *st.events[st.curEventIdx]);
 					++st.curEventIdx;
-					if (st.evt.size() <= st.curEventIdx) {break;}
+					if (st.events.size() <= st.curEventIdx) {break;}
 				}
 
 			}

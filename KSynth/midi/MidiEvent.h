@@ -86,14 +86,29 @@ struct MidiEvent {
 		return d1;
 	}
 
+	/** set the first data value */
+	void setData1(int d1) {
+		this->d1 = uint8_t(d1);
+	}
+
 	/** get the second data-value */
 	int getData2() const {
 		return d2;
 	}
 
+	/** set the second data-value */
+	void setData2(int d2) {
+		this->d2 = uint8_t(d2);
+	}
+
 	/** get the time-delay for this event */
 	int getDelay() const {
 		return delay;
+	}
+
+	/** set the time-delay for this event */
+	void setDelay(int delay) {
+		this->delay = delay;
 	}
 
 	/** set the midi event type within the status byte */
@@ -134,6 +149,11 @@ struct MidiEvent {
 		vec.push_back(d1);
 		vec.push_back(d2);
 		return vec;
+	}
+
+	/** equals? */
+	bool operator == (const MidiEvent& other) const {
+		return memcmp(this, &other, sizeof(MidiEvent)) == 0;
 	}
 
 };

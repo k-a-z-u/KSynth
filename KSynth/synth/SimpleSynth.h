@@ -110,8 +110,8 @@ public:
 	SimpleSynth() :
 		SoundSource(2), useRingMod(false), mix(0.5), agc(getSampleRate(), getSamplesPerProcess()) {
 
-		osc[0].osc.setMode(SimpleOscillator2Mode::SQUARE);
-		osc[1].osc.setMode(SimpleOscillator2Mode::SQUARE);
+		osc[0].osc.setMode(SimpleOscillator2Mode::SQUARE_NO_ALIAS);
+		osc[1].osc.setMode(SimpleOscillator2Mode::SQUARE_NO_ALIAS);
 
 		adsr.setADSR(5, 5, 0.75, 5, getSampleRate());
 		filter.adsr.setADSR(32, 0, 0.25, 0, getSampleRate());
@@ -305,8 +305,8 @@ public:
 		double phaseInc2 = f2 * osc[1].osc.getLUTmultiplier(getSampleRate());
 
 		// calculate phase-offset (int value for LUT)
-		int phaseOffset1 = int( osc[0].phaseOffset * float(osc[0].osc.getLUTsize()) );
-		int phaseOffset2 = int( osc[1].phaseOffset * float(osc[1].osc.getLUTsize()) );
+		double phaseOffset1 = osc[0].phaseOffset * double(osc[0].osc.getLUTsize());
+		double phaseOffset2 = osc[1].phaseOffset * double(osc[1].osc.getLUTsize());
 
 
 		// adjust the note's filter
@@ -559,7 +559,7 @@ private:
 		SimpleSynthADSR adsr;
 
 		/** ctor */
-		Filter() : freq(0.5), res(0) {;}
+		Filter() : freq(1), res(0) {;}
 
 	} filter;
 
