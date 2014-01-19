@@ -82,6 +82,8 @@ void Editor::onTrackSelectionChanged(SequencerTrack* st) {
 	// FIXME: dirty hack.. workaround?
 	QCoreApplication::processEvents();
 
+	slider->raise();
+
 	resizeMe();
 
 }
@@ -96,22 +98,24 @@ std::vector<EditorNote> Editor::getNotes(SequencerTrack& st) {
 	// store all notes here
 	std::vector<EditorNote> notes;
 
-	for (const MidiEvent& evt : st.getEvents()) {
+	for (MidiEvent* evt : *st.getEvents()) {
 
-		if (evt.getType() == MidiEventType::NOTE_ON) {
+		if (evt->getType() == MidiEventType::NOTE_ON) {
 
 			// note on? -> new entry
-			notes.push_back(EditorNote( (MidiEvent*) &evt ));
+			notes.push_back(EditorNote( evt ));
 
-		} else if (evt.getType() == MidiEventType::NOTE_OFF) {
+		} else if (evt->getType() == MidiEventType::NOTE_OFF) {
 
 			// lambda to find matching element
-			auto lambda = [&evt] (const EditorNote& o) {return o.on->d1 == evt.d1 && o.off == nullptr;};
+			auto lambda = [&evt] (const EditorNote& o) {
+				return o.on->getData1() == evt->getData1() && o.off == nullptr;
+			};
 
 			// found?
 			auto it = std::find_if( notes.begin(), notes.end(), lambda );
 			if (it != notes.end()) {
-				it->off = (MidiEvent*) &evt;
+				it->off = evt;
 			}
 
 		}
@@ -129,25 +133,14 @@ unsigned int Editor::getSongLength() {
 
 void Editor::resizeMe() {
 
-//	setSize(scaler.getObjectWidth())
-//	setFixedSize(scaler.getObjectWidth(getSongLength()), 400);
-
-	//	std::cout << "resize to: " << width() << ":" << height() << std::endl;
-//	updateGeometry();
-//	parentWidget()->adjustSize();
-//	emit repaint();
-	emit sheet->onZoom();
-	emit sheetHeader->updateGeometry();
+	if (sheet)			{emit sheet->onZoom();}
+	if (sheetHeader)	{emit sheetHeader->updateGeometry();}
 
 	layout->invalidate();
 	layoutHeader->invalidate();
 
 	QSize size = layout->sizeHint();
-	std::cout << "sheet: " << sheet->sizeHint().width() << std::endl;
 	this->resize(size.width(), size.height());
-
-	// check editors new requested size
-	std::cout << "editor: " << size.width() << std::endl;
 
 }
 

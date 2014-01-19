@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "EditorNote.h"
 class EditorSheet;
+#include "Grabable.h"
 
 /**
  * represents an editable note element within the sheet.
@@ -13,7 +14,7 @@ class EditorSheet;
  * and note-off.
  *
  */
-class EditorSheetNote : public QWidget {
+class EditorSheetNote : public Grabable {
 	Q_OBJECT
 
 public:
@@ -29,15 +30,28 @@ protected:
 	void paintEvent(QPaintEvent*) override;
 
 	void focusInEvent(QFocusEvent*) override;
-
 	void focusOutEvent(QFocusEvent*) override;
+
+	//void mouseMoveEvent(QMouseEvent*) override;
+	//void mousePressEvent(QMouseEvent*) override;
+	//void mouseReleaseEvent(QMouseEvent*) override;
+
+	void onGrab(int x, int y, int w, int h) override;
+	void onGrabDone(int x, int y, int w, int h) override;
 
 	friend class EditorSheet;
 	/** mark the note as selected */
 	void setSelected(bool selected);
 
+	/** get the displayed MidiEvents (note on/note off) */
+	const EditorNote& getNote() const;
 
 private:
+
+//	/** returns: 1: mouse within left-grab, 2: mouse within right grab, 0: not within grab */
+//	int mouseInGrab(const QPoint& pos);
+
+
 
 	/** the EditorSheet this note belongs to */
 	EditorSheet& sheet;

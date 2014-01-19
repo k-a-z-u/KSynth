@@ -65,7 +65,7 @@ void SequencerTracksWidget::refreshMe() {
 	RemoveLayout(this);
 
 	lay = new QVBoxLayout();
-	lay->setMargin(1);
+	lay->setMargin(0);
 	lay->setSpacing(0);
 
 	//qDeleteAll(findChildren<QWidget*>());

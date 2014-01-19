@@ -7,8 +7,10 @@
 #include "controls/SequencerTracksWidget.h"
 #include "controls/editor/Editor.h"
 #include "controls/scroll/AdvScrollArea.h"
-
 #include "controls/editor/EditorTimeline.h"
+
+#include "misc/Helper.h"
+
 SequencerWidget::SequencerWidget(Context& ctx, QWidget *parent) :
 	QDockWidget(parent), ui(new Ui::SequencerWidget), ctx(ctx) {
 
@@ -28,6 +30,11 @@ SequencerWidget::SequencerWidget(Context& ctx, QWidget *parent) :
 	scroll->setWidget(editor);
 	scroll->setHeaderH(new EditorTimeline(*editor), 28);
 	scroll->setHeaderV(editor->getHeaderWidget(), 32);
+
+	ui->btnZoomDown->setIcon( QIcon(Helper::getSkinIcon("skin/icons/zoom_down.png", "PNG")) );
+	ui->btnZoomUp->setIcon( QIcon(Helper::getSkinIcon("skin/icons/zoom_up.png", "PNG")) );
+	ui->btnDraw->setIcon( QIcon(Helper::getSkinIcon("skin/icons/pen.png", "PNG")) );
+	ui->btnCursor->setIcon( QIcon(Helper::getSkinIcon("skin/icons/cursor.png", "PNG")) );
 
 //	scr->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 //	scr->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);

@@ -27,6 +27,10 @@ EditorSheet::EditorSheet(Editor& editor, SequencerTrack& track, QWidget *parent)
 
 }
 
+SequencerTrack& EditorSheet::getTrack() {
+	return track;
+}
+
 Editor& EditorSheet::getEditor() {
 	return editor;
 }
@@ -51,6 +55,7 @@ void EditorSheet::resizeEvent(QResizeEvent*) {
 }
 
 void EditorSheet::updateNotes() {
+	std::cout << "UPDATE NOTES" << std::endl;
 	for (QObject* obj : children()) {
 		EditorSheetNote* esn = dynamic_cast<EditorSheetNote*>(obj);
 		if (esn) {esn->updateSize();}
@@ -60,7 +65,11 @@ void EditorSheet::updateNotes() {
 #include <QKeyEvent>
 void EditorSheet::keyPressEvent(QKeyEvent* e) {
 	if (e->key() == Qt::Key_Delete) {
-		for (EditorSheetNote* esn : selection) {delete esn;}
+		for (EditorSheetNote* esn : selection) {
+			delete esn;
+			track.getEvents()->remove(*esn->getNote().on);
+			track.getEvents()->remove(*esn->getNote().off);
+		}
 	}
 	selection.clear();
 }

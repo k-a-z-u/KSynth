@@ -6,10 +6,6 @@ class Editor;
 class SequencerTrack;
 class EditorSheetNote;
 
-#define ES_MAX_NOTE	108
-#define ES_MIN_NOTE	12
-
-
 
 class EditorSheet : public QWidget {
 	Q_OBJECT
@@ -21,6 +17,9 @@ public:
 
 	/** get the sheet's parent */
 	Editor& getEditor();
+
+	/** get the underlying track (from the backend) containing all midi events */
+	SequencerTrack& getTrack();
 
 
 	QSize sizeHint() const override;

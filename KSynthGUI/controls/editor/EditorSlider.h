@@ -1,12 +1,12 @@
 #ifndef EDITORSLIDER_H
 #define EDITORSLIDER_H
 
-#include <QWidget>
+#include "Grabable.h"
 
 class Context;
 class Editor;
 
-class EditorSlider : public QWidget  {
+class EditorSlider : public Grabable {
 	Q_OBJECT
 
 public:
@@ -21,6 +21,8 @@ protected:
 
 	void paintEvent(QPaintEvent *) override;
 
+	void onGrab(int x, int y, int w, int h) override;
+	void onGrabDone(int x, int y, int w, int h) override;
 
 private:
 

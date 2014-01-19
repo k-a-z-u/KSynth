@@ -2,31 +2,36 @@
 
 #include "EditorSheet.h"
 #include "Editor.h"
-
+#include "KSynth/SequencerTrack.h"
 
 EditorSheetNote::EditorSheetNote(EditorSheet& sheet, EditorNote note, QWidget *parent) :
-	QWidget(parent), sheet(sheet), note(note), selected(false), cached(false) {
+	Grabable(parent), sheet(sheet), note(note), selected(false), cached(false) {
 
 	setFocusPolicy(Qt::ClickFocus);
 
 	updateSize();
+	setMouseTracking(true);
 
 }
 
-#include <iostream>
 void EditorSheetNote::updateSize() {
 
 	unsigned int x = sheet.getEditor().getScaler().getObjectWidth(note.on->getDelay());
-	unsigned int y = (ES_MAX_NOTE - note.on->d1) * sheet.getEditor().getScaler().getNH();
+	unsigned int y = sheet.getEditor().getScaler().getNoteY(note.on->getData1());
 	unsigned int h = sheet.getEditor().getScaler().getNH();
 	unsigned int w = sheet.getEditor().getScaler().getNoteWidth(note);
 
 	setGeometry(x+1, y+1, w-1, h-1);
-//	setFixedSize(w-1, h-1);
-//	move(x+1,y+1);
+	//	setFixedSize(w-1, h-1);
+	//	move(x+1,y+1);
+
+	setGrabY(false);
+	setSnapX(4);
+	setSnapY(8);
 
 }
 
+#include <iostream>
 #include <QFocusEvent>
 void EditorSheetNote::focusInEvent(QFocusEvent* e) {
 	sheet.setSelected(this);
@@ -36,10 +41,40 @@ void EditorSheetNote::focusOutEvent(QFocusEvent*) {
 
 }
 
+void EditorSheetNote::onGrab(int x, int y, int w, int h) {
+	setGeometry(x,y,w,h);
+}
+
+void EditorSheetNote::onGrabDone(int x, int y, int w, int h) {
+
+	// update underlying note event
+	(void) h;
+
+	// change note's number
+	note.on->setData1( sheet.getEditor().getScaler().getNoteNr(y) );
+	note.off->setData1( sheet.getEditor().getScaler().getNoteNr(y) );
+
+	// change note's on/off timing
+	note.on->setDelay( sheet.getEditor().getScaler().getNoteDelay(x) );
+	note.off->setDelay( sheet.getEditor().getScaler().getNoteDelay(x+w) );
+
+	// as the timings (might) have changed,
+	//the track's MidiEvents need to be sorted again
+	sheet.getTrack().getEvents()->eventsChanged();
+
+	// refresh GUI
+	updateSize();
+
+}
+
 void EditorSheetNote::setSelected(bool selected) {
 	bool changed = this->selected != selected;
 	this->selected = selected;
 	if (changed) {cached = false; emit repaint();}
+}
+
+const EditorNote& EditorSheetNote::getNote() const {
+	return note;
 }
 
 #include <QPainter>
