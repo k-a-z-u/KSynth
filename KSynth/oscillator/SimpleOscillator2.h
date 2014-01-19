@@ -84,6 +84,72 @@ struct SimpleOscillator2Func {
 };
 
 
+/**
+ * provides look-up-tables for the oscillator.
+ * those tables will be instantiated only once per function
+ */
+class SimpleOscillator2LUT {
+
+public:
+
+	/** singleton access */
+	static SimpleOscillator2LUT& get() {
+		static SimpleOscillator2LUT lut;
+		return lut;
+	}
+
+	/** build the LUT for the given mode (if not already built) */
+	Amplitude* buildLUT(SimpleOscillator2Mode mode,  Amplitude (*generator) (float phase)) {
+
+		int idx = int(mode);
+
+		// LUT already built? -> return
+		if (lut[idx]) {return lut[idx];}
+
+		// allocate memory
+		lut[idx] = new Amplitude[SO_LUT_SIZE]; //(Amplitude*) malloc(sizeof(Amplitude) * SO_LUT_SIZE);
+
+		// fill
+		for (unsigned int i = 0; i < SO_LUT_SIZE; ++i) {
+			lut[idx][i] = generator( float(i) / float(SO_LUT_SIZE) );
+		}
+
+		// return
+		return lut[idx];
+
+	}
+
+private:
+
+	/** ctor */
+	SimpleOscillator2LUT() : lut() {
+		for (int i = 0; i < int(SimpleOscillator2Mode::_END); ++i) {
+			lut[i] = nullptr;
+		}
+	}
+
+	/** hidden copy ctor */
+	SimpleOscillator2LUT(const SimpleOscillator2LUT& o);
+
+	/** hidden assignment operator */
+	SimpleOscillator2LUT& operator = (const SimpleOscillator2LUT& o);
+
+
+	/** dtor */
+	~SimpleOscillator2LUT() {
+		for (int i = 0; i < int(SimpleOscillator2Mode::_END); ++i) {
+			delete lut[i];
+			lut[i] = nullptr;
+		}
+	}
+
+
+	/** LUTs are stored here */
+	Amplitude* lut[ int(SimpleOscillator2Mode::_END) ];
+
+};
+
+
 
 /**
  * provides several access-methods to sound generating functions above
@@ -94,17 +160,18 @@ public:
 
 	/** ctor */
 	SimpleOscillator2() : lut(nullptr) {
-		lut = (Amplitude*) malloc(sizeof(Amplitude) * SO_LUT_SIZE);
 		setMode(SimpleOscillator2Mode::NONE);
 	}
 
 	/** dtor */
 	~SimpleOscillator2() {
-		free(lut);
+
 	}
 
 	void setMode(SimpleOscillator2Mode mode) {
+
 		this->mode = mode;
+
 		switch (mode) {
 			case SimpleOscillator2Mode::NONE:				generator = &SimpleOscillator2Func::null;			break;
 			case SimpleOscillator2Mode::SINE:				generator = &SimpleOscillator2Func::sine;			break;
@@ -121,18 +188,15 @@ public:
 			case SimpleOscillator2Mode::NOISE:				generator = &SimpleOscillator2Func::null;			break;
 			case SimpleOscillator2Mode::_END:				break;
 		}
-		buildLUT();
+
+		lut = SimpleOscillator2LUT::get().buildLUT(mode, generator);
+
 	}
+
 
 	/** get the current oscillation mode */
 	SimpleOscillator2Mode getMode() const {
 		return this->mode;
-	}
-
-	void buildLUT() {
-		for (unsigned int idx = 0; idx < SO_LUT_SIZE; ++idx) {
-			lut[idx] = generator( float(idx) / float(SO_LUT_SIZE));
-		}
 	}
 
 	Amplitude get(float phase) const {
@@ -174,9 +238,13 @@ private:
 	/** the mode to use */
 	SimpleOscillator2Mode mode;
 
+	/** look-up-table (created within SimpleOscillator2LUT) */
 	Amplitude* lut;
 
 };
+
+
+
 
 
 
