@@ -6,17 +6,20 @@
 
 #include <QVBoxLayout>
 #include <QScrollArea>
-#include "../../model/Context.h"
-#include "../../controls/SequencerTracksWidget.h"
-#include <KSynth/Sequencer.h>
-#include <KSynth/midi/MidiEvent.h>
-
 #include <QLabel>
 #include <QScrollBar>
 #include <QWidget>
 
+#include "../../model/Context.h"
+#include "../../controls/SequencerTracksWidget.h"
+#include "../../misc/Helper.h"
+
+#include <KSynth/Sequencer.h>
+#include <KSynth/midi/MidiEvent.h>
+
+
 Editor::Editor(Context& ctx, SequencerTracksWidget& tracks, QWidget *parent) :
-	QWidget(parent), ctx(ctx), tracks(tracks) {
+	QWidget(parent), ctx(ctx), tracks(tracks), mode(EditorMode::CURSOR) {
 
 	// layout for the content
 	layout = new QVBoxLayout();
@@ -52,7 +55,25 @@ Editor::~Editor() {
 
 }
 
+void Editor::setMode(EditorMode mode) {
+	this->mode = mode;
+	switch (mode) {
+		case EditorMode::DRAW:		setCursor(Helper::getSkinCursor("skin/icons/pen.png", "PNG", 0, 0)); break;
+		case EditorMode::CURSOR:	setCursor(Qt::ArrowCursor); break;
+	}
+}
 
+EditorMode Editor::getMode() const {
+	return mode;
+}
+
+EditorSlider* Editor::getSlider() const {
+	return slider;
+}
+
+Context& Editor::getContext() const {
+	return ctx;
+}
 
 void Editor::onBeat(Beat beat, Time time) {
 	Q_UNUSED(time);
@@ -93,7 +114,7 @@ QWidget* Editor::getHeaderWidget() const {
 }
 
 #include<vector>
-std::vector<EditorNote> Editor::getNotes(SequencerTrack& st) {
+std::vector<EditorNote> Editor::getNotes(SequencerTrack& st) const {
 
 	// store all notes here
 	std::vector<EditorNote> notes;
@@ -127,8 +148,8 @@ std::vector<EditorNote> Editor::getNotes(SequencerTrack& st) {
 }
 
 
-unsigned int Editor::getSongLength() {
-	return 128*4*4*4;
+TimeBase128 Editor::getSongLength() const {
+	return ctx.getSequencer()->getSongLength() + 128*4*4;
 }
 
 void Editor::resizeMe() {
@@ -141,6 +162,9 @@ void Editor::resizeMe() {
 
 	QSize size = layout->sizeHint();
 	this->resize(size.width(), size.height());
+
+	// adjust slider's height
+	slider->resize(0, size.height());
 
 }
 

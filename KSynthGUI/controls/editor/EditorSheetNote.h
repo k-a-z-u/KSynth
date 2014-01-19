@@ -19,8 +19,12 @@ class EditorSheetNote : public Grabable {
 
 public:
 
-	/** ctor */
-	explicit EditorSheetNote(EditorSheet& sheet, EditorNote note, QWidget *parent = 0);
+	/**
+	 * ctor
+	 * @param sheet the EditorSheet this note belongs to (shall be displayed within)
+	 * @param note describes the note using two midi events. !! this struct will be copied !!
+	 */
+	explicit EditorSheetNote(EditorSheet& sheet, const EditorNote& note, QWidget *parent = 0);
 
 	/** update the note's size and position */
 	void updateSize();

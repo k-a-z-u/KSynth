@@ -9,10 +9,11 @@
 #include <QApplication>
 #include "EditorSheetHeader.h"
 
+#include <exception>
 
 
 EditorSheet::EditorSheet(Editor& editor, SequencerTrack& track, QWidget *parent) :
-	QWidget(parent), editor(editor), track(track) {
+	QWidget(parent), editor(editor), track(track), drawer(*this) {
 
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	setFocusPolicy(Qt::ClickFocus);
@@ -20,10 +21,12 @@ EditorSheet::EditorSheet(Editor& editor, SequencerTrack& track, QWidget *parent)
 	// convert all midi events (of this track) to notes
 	std::vector<EditorNote> notes = editor.getNotes(track);
 	for (EditorNote& en : notes) {
+		if (!en.isValid()) {throw "found note-on without corresponding note-off event!";}
 		new EditorSheetNote(*this, en, this);
 	}
 
 	onZoom();
+	drawer.setEnabled(true);
 
 }
 

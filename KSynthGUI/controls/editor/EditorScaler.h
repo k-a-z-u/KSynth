@@ -39,7 +39,7 @@ public:
 	unsigned int getNoteWidth(EditorNote& en) const {return (nw4 * en.getLength() * base) / 128;}
 
 	/** convert x-coordinate (in pixels) back to multiples of 128th notes */
-	unsigned int getBeat128(unsigned int x) {return x * 128 / nw4 / base;}
+	TimeBase128 getTime128(unsigned int x) {return x * 128 / nw4 / base;}
 
 
 	/** convert midi note number to pixels */
@@ -49,7 +49,7 @@ public:
 	unsigned int getNoteNr(unsigned int y) {return ES_MAX_NOTE - (y / nh4);}
 
 	/** convert x pixels to note delay (multiples of 128th notes) */
-	unsigned int getNoteDelay(unsigned int x) {return getBeat128(x);}
+	TimeBase128 getNoteDelay(unsigned int x) {return getTime128(x);}
 
 
 private:

@@ -1,4 +1,7 @@
 #include "EditorTimeline.h"
+#include "EditorSlider.h"
+#include "../../model/Context.h"
+#include <KSynth/Sequencer.h>
 
 EditorTimeline::EditorTimeline(Editor& editor, QWidget *parent) :
 	QWidget(parent), editor(editor) {
@@ -8,6 +11,12 @@ EditorTimeline::EditorTimeline(Editor& editor, QWidget *parent) :
 
 }
 
+void EditorTimeline::mousePressEvent(QMouseEvent* e) {
+	//int x = editor.getScaler().getNoteDelay()
+	editor.getSlider()->move(e->x(), 0);
+	TimeBase128 time = editor.getScaler().getTime128(e->x());
+	editor.getContext().getSequencer()->jumpTo(time);
+}
 
 #include <QPainter>
 void EditorTimeline::paintEvent(QPaintEvent* e) {

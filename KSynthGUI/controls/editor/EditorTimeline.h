@@ -16,6 +16,8 @@ protected:
 
 	void paintEvent(QPaintEvent *) override;
 
+	void mousePressEvent(QMouseEvent*) override;
+
 private:
 
 	Editor& editor;

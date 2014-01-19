@@ -5,6 +5,7 @@
 
 class Context;
 class Editor;
+class SequencerTracksWidget;
 
 namespace Ui {
 	class SequencerWidget;
@@ -30,6 +31,22 @@ private:
 	Context& ctx;
 
 	Editor* editor;
+
+	/** the track selector */
+	SequencerTracksWidget* tracks;
+
+
+
+private slots:
+
+	/** change the editors mode */
+	void changeMode();
+
+	/** add a new track */
+	void addTrack();
+
+	/** delete the currently selected track */
+	void deleteTrack();
 
 };
 

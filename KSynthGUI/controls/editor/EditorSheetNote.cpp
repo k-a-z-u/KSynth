@@ -4,7 +4,7 @@
 #include "Editor.h"
 #include "KSynth/SequencerTrack.h"
 
-EditorSheetNote::EditorSheetNote(EditorSheet& sheet, EditorNote note, QWidget *parent) :
+EditorSheetNote::EditorSheetNote(EditorSheet& sheet, const EditorNote& note, QWidget *parent) :
 	Grabable(parent), sheet(sheet), note(note), selected(false), cached(false) {
 
 	setFocusPolicy(Qt::ClickFocus);
@@ -14,6 +14,7 @@ EditorSheetNote::EditorSheetNote(EditorSheet& sheet, EditorNote note, QWidget *p
 
 }
 
+#include <iostream>
 void EditorSheetNote::updateSize() {
 
 	unsigned int x = sheet.getEditor().getScaler().getObjectWidth(note.on->getDelay());
@@ -21,28 +22,29 @@ void EditorSheetNote::updateSize() {
 	unsigned int h = sheet.getEditor().getScaler().getNH();
 	unsigned int w = sheet.getEditor().getScaler().getNoteWidth(note);
 
-	setGeometry(x+1, y+1, w-1, h-1);
-	//	setFixedSize(w-1, h-1);
-	//	move(x+1,y+1);
+	onGrab(x,y,w,h);
 
 	setGrabY(false);
 	setSnapX(4);
 	setSnapY(8);
+
+	std::cout << x << ":" << y << " : " << w << ":" << h << std::endl;
 
 }
 
 #include <iostream>
 #include <QFocusEvent>
 void EditorSheetNote::focusInEvent(QFocusEvent* e) {
+	Q_UNUSED(e);
 	sheet.setSelected(this);
 }
 
-void EditorSheetNote::focusOutEvent(QFocusEvent*) {
-
+void EditorSheetNote::focusOutEvent(QFocusEvent* e) {
+	Q_UNUSED(e);
 }
 
 void EditorSheetNote::onGrab(int x, int y, int w, int h) {
-	setGeometry(x,y,w,h);
+	setGeometry(x+1, y+1, w-1, h-1);
 }
 
 void EditorSheetNote::onGrabDone(int x, int y, int w, int h) {
@@ -80,6 +82,7 @@ const EditorNote& EditorSheetNote::getNote() const {
 #include <QPainter>
 void EditorSheetNote::paintEvent(QPaintEvent* e) {
 
+	//std::cout << "REPAINT NOTE" << std::endl;
 	Q_UNUSED(e);
 
 	// caching

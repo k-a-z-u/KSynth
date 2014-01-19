@@ -74,6 +74,8 @@ void SequencerTracksWidget::refreshMe() {
 	}
 	lay->addItem(new QSpacerItem(0,0,QSizePolicy::Minimum,QSizePolicy::Expanding));
 
+	// clear current selection
+	selected = nullptr;
 
 	setLayout(lay);
 

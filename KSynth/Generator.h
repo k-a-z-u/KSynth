@@ -86,7 +86,7 @@ public:
 		if (src == nullptr) {throw GeneratorException("cannot start generator without attaching an audio-source first!");}
 
 
-		seq->restart();
+		//seq->start();
 		enabled = true;
 		seq->start();
 		thread = new std::thread(&Generator::render, this);

@@ -3,6 +3,7 @@
 
 #include "SequencerTrackEvents.h"
 #include "notes/NoteDevice.h"
+#include "misc/DataTypes.h"
 
 /**
  * a Sequencer track represents one track (some kind of logical unit) containing
@@ -47,6 +48,12 @@ public:
 	/** get the attached note device, or nullptr if none */
 	NoteDevice* getDevice() const {
 		return dev;
+	}
+
+	/** get this track's length in multiples of 128th notes */
+	TimeBase128 getLength() const {
+		if (events.empty()) {return 0;}
+		return events[events.size() - 1]->delay;
 	}
 
 	/** attach a new note-device */

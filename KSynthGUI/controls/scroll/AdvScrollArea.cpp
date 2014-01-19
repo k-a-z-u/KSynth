@@ -93,6 +93,12 @@ void AdvScrollArea::setHeaderV(QWidget* widget, unsigned int width) {
 	if (widget) {widget->setParent(this);}
 }
 
+void AdvScrollArea::addOverlayWidget(QWidget* overlay) {
+	overlay->setParent(this);
+	overlay->raise();
+}
+
+
 #include <QEvent>
 bool AdvScrollArea::eventFilter(QObject* o, QEvent* e) {
 

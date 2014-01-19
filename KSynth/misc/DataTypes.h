@@ -26,6 +26,9 @@ typedef unsigned int Channel;
 /** the time in seconds */
 typedef float Time;
 
+/** "time" in multiples of 128th notes */
+typedef unsigned int TimeBase128;
+
 /** the volume between [0;1] */
 typedef float Volume;
 

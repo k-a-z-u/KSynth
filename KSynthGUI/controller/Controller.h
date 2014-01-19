@@ -36,6 +36,12 @@ public:
 	void resetRack();
 
 
+	/** add a new track to the sequencer */
+	void addNewTrack();
+
+	/** delete the currently selected track */
+	void deleteSelectedTrack();
+
 
 	/** import a new midi file */
 	void importMidi();

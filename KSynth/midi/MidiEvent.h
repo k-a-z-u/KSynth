@@ -15,7 +15,7 @@
 /**
  * all possible midi-events as enum
  */
-enum MidiEventType {
+enum class MidiEventType {
 	NOTE_OFF,
 	NOTE_ON,
 	POLYPHONIC_KEY_PRESSURE,
@@ -102,18 +102,18 @@ struct MidiEvent {
 	}
 
 	/** get the time-delay for this event */
-	int getDelay() const {
+	uint32_t getDelay() const {
 		return delay;
 	}
 
 	/** set the time-delay for this event */
-	void setDelay(int delay) {
+	void setDelay(uint32_t delay) {
 		this->delay = delay;
 	}
 
 	/** set the midi event type within the status byte */
 	void setType(MidiEventType t) {
-		status = uint8_t( (status & 15) | 128 | (t << 4) );		//15 = 0b1111	128 = 0b10000000
+		status = uint8_t( (status & 15) | 128 | (int(t) << 4) );		//15 = 0b1111	128 = 0b10000000
 	}
 
 	/** get the channel behind the status byte */
@@ -129,13 +129,13 @@ struct MidiEvent {
 		ss << "channel(" << (int) getChannel() << ")\t";
 		ss << "type(" << (int)status << ") = ";
 		switch(getType()) {
-			case NOTE_OFF:					ss << "NOTE_OFF\tnote: " << (int)d1 << "\tvol: " << (int)d2; break;
-			case NOTE_ON:					ss << "NOTE_ON\tnote: " << (int)d1 << "\tvol: " << (int)d2; break;
-			case POLYPHONIC_KEY_PRESSURE:	ss << "POLYPHONIC_KEY_PRESSURE"; break;
-			case CONTROL_CHANGE:			ss << "CONTROL_CHANGE\td1: " << (int)d1 << "\td2: " << (int)d2; break;
-			case PROGRAM_CHANGE:			ss << "PROGRAM_CHANGE"; break;
-			case CHANNEL_PRESSURE:			ss << "CHANNEL_PRESSURE"; break;
-			case PITCH_WHEEL_CHANGE:		ss << "PITCH_WHEEL_CHANGE"; break;
+			case MidiEventType::NOTE_OFF:					ss << "NOTE_OFF\tnote: " << (int)d1 << "\tvol: " << (int)d2; break;
+			case MidiEventType::NOTE_ON:					ss << "NOTE_ON\tnote: " << (int)d1 << "\tvol: " << (int)d2; break;
+			case MidiEventType::POLYPHONIC_KEY_PRESSURE:	ss << "POLYPHONIC_KEY_PRESSURE"; break;
+			case MidiEventType::CONTROL_CHANGE:				ss << "CONTROL_CHANGE\td1: " << (int)d1 << "\td2: " << (int)d2; break;
+			case MidiEventType::PROGRAM_CHANGE:				ss << "PROGRAM_CHANGE"; break;
+			case MidiEventType::CHANNEL_PRESSURE:			ss << "CHANNEL_PRESSURE"; break;
+			case MidiEventType::PITCH_WHEEL_CHANGE:			ss << "PITCH_WHEEL_CHANGE"; break;
 			default: ss << "UNKNOWN"; break;
 		};
 		ss << "\t";

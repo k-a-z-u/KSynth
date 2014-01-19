@@ -5,7 +5,7 @@
 class Editor;
 class SequencerTrack;
 class EditorSheetNote;
-
+#include "EditorSheetDrawNote.h"
 
 class EditorSheet : public QWidget {
 	Q_OBJECT
@@ -48,6 +48,8 @@ protected:
 
 private:
 
+	friend class EditorSheetDrawNote;
+
 	/** update notes: sizes/positions */
 	void updateNotes();
 
@@ -60,6 +62,9 @@ private:
 
 	/** the current selection (if any) is stored here */
 	std::vector<EditorSheetNote*> selection;
+
+	/** this class provides functionality for adding new notes to the sheet */
+	EditorSheetDrawNote drawer;
 
 signals:
 

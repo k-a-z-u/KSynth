@@ -44,19 +44,34 @@ public:
 	EditorScaler& getScaler();
 
 	/** get the song's length in multiples of 128th notes */
-	unsigned int getSongLength();
+	TimeBase128 getSongLength() const;
 
 
 	/** convert midi events of the given track to notes (combined on+off) */
-	std::vector<EditorNote> getNotes(SequencerTrack& st);
+	std::vector<EditorNote> getNotes(SequencerTrack& st) const;
 
 	/** get the widget to use for the left header */
 	QWidget* getHeaderWidget() const;
 
+	/**
+	 * change the editor's current mode:
+	 * cursor: editing of existing entries
+	 * draw: add new entries
+	 */
+	void setMode(EditorMode mode);
+
+	/** get the editor's current mode */
+	EditorMode getMode() const;
+
+	/** get the time-slider */
+	EditorSlider* getSlider() const;
+
+	/** get the editor's working context */
+	Context& getContext() const;
+
 protected:
 
 	void onBeat(Beat beat, Time time) override;
-
 
 
 private:
@@ -80,8 +95,11 @@ private:
 	EditorSheet* sheet;
 	EditorSheetHeader* sheetHeader;
 
+	/** the slider to show/select the current playback positin */
 	EditorSlider* slider;
 
+	/** the editor's current mode */
+	EditorMode mode;
 
 signals:
 

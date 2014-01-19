@@ -25,10 +25,16 @@ public:
 	~SequencerTrackEvents() {;}
 
 
-	/** add a new MidiEvent */
-	void add(const MidiEvent& e) {
-		push_back( new MidiEvent(e) );
+	/**
+	 * add the given midi event to this track.
+	 * this method creates a copy of the given midi-event on the heap
+	 * which is returned after the function succeeds.
+	 */
+	MidiEvent* add(const MidiEvent& e) {
+		MidiEvent* ep = new MidiEvent(e);
+		push_back( ep );
 		sort();
+		return ep;
 	}
 
 	/** remove this existring MidiEvent */

@@ -17,6 +17,8 @@ public:
 	/** dtor */
 	~EditorSlider();
 
+	void move(int x, int y);
+
 protected:
 
 	void paintEvent(QPaintEvent *) override;

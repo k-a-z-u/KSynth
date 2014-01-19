@@ -16,6 +16,11 @@ QIcon Helper::getSkinIcon(const std::string& file, const std::string& type) {
 	return QIcon( QPixmap::fromImage(img) );
 }
 
+QCursor Helper::getSkinCursor(const std::string& file, const std::string& type, int hotX, int hotY) {
+	QImage img = getSkinImage(file, type);
+	return QCursor( QPixmap::fromImage(img), hotX, hotY );
+}
+
 QImage Helper::getForOscFunction(SimpleOscillator2Mode mode, unsigned int w, unsigned int h) {
 
 	SimpleOscillator2 osc;

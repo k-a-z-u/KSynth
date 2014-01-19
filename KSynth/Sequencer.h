@@ -37,21 +37,21 @@ class Sequencer : public RtMidiEventListener {
 public:
 
 	/** ctor */
-	Sequencer() : curBeat(0), frm(0), status(SequencerStatus::STOPPED), done(false) {
+	Sequencer() : status(SequencerStatus::STOPPED), done(false) {
 		setBeatsPerMinute(1^20);
 
 		// MIDI TEST
-//		SequencerTrack track;
-//		tracks.push_back(track);
-//		midi.wrap = new RtMidiWrapper();
-//		if (!midi.wrap->getInputs().empty()) {
-//			midi.wrap->getInputs().at(0)->addListener(this);
-//		}
+		//		SequencerTrack track;
+		//		tracks.push_back(track);
+		//		midi.wrap = new RtMidiWrapper();
+		//		if (!midi.wrap->getInputs().empty()) {
+		//			midi.wrap->getInputs().at(0)->addListener(this);
+		//		}
 
 	}
 
 	~Sequencer() {
-//		delete midi.wrap;
+		//		delete midi.wrap;
 	}
 
 	/** get all of the sequencer's tracks */
@@ -137,6 +137,22 @@ public:
 		for (SequencerTrackListener* l : listeners.track) {l->onTracksChanged();}
 	}
 
+	/** remove the given (existring) track */
+	void removeTrack(const SequencerTrack& st) {
+		auto match = [&st] (const SequencerTrack& other) {return &st == &other;};
+		tracks.erase(std::remove_if(tracks.begin(), tracks.end(), match), tracks.end());
+		for (SequencerTrackListener* l : listeners.track) {l->onTracksChanged();}
+	}
+
+	/** get the song's length in multiples of 128th notes */
+	TimeBase128 getSongLength() const {
+		TimeBase128 len = 0;
+		for (const SequencerTrack& st : tracks) {
+			if (st.getLength() > len) {len = st.getLength();}
+		}
+		return len;
+	}
+
 	/** attach the given midi to the sequencer */
 	void import(MidiFile midi, int offset) {
 
@@ -208,6 +224,21 @@ public:
 
 	}
 
+	/** jump to the given time within the song */
+	void jumpTo(TimeBase128 time) {
+		listeners.beatLock.lock();
+		stopAllNotes();
+		timing.cur128 = (float) time;
+		timing.last128 = (float) time;
+		for (SequencerTrack& st : tracks) {
+			for (unsigned int i = 0; i < st.getEvents()->size(); ++i) {
+				if ( st.getEvents()->at(i)->getDelay() >= time) {st.curEventIdx = i; break;}
+			}
+		}
+		listeners.beatLock.unlock();
+	}
+
+
 protected:
 
 	friend class Generator;
@@ -237,7 +268,16 @@ protected:
 	}
 
 
-	void onBeat(Beat beat, Time time) {
+
+	/** stop all currently pending notes within all attached devices */
+	void stopAllNotes() {
+		for (SequencerTrack& st : tracks) {
+			st.curEventIdx = 0;
+			if (st.dev) {st.dev->stopNotes();}
+		}
+	}
+
+	void onBeat(TimeBase128 beat, Time time) {
 		listeners.beatLock.lock();
 		for (SequencerBeatListener* seq : listeners.beat) {
 			seq->onBeat(beat, time);
@@ -245,40 +285,40 @@ protected:
 		listeners.beatLock.unlock();
 	}
 
-	void restart() {
-		this->curBeat = 0;
-		this->frm = 0;
-		this->time = 0;
-		for (SequencerTrack& st : tracks) {
-			st.curEventIdx = 0;
-			if (st.dev) {st.dev->stopNotes();}
-		}
+	/** reset the sequencer -> move to position 0 */
+	void reset() {
+		timing.cur128 = 0;
+		timing.last128 = 0;
+		timing.frm = 0;
+		timing.time = 0;
+		stopAllNotes();
 	}
 
 	/** called every X milliseconds from the generator */
 	void onGeneratorCallback(SampleFrame frm) {
 
-		// delta to last call
-		SampleFrame deltaFrm = frm - this->frm;
-		this->frm = frm;
+		// delta (in sample frames) to last call
+		SampleFrame deltaFrm = frm - timing.frm;
+		timing.frm = frm;
+
+		// delta (in seconds)
+		// we need delta times to provide speed-changes during playback!
 		Time deltaTime = Time(deltaFrm) / Time(48000);
 
 		// absolute time
-		this->time = Time(frm) / Time(48000);
+		timing.time = Time(frm) / Time(48000);
 
 		// get current beat using beats-per-minute
-		curBeat += deltaTime * Time(beatsPerMinute) / 60.0f;
+		timing.cur128 += deltaTime * Time(beatsPerMinute) * 128.0f / 60.0f;
 
-		// convert to current 128th note
-		Beat th128 = (int) (curBeat * (128));
-		static Beat lastTH128 = 0;
+		//std::cout << deltaTime << ":" << timing.time << ":" << timing.cur128 << ":" << TimeBase128(timing.cur128) << std::endl;
 
-		//std::cout << "#" << beat << std::endl;
+		// new 128th note?
+		if ( (TimeBase128) timing.cur128 != (TimeBase128) timing.last128 ) {
 
-		if (lastTH128 != th128) {
-			lastTH128 = th128;
+			timing.last128 = timing.cur128;
 
-			onBeat(lastTH128, time);
+			onBeat( (TimeBase128) timing.cur128, timing.time);
 
 			// are we done yet?
 			bool done = true;
@@ -292,7 +332,7 @@ protected:
 				done = false;
 
 				// execute all pending events
-				while(th128 >= st.events[st.curEventIdx]->delay) {
+				while( timing.cur128 >= st.events[st.curEventIdx]->delay) {
 					fire(st.dev, *st.events[st.curEventIdx]);
 					++st.curEventIdx;
 					if (st.events.size() <= st.curEventIdx) {break;}
@@ -324,6 +364,8 @@ protected:
 
 	/** stop the sequencer */
 	void stop() {
+		reset();
+		stopAllNotes();
 		status = SequencerStatus::STOPPED;
 		for (SequencerStatusListener* l : listeners.status) {l->onStatusChange(status);}
 	}
@@ -336,14 +378,30 @@ protected:
 
 private:
 
-	/** the current beat */
-	float curBeat;
+	struct Timing {
+
+		/** the current multiple of 128th notes. use float for accuracy */
+		float cur128;
+
+		/** the last multiple of 128th notes. use float for accuracy */
+		float last128;
+
+		/** time (in seconds) the playback is running */
+		Time time;
+
+		/** the last processed sample frame */
+		SampleFrame frm;
+
+
+		/** ctor */
+		Timing() : cur128(0), last128(0), time(0), frm(0) {;}
+
+	} timing;
+
+
 
 	/** the beats per minute to use */
 	Beat beatsPerMinute;
-
-	Time time;
-	SampleFrame frm;
 
 	/** the current status */
 	SequencerStatus status;
@@ -363,8 +421,6 @@ private:
 		std::mutex beatLock;
 		std::vector<SequencerStatusListener*> status;
 	} listeners;
-
-
 
 	bool done;
 

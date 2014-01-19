@@ -69,7 +69,8 @@ SOURCES += main.cpp\
     controls/editor/EditorSheet.cpp \
     controls/editor/EditorSheetNote.cpp \
     controls/scroll/AdvScrollArea.cpp \
-    controls/editor/EditorSheetHeader.cpp
+    controls/editor/EditorSheetHeader.cpp \
+    controls/editor/EditorSheetDrawNote.cpp
 
 HEADERS  += \
     controls/Knob.h \
@@ -119,7 +120,8 @@ HEADERS  += \
     controls/editor/EditorSheetHeader.h \
     controls/editor/Grabable.h \
     controls/editor/EditorMode.h \
-    controls/editor/EditorScaler.h
+    controls/editor/EditorScaler.h \
+    controls/editor/EditorSheetDrawNote.h
 
 FORMS    += \
     SynthWin.ui \
@@ -168,8 +170,6 @@ HEADERS += \
         ../KSynth/sampler/*.h \
         ../KSynth/sampler/formats/*.h \
         ../KSynth/synth/*.h
-
-
 
 
 # OS specific stuff

@@ -58,6 +58,8 @@ public:
 	/** set the vertical header */
 	void setHeaderV(QWidget* widget, unsigned int width);
 
+	/** add a new widget which is displayed on top of all other widgets */
+	void addOverlayWidget(QWidget* overlay);
 
 protected:
 

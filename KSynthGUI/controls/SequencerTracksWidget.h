@@ -65,6 +65,7 @@ private:
 	/** all listeners */
 	std::vector<SequencerTracksListener*> listeners;
 
+
 private slots:
 
 	void refreshMe();

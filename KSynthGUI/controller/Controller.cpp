@@ -83,6 +83,11 @@ void Controller::clearTracks() {
 	ctx.getSequencer()->clearTracks();
 }
 
+
+void Controller::addNewTrack() {
+	ctx.getSequencer()->addTrack(SequencerTrack());
+}
+
 void Controller::importMidi() {
 	try {
 		std::string file = CtrlHelper::openFile("Import MIDI-File", FileDialogFilter("MIDI-File", "mid") );

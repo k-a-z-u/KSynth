@@ -25,15 +25,35 @@
 #include "rack/DrumComputer1.h"
 #include "rack/MasterTarget1.h"
 
+#include <QFile>
+#include <QTextStream>
 
-
-
+/** display error message */
 void showError(std::string err) {
 	err += "\n\nthe program will now terminate!";
 	int ret = QMessageBox::critical(nullptr, QString("an exception occurred..."), QString(err.c_str()), QMessageBox::Ok, QMessageBox::Ok);
 	(void) ret;
 	exit(-1);
 }
+
+
+/** load style-sheet from skins folder */
+void loadStyleSheet() {
+
+	QFile data("skin/stylesheet/style.css");
+	QString style;
+
+	// try ot open file
+	if( !data.open(QFile::ReadOnly) ) {return;}
+
+	QTextStream styleIn(&data);
+	style = styleIn.readAll();
+	data.close();
+
+	qApp->setStyleSheet(style);
+
+}
+
 
 /**
  * @brief Application wrapper to catch exceptions
@@ -73,12 +93,10 @@ int main(int argc, char *argv[]) {
 
 	MyApplication app(argc, argv);
 
+	// load stylesheet from skin
+	loadStyleSheet();
 
 	Context ctx(app);
-
-	app.setStyleSheet(
-				""
-				);
 
 	// the main window
 	MainWin mw(ctx);
@@ -263,6 +281,8 @@ int main(int argc, char *argv[]) {
 		ctx.seq->bind(4, s4);
 		ctx.seq->bind(5, s5);
 		ctx.seq->bind(6, s6);
+
+		mixer->setParameter( (int) SimpleMixerParams::MASTER_VOLUME, 0.15f);
 
 	}
 

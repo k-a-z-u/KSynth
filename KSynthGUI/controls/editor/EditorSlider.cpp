@@ -22,11 +22,24 @@ EditorSlider::~EditorSlider() {
 }
 
 void EditorSlider::onGrab(int x, int y, int w, int h) {
-	setGeometry(x,y,w,h);
+	Q_UNUSED(y);
+	Q_UNUSED(w);
+	Q_UNUSED(h);
+	if (x < -8) {x = -8;}
+	QWidget::move(x, 0);
 }
-void EditorSlider::onGrabDone(int, int, int, int) {
-	;
+
+void EditorSlider::onGrabDone(int x, int, int, int) {
+	TimeBase128 time = editor.getScaler().getTime128(x+8);
+	ctx.getSequencer()->jumpTo(time);
 }
+
+void EditorSlider::move(int x, int y) {
+	Q_UNUSED(y);
+	if (x < 8) {x = 8;}
+	QWidget::move(x-8, 0);
+}
+
 
 #include <QPainter>
 void EditorSlider::paintEvent(QPaintEvent* e) {
