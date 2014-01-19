@@ -48,7 +48,7 @@ private:
 	void add(const Binding& b, tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* node);
 
 	/** export the given SequencerTrack */
-	void add(const SequencerTrack& st, tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* node);
+	void add(SequencerTrack& st, tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* node);
 
 	/** export workspace settings */
 	void addSettings(tinyxml2::XMLDocument *doc, tinyxml2::XMLElement* nSettings);

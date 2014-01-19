@@ -233,7 +233,7 @@ void WorkspaceLoader::loadTracks(XMLElement* nTracks) {
 
 			// add event
 			MidiEvent evt(time, (uint8_t) status, (uint8_t) d1, (uint8_t) d2);
-			st.addEvent(evt);
+			st.getEvents()->add(evt);
 
 		}
 

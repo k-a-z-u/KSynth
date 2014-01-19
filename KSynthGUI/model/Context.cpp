@@ -6,6 +6,8 @@
 
 #include <KSynth/output/SoundSinkAlsa.h>
 #include <KSynth/output/SoundSinkWaveOut.h>
+#include <KSynth/output/SoundSinkWave.h>
+
 #include <KSynth/output/MasterTarget.h>
 
 #include <KSynth/Sequencer.h>

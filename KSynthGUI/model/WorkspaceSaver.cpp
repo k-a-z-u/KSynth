@@ -83,7 +83,7 @@ std::string WorkspaceSaver::getXML() {
 	}
 
 	// export all tracks
-	for (const SequencerTrack& st : *ctx.getSequencer()->getTracks()) {
+	for (SequencerTrack& st : *ctx.getSequencer()->getTracks()) {
 		add(st, &doc, nTracks);
 	}
 
@@ -142,7 +142,7 @@ void WorkspaceSaver::add(const Binding &b, tinyxml2::XMLDocument *doc, tinyxml2:
 
 }
 
-void WorkspaceSaver::add(const SequencerTrack& st, tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* nTracks) {
+void WorkspaceSaver::add(SequencerTrack& st, tinyxml2::XMLDocument* doc, tinyxml2::XMLElement* nTracks) {
 
 	// create entry for track
 	tinyxml2::XMLElement* nTrack = doc->NewElement("Track");
@@ -163,13 +163,13 @@ void WorkspaceSaver::add(const SequencerTrack& st, tinyxml2::XMLDocument* doc, t
 	nTrack->InsertEndChild(nEvts);
 
 	// now export all midi events
-	for (const MidiEvent& evt : st.getEvents()) {
+	for (const MidiEvent* evt : *st.getEvents()) {
 		tinyxml2::XMLElement* nEvt = doc->NewElement("E");
 		nEvts->InsertEndChild(nEvt);
-		nEvt->SetAttribute("t", evt.getDelay());
-		nEvt->SetAttribute("s", evt.getStatus());
-		nEvt->SetAttribute("d1", evt.getData1());
-		nEvt->SetAttribute("d2", evt.getData2());
+		nEvt->SetAttribute("t", evt->getDelay());
+		nEvt->SetAttribute("s", evt->getStatus());
+		nEvt->SetAttribute("d1", evt->getData1());
+		nEvt->SetAttribute("d2", evt->getData2());
 	}
 
 }
