@@ -116,7 +116,10 @@ HEADERS  += \
     controls/editor/EditorSheetNote.h \
     controls/editor/EditorNote.h \
     controls/scroll/AdvScrollArea.h \
-    controls/editor/EditorSheetHeader.h
+    controls/editor/EditorSheetHeader.h \
+    controls/editor/Grabable.h \
+    controls/editor/EditorMode.h \
+    controls/editor/EditorScaler.h
 
 FORMS    += \
     SynthWin.ui \
@@ -148,6 +151,23 @@ INCLUDEPATH += \
 # add KSynth
 INCLUDEPATH += \
         ../
+HEADERS += \
+        ../KSynth/*.h \
+        ../KSynth/analyzer/*.h \
+        ../KSynth/fx/*.h \
+        ../KSynth/huell/*.h \
+        ../KSynth/midi/*.h \
+        ../KSynth/midi/rt/*.h \
+        ../KSynth/midi/rt/devices/*.h \
+        ../KSynth/misc/*.h \
+        ../KSynth/mixer/*.h \
+        ../KSynth/notes/*.h \
+        ../KSynth/oscillator/*.h \
+        ../KSynth/output/*.h \
+        ../KSynth/pattern/*.h \
+        ../KSynth/sampler/*.h \
+        ../KSynth/sampler/formats/*.h \
+        ../KSynth/synth/*.h
 
 
 
