@@ -256,12 +256,13 @@ int main(int argc, char *argv[]) {
 
 		ctx.seq->setBeatsPerMinute(85);
 
-		mixer->setParameter( (int) SimpleMixerParams::SLOT1_VOLUME, 0.1f);
+		//mixer->setParameter( (int) SimpleMixerParams::SLOT1_VOLUME, 0.1f);
 		ctx.seq->bind(1, s1);
-//		ctx.seq->bind(2, s2);
-//		ctx.seq->bind(3, s3);
-//		ctx.seq->bind(4, s4);
-//		ctx.seq->bind(5, s5);
+		ctx.seq->bind(2, s2);
+		ctx.seq->bind(3, s3);
+		ctx.seq->bind(4, s4);
+		ctx.seq->bind(5, s5);
+		ctx.seq->bind(6, s6);
 
 	}
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>665</width>
-    <height>110</height>
+    <width>624</width>
+    <height>109</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -24,30 +24,15 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <property name="styleSheet">
-    <string notr="true">QDockWidget &gt; QWidget {
-	background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(60, 60, 60), stop:1 rgb(20, 20, 20));
-}
-QGroupBox {
-	border: 1px solid #000000;
-	border-left-color: #888888;
-	border-top-color: #888888;
-	border-right-color: #222222;
-	border-bottom-color: #222222;
-	border-radius: 5px;
-	margin-top: 5px;
-	background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(100, 100, 100), stop:1 rgb(60, 60, 60));
-	padding-top:12px;
-}
-QGroupBox::title {
-	color: white;
-	left: 4px;
-	top: 3px;
-}
-QLabel {
-	color:white;
-}</string>
+    <string notr="true"/>
    </property>
    <layout class="QGridLayout" name="gridLayout">
+    <property name="margin">
+     <number>3</number>
+    </property>
+    <property name="spacing">
+     <number>3</number>
+    </property>
     <item row="0" column="3">
      <widget class="QGroupBox" name="groupBox_2">
       <property name="title">

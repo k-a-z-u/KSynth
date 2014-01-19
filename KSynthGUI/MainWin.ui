@@ -10,8 +10,60 @@
     <height>600</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <pointsize>9</pointsize>
+    <weight>50</weight>
+    <bold>false</bold>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow {
+	background-color:#444;
+	background:url(&quot;skin/bg.png&quot;);
+}
+QDockWidget::title, QGroupBox::title  {
+    text-align: left;
+    background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(140, 140, 140), stop:1 rgb(110, 110, 110));
+    padding-left: 5px;
+	font-weight: bold;
+}
+QDockWidget &gt; QWidget, QDockWidget::title, #SequencerWidget #menuBar {
+	border: 1px solid #000;
+	border-left-color: #888;
+	border-top-color: #888;
+	border-right-color: #222;
+	border-bottom-color: #222;
+}
+QDockWidget {
+	color:white;
+}
+
+QDockWidget &gt; QWidget {
+	background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(100, 100, 100), stop:1 rgb(70, 70, 70));
+}
+QGroupBox {
+	border: 1px solid #000;
+	border-left-color: #888;
+	border-top-color: #888;
+	border-right-color: #222;
+	border-bottom-color: #222;
+	margin-top: 5px;
+	background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgb(100, 100, 100), stop:1 rgb(60, 60, 60));
+	padding-top:14px;
+}
+QGroupBox::title {
+	subcontrol-origin: padding;
+	padding:0px;
+	color: #fff;
+	background: none;
+}
+QLabel {
+	color:white;
+}</string>
   </property>
   <widget class="QWidget" name="centralwidget"/>
   <widget class="QMenuBar" name="menubar">
