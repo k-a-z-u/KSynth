@@ -2,6 +2,7 @@
 #define HELPER_H
 
 #include <QImage>
+#include <QIcon>
 #include <KSynth/oscillator/SimpleOscillator2.h>
 
 class Helper {
@@ -10,6 +11,10 @@ public:
 
 	/** load the given image from an appropriate source (resource, filesystem, ...) */
 	static QImage getSkinImage(const std::string& file, const std::string& type = "PNG");
+
+	/** load the given icon from an appropriate source (resource, filesystem, ...) */
+	static QIcon getSkinIcon(const std::string& file, const std::string& type = "PNG");
+
 
 	/** get QImage for the given oscillator function */
 	static QImage getForOscFunction(SimpleOscillator2Mode mode, unsigned int w, unsigned int h);
