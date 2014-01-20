@@ -3,6 +3,7 @@
 #include "../rack/RackFactory.h"
 #include "../rack/MasterTarget1.h"
 #include "../controller/Controller.h"
+#include "../controller/tasks/Tasks.h"
 
 #include <KSynth/output/SoundSinkAlsa.h>
 #include <KSynth/output/SoundSinkWaveOut.h>
@@ -17,7 +18,7 @@
 
 #include <QApplication>
 
-Context::Context(QApplication& app) : app(app), fmt(2,48000,16) {
+Context::Context(QApplication& app) : app(app), fmt(2,48000,16), tasks(nullptr) {
 
 	ctrl = new Controller(*this);
 
@@ -51,6 +52,7 @@ Context::~Context() {
 	delete rackFactory;	rackFactory = nullptr;
 	//delete dst;		// the Rack will delete this device!
 	delete rack;		rack = nullptr;
+	delete tasks;		tasks = nullptr;
 }
 
 Rack* Context::getRack() const {
@@ -81,4 +83,12 @@ Controller* Context::getController() const {
 
 RackFactory* Context::getRackFactory() const {
 	return rackFactory;
+}
+
+Tasks* Context::getTasks() const {
+	return tasks;
+}
+
+MasterTarget1* Context::getMasterTarget() const {
+	return dst;
 }

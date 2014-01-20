@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QImage>
 
+#include "../misc/Skin.h"
 #include "../misc/Helper.h"
 
 #include "../controls/Knob.h"
@@ -242,7 +243,7 @@ void Synth1::paintEvent(QPaintEvent* event) {
 	Q_UNUSED(event);
 	QPainter p(this);
 
-	static QImage imgBg = Helper::getSkinImage("skin/synth1.png", "PNG");
+	static QImage imgBg = Skin::getImage("skin/synth1.png", "PNG");
 	p.drawImage(0,0, imgBg);
 
 	//QColor cA(128,128,128);

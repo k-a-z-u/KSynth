@@ -1,7 +1,7 @@
 #include "Slider1.h"
 
 #include <QPainter>
-#include "../misc/Helper.h"
+#include "../misc/Skin.h"
 
 Slider1::Slider1(QWidget *parent) :
 	MidiUI(parent) {
@@ -136,8 +136,8 @@ void Slider1::paintEvent (QPaintEvent* event) {
 	Q_UNUSED(event);
 	QPainter p(this);
 
-	static QImage imgBg = Helper::getSkinImage("skin/slider1_bg.png", "PNG");
-	static QImage imgMain = Helper::getSkinImage("skin/slider1_main.png", "PNG");
+	static QImage imgBg = Skin::getImage("skin/slider1_bg.png", "PNG");
+	static QImage imgMain = Skin::getImage("skin/slider1_main.png", "PNG");
 	static QColor cText(255,255,255);
 	static QFont font; font.setPixelSize(7); font.setBold(true);
 

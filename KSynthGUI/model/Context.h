@@ -14,6 +14,7 @@ class Controller;
 class QApplication;
 class Rack;
 class SoundBase;
+class Tasks;
 
 class Context {
 
@@ -47,6 +48,12 @@ public:
 	/** set the master target */
 	void setMasterTarget(MasterTarget1* sb);
 
+	/** get facility for foreground/background tasks */
+	Tasks* getTasks() const;
+
+	/** get the master target to send audio to */
+	MasterTarget1* getMasterTarget() const;
+
 
 private:
 
@@ -77,6 +84,9 @@ private:
 
 	/** the main target */
 	MasterTarget1* dst;
+
+	/** execute foreground/background tasks */
+	Tasks* tasks;
 
 };
 

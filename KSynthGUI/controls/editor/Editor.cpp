@@ -12,7 +12,7 @@
 
 #include "../../model/Context.h"
 #include "../../controls/SequencerTracksWidget.h"
-#include "../../misc/Helper.h"
+#include "../../misc/Skin.h"
 
 #include <KSynth/Sequencer.h>
 #include <KSynth/midi/MidiEvent.h>
@@ -58,7 +58,7 @@ Editor::~Editor() {
 void Editor::setMode(EditorMode mode) {
 	this->mode = mode;
 	switch (mode) {
-		case EditorMode::DRAW:		setCursor(Helper::getSkinCursor("skin/icons/pen.png", "PNG", 0, 0)); break;
+		case EditorMode::DRAW:		setCursor(Skin::getCursor("skin/icons/pen.png", "PNG", 0, 0)); break;
 		case EditorMode::CURSOR:	setCursor(Qt::ArrowCursor); break;
 	}
 }

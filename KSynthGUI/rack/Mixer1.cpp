@@ -8,7 +8,7 @@
 #include "../controls/PinConnector.h"
 #include "../controls/TextLabel.h"
 #include "../model/Context.h"
-#include "../misc/Helper.h"
+#include "../misc/Skin.h"
 
 #include <KSynth/Generator.h>
 
@@ -112,7 +112,7 @@ void Mixer1::paintEvent(QPaintEvent* event) {
 	Q_UNUSED(event);
 	QPainter p(this);
 
-	static QImage imgBg = Helper::getSkinImage("skin/mixer1.png", "PNG");
+	static QImage imgBg = Skin::getImage("skin/mixer1.png", "PNG");
 	p.drawImage(0,0, imgBg);
 
 }

@@ -59,6 +59,6 @@ void MainWin::clearTracks() {
 
 void MainWin::addRackElement() {
 	QObject* obj = sender();
-	std::string val = obj->property("RackElement").toString().toStdString();
+	std::string val = obj->property("RackElement").toString().toUtf8().constData();
 	ctx.getController()->addNewRackElement(val);
 }

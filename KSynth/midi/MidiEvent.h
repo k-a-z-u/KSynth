@@ -9,6 +9,7 @@
 #define MIDIEVENT_H_
 
 #include <sstream>
+#include <vector>
 
 #include "../misc/DataTypes.h"
 

@@ -75,7 +75,7 @@ void SampleChooserDialog::onFolderSelect(const QModelIndex &index, const QModelI
 void SampleChooserDialog::onFileSelect(const QModelIndex &index, const QModelIndex& old) {
 	(void) old;
 	QString mFile = fileModel->fileInfo(index).absoluteFilePath();
-	K::File file(mFile.toStdString());
+	K::File file(mFile.toUtf8().constData());
 
 	ui->lblSize->setText( (std::to_string(file.length() / 1024) + " KiB").c_str() );
 

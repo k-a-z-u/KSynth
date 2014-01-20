@@ -4,7 +4,7 @@
 #include "../model/Context.h"
 #include "../rack/Rack.h"
 #include "../rack/RackElement.h"
-#include "../misc/Helper.h"
+#include "../misc/Skin.h"
 
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -200,7 +200,7 @@ PinConnector::~PinConnector() {
 #include <QPainter>
 void PinConnector::paintEvent (QPaintEvent* event) {
 	Q_UNUSED(event);
-	static QImage imgBG = Helper::getSkinImage("skin/xlr.png", "PNG");
+	static QImage imgBG = Skin::getImage("skin/xlr.png", "PNG");
 	QPainter p(this);
 	p.drawImage(0,0,imgBG);
 }

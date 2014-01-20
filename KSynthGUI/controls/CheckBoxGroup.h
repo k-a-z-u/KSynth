@@ -3,6 +3,7 @@
 
 #include "CheckBox.h"
 #include <QWidget>
+#include <vector>
 
 /**
  * @brief The CheckBoxGroup class

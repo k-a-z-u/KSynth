@@ -2,7 +2,7 @@
 
 #include <QPaintEvent>
 #include <QPainter>
-#include "../misc/Helper.h"
+#include "../misc/Skin.h"
 
 #define KNOB_S	31
 
@@ -128,9 +128,9 @@ void Knob::paintEvent(QPaintEvent* event) {
 	Q_UNUSED(event);
 	QPainter p(this);
 
-	static QImage imgBg = Helper::getSkinImage("skin/knob1_bg.png", "PNG");
-	static QImage imgMain = Helper::getSkinImage("skin/knob1_main.png", "PNG");
-	static QImage imgTop = Helper::getSkinImage("skin/knob1_top.png", "PNG");
+	static QImage imgBg = Skin::getImage("skin/knob1_bg.png", "PNG");
+	static QImage imgMain = Skin::getImage("skin/knob1_main.png", "PNG");
+	static QImage imgTop = Skin::getImage("skin/knob1_top.png", "PNG");
 	static QColor cText(255,255,255);
 	static QFont font; font.setPixelSize(7); font.setBold(true);
 

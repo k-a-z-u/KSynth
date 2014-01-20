@@ -1,5 +1,5 @@
 #include "ColorButton.h"
-#include "../misc/Helper.h"
+#include "../misc/Skin.h"
 
 ColorButton::ColorButton(QWidget *parent) :
 	MidiUI(parent), bgColor(0,0,0), isDown(false) {
@@ -35,9 +35,9 @@ void ColorButton::paintEvent (QPaintEvent* event) {
 	Q_UNUSED(event);
 	QPainter p(this);
 
-	static QImage imgBg = Helper::getSkinImage("skin/colorbutton1_bg.png", "PNG");
-	static QImage imgUp = Helper::getSkinImage("skin/colorbutton1_up", "PNG");
-	static QImage imgDown = Helper::getSkinImage("skin/colorbutton1_down", "PNG");
+	static QImage imgBg = Skin::getImage("skin/colorbutton1_bg.png", "PNG");
+	static QImage imgUp = Skin::getImage("skin/colorbutton1_up", "PNG");
+	static QImage imgDown = Skin::getImage("skin/colorbutton1_down", "PNG");
 
 	p.setBrush(bgColor);
 	p.setPen(Qt::NoPen);

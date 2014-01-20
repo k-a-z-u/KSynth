@@ -1,5 +1,5 @@
 #include "CheckBox.h"
-#include "../misc/Helper.h"
+#include "../misc/Skin.h"
 
 CheckBox::CheckBox(QWidget *parent) :
 	MidiUI(parent), checked(false) {
@@ -53,8 +53,8 @@ void CheckBox::paintEvent (QPaintEvent* event) {
 	Q_UNUSED(event);
 	QPainter p(this);
 
-	static QImage imgUnchecked = Helper::getSkinImage("skin/chkSmlOff.png", "PNG");
-	static QImage imgChecked = Helper::getSkinImage("skin/chkSmlOn.png", "PNG");
+	static QImage imgUnchecked = Skin::getImage("skin/chkSmlOff.png", "PNG");
+	static QImage imgChecked = Skin::getImage("skin/chkSmlOn.png", "PNG");
 
 	static QColor cText(255,255,255);
 	static QFont font; font.setPixelSize(7); font.setBold(true);

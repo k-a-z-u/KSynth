@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -70,7 +70,12 @@ SOURCES += main.cpp\
     controls/editor/EditorSheetNote.cpp \
     controls/scroll/AdvScrollArea.cpp \
     controls/editor/EditorSheetHeader.cpp \
-    controls/editor/EditorSheetDrawNote.cpp
+    controls/editor/EditorSheetDrawNote.cpp \
+    ProgressDialog.cpp \
+    controller/tasks/Task.cpp \
+    controller/tasks/Tasks.cpp \
+    misc/Skin.cpp \
+    misc/Download.cpp
 
 HEADERS  += \
     controls/Knob.h \
@@ -121,7 +126,13 @@ HEADERS  += \
     controls/editor/Grabable.h \
     controls/editor/EditorMode.h \
     controls/editor/EditorScaler.h \
-    controls/editor/EditorSheetDrawNote.h
+    controls/editor/EditorSheetDrawNote.h \
+    ProgressDialog.h \
+    model/StatusCallback.h \
+    controller/tasks/Task.h \
+    controller/tasks/Tasks.h \
+    misc/Skin.h \
+    misc/Download.h
 
 FORMS    += \
     SynthWin.ui \
@@ -129,7 +140,8 @@ FORMS    += \
     ControlPanelWidget.ui \
     SequencerWidget.ui \
     RackWidget.ui \
-    SampleChooserDialog.ui
+    SampleChooserDialog.ui \
+    ProgressDialog.ui
 
 
 
@@ -149,6 +161,9 @@ SOURCES += \
 # add KLib
 INCLUDEPATH += \
         ../lib
+SOURCES += \
+        ../lib/KLib/inc/7z/*.c
+QMAKE_CFLAGS += -D_7ZIP_ST
 
 # add KSynth
 INCLUDEPATH += \
@@ -170,6 +185,7 @@ HEADERS += \
         ../KSynth/sampler/*.h \
         ../KSynth/sampler/formats/*.h \
         ../KSynth/synth/*.h
+
 
 
 # OS specific stuff

@@ -24,12 +24,15 @@ public:
 		return hint;
 	}
 	void addItem(QLayoutItem* i) override {
+		Q_UNUSED(i);
 		;
 	}
 	QLayoutItem* itemAt(int i) const override {
+		Q_UNUSED(i);
 		return nullptr;
 	}
 	QLayoutItem* takeAt(int i) override {
+		Q_UNUSED(i);
 		return nullptr;
 	}
 	int count() const override {

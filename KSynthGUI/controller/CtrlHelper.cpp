@@ -28,7 +28,7 @@ std::string CtrlHelper::openFile(const std::string& caption, std::vector<FileDia
 	dialog.setViewMode(QFileDialog::Detail);
 	dialog.setWindowTitle(caption.c_str());
 	if (dialog.exec()) {
-		std::string file = dialog.selectedFiles().at(0).toStdString();
+		std::string file = dialog.selectedFiles().at(0).toUtf8().constData();
 		return file;
 	}
 	return "";
@@ -46,13 +46,13 @@ std::string CtrlHelper::saveFile(const std::string& caption, std::vector<FileDia
 	// show chooser
 	QString selFilter;
 	std::string fs = getFilterString(filter);
-	std::string file = QFileDialog::getSaveFileName(0, caption.c_str(), "", fs.c_str(), &selFilter).toStdString();
+	std::string file = QFileDialog::getSaveFileName(0, caption.c_str(), "", fs.c_str(), &selFilter).toUtf8().constData();
 	if (file.empty()) {return "";}
 
 	// get selected file-extension from filter
 	int p1 = selFilter.lastIndexOf("(*.");
 	int p2 = selFilter.lastIndexOf(")");
-	std::string fileExt = selFilter.mid(p1+3, p2-p1-3).toStdString();
+	std::string fileExt = selFilter.mid(p1+3, p2-p1-3).toUtf8().constData();
 
 	// append (missing) extension
 	std::string curExt = file.substr( file.length() - fileExt.length(), fileExt.length() );

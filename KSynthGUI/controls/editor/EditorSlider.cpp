@@ -3,7 +3,7 @@
 #include "../../model/Context.h"
 #include <KSynth/Sequencer.h>
 #include "Editor.h"
-#include "../../misc/Helper.h"
+#include "../../misc/Skin.h"
 
 EditorSlider::EditorSlider(Editor& editor, Context& ctx, QWidget *parent) :
 	Grabable(parent), editor(editor), ctx(ctx) {
@@ -63,7 +63,7 @@ void EditorSlider::paintEvent(QPaintEvent* e) {
 	p.drawLine(10, 10, 10, height());
 
 	// grab
-	static QImage imgTop = Helper::getSkinImage("skin/timeSlider.png", "PNG");
+	static QImage imgTop = Skin::getImage("skin/timeSlider.png", "PNG");
 	p.drawImage(0,0,imgTop);
 
 }

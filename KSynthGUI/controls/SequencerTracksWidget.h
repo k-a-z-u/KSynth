@@ -1,6 +1,8 @@
 #ifndef SEQUENCERTRACKSWIDGET_H
 #define SEQUENCERTRACKSWIDGET_H
 
+#include <vector>
+
 #include <QScrollArea>
 #include <KSynth/SequencerListener.h>
 class Context;

@@ -28,6 +28,8 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "controller/tasks/Tasks.h"
+
 /** display error message */
 void showError(std::string err) {
 	err += "\n\nthe program will now terminate!";
@@ -88,13 +90,11 @@ public:
 };
 
 #include <SampleChooserDialog.h>
+#include "misc/Skin.h"
 
 int main(int argc, char *argv[]) {
 
 	MyApplication app(argc, argv);
-
-	// load stylesheet from skin
-	loadStyleSheet();
 
 	Context ctx(app);
 
@@ -102,195 +102,127 @@ int main(int argc, char *argv[]) {
 	MainWin mw(ctx);
 	mw.show();
 
-	// create rack panel
-	RackWidget rw(ctx);
+	// create task sheduler
+	ctx.tasks = new Tasks(&mw);
 
-	// create Rack-Model
-	ctx.rack = new Rack(ctx, rw);
+	// check skin installation
+	Skin::checkPresent(ctx, mw);
 
-	// create sequencer panel
-	SequencerWidget sw(ctx);
-
-	// create control panel
-	ControlPanelWidget cpw(ctx);
-
-	// add master target
-	MasterTarget1* dst = new MasterTarget1(ctx);
-	ctx.setMasterTarget(dst);
-	ctx.rack->add(dst);
-
-
-	// add dock widgets
-	mw.setUpdatesEnabled(false); {
-		mw.addDockWidget(Qt::LeftDockWidgetArea, &rw);
-		mw.addDockWidget(Qt::TopDockWidgetArea, &sw);
-		mw.addDockWidget(Qt::BottomDockWidgetArea, &cpw);
-	} mw.setUpdatesEnabled(true);
-
-
-	mw.setUpdatesEnabled(false);
-
-	/*
-
-	DrumComputer1* dc1 = new DrumComputer1();
-
-	Mixer1* m1 = (Mixer1*) ctx.getRackFactory()->getByString("SimpleMixer", ctx);// Mixer1();
-	Mixer1* m2 = (Mixer1*) ctx.getRackFactory()->getByString("SimpleMixer", ctx);//new Mixer1();
-
-	Synth1* s1 = new Synth1();
-	Synth1* s2 = new Synth1();
-	Synth1* s3 = new Synth1();
-	Synth1* s4 = new Synth1();
-	Synth1* s5 = new Synth1();
-	Synth1* s6 = new Synth1();
-
-	Reverb1* r1 = new Reverb1();
-
-	Sequencer1* seq1 = new Sequencer1();
-	seq1->setTarget(s1);
-	Sequencer1* seq2 = new Sequencer1();
-	seq2->setTarget(s2);
-
-
-
-	rw.add(r1);
-
-	rw.add(m1);
-	rw.add(m2);
-
-	rw.add(dc1);
-
-	rw.add(s1);
-	rw.add(seq1);
-
-	rw.add(s2);
-	rw.add(seq2);
-
-	rw.add(s3);
-	rw.add(s4);
-	rw.add(s5);
-	rw.add(s6);
-
-	ctx.seq->bind(seq1);
-	ctx.seq->bind(seq2);
-	r1->bind(0, m1);
-
-	m2->bind(0, s1);
-	m2->bind(2, s2);
-	m2->bind(4, s3);
-	m2->bind(6, s4);
-	m2->bind(8, s5);
-	m2->bind(10, s6);
-
-	m1->bind(0, m2);
-	m1->bind(2, dc1);
-
-	ctx.dst->bind(0, r1);
-
-	MidiFile mid;
-	int x = 0;
-
-	if (x == 0) {
-		MidiParser(K::File("/data/midi/duke1.mid"), mid);
-		ctx.seq->import(mid, 0);
-		ctx.seq->setBeatsPerMinute(85);
-		//ctx.seq->bind(0, s1);
-		ctx.seq->bind(1, s2);
-		ctx.seq->bind(2, s3);
-		ctx.seq->bind(3, s4);
-		ctx.seq->bind(4, s5);
-	} else if (x == 1) {
-		MidiParser(K::File("/data/midi/superMario/smwintro.mid"), mid);
-		ctx.seq->import(mid, 0);
-		ctx.seq->setBeatsPerMinute(85);
-		ctx.seq->bind(1, s1);
-		ctx.seq->bind(2, s2);
-		ctx.seq->bind(3, s3);
-		ctx.seq->bind(4, s4);
-		ctx.seq->bind(5, s5);
-		ctx.seq->bind(6, s6);
-	} else if (x == 2) {
-		MidiParser(K::File("/data/midi/pattern-318.mid"), mid);
-		ctx.seq->import(mid, 0);
-		ctx.seq->setBeatsPerMinute(90);
-		ctx.seq->bind(0, s1);
-		ctx.seq->bind(1, s2);
-		ctx.seq->bind(2, s3);
-		ctx.seq->bind(3, s4);
-		ctx.seq->bind(4, s5);
-		ctx.seq->bind(5, s6);
-	} else {
-		ctx.seq->bind(0, s1);
-		ctx.seq->setBeatsPerMinute(90);
-	}
-	*/
-
-
-
-	//ctx.getController()->addNewRackElement("SimpleSynth");
-	//SoundBase* sb = ctx.getRack()->getElements().at(i)->
-	//	Synth1* synth = new Synth1(ctx); synth->setUserName("synth1");
-	//	Mixer1* mixer = new Mixer1(ctx); mixer->setUserName("mixer");
-	//	DrumComputer1* drums = new DrumComputer1(ctx); drums->setUserName("drums");
-	//	ctx.getRack()->add(synth);
-	//	ctx.getRack()->add(mixer);
-	//	ctx.getRack()->add(drums);
-	//	ctx.gen->getBinder().addBinding(0, synth, 0, mixer);
-	//	ctx.gen->getBinder().addBinding(1, synth, 1, mixer);
-	//	ctx.gen->getBinder().addBinding(0, mixer, 0, dst);
-	//	ctx.gen->getBinder().addBinding(1, mixer, 1, dst);
-
-	/** testing */
-	K::File f("/data/midi/superMario/smwintro.mid");
-	if (f.isFile()) {
-
-		MidiFile midi;
-		MidiParser(f, midi);
-		ctx.seq->import(midi,0);
-
-		Mixer1* mixer = new Mixer1(ctx); mixer->setUserName("mixer");	ctx.getRack()->add(mixer);
-		Synth1* s1 = new Synth1(ctx); s1->setUserName("synth 1");		ctx.getRack()->add(s1);
-		Synth1* s2 = new Synth1(ctx); s2->setUserName("synth 2");		ctx.getRack()->add(s2);
-		Synth1* s3 = new Synth1(ctx); s3->setUserName("synth 3");		ctx.getRack()->add(s3);
-		Synth1* s4 = new Synth1(ctx); s4->setUserName("synth 4");		ctx.getRack()->add(s4);
-		Synth1* s5 = new Synth1(ctx); s5->setUserName("synth 5");		ctx.getRack()->add(s5);
-		Synth1* s6 = new Synth1(ctx); s6->setUserName("synth 6");		ctx.getRack()->add(s6);
-		DrumComputer1* drums = new DrumComputer1(ctx); drums->setUserName("drums");	ctx.getRack()->add(drums);
-
-		ctx.gen->getBinder().addBinding(0, s1, 0, mixer);
-		ctx.gen->getBinder().addBinding(1, s1, 1, mixer);
-		ctx.gen->getBinder().addBinding(0, s2, 2, mixer);
-		ctx.gen->getBinder().addBinding(1, s2, 3, mixer);
-		ctx.gen->getBinder().addBinding(0, s3, 4, mixer);
-		ctx.gen->getBinder().addBinding(1, s3, 5, mixer);
-		ctx.gen->getBinder().addBinding(0, s4, 6, mixer);
-		ctx.gen->getBinder().addBinding(1, s4, 7, mixer);
-		ctx.gen->getBinder().addBinding(0, s5, 8, mixer);
-		ctx.gen->getBinder().addBinding(1, s5, 9, mixer);
-		ctx.gen->getBinder().addBinding(0, s6, 10, mixer);
-		ctx.gen->getBinder().addBinding(1, s6, 11, mixer);
-		ctx.gen->getBinder().addBinding(0, mixer, 0, dst);
-		ctx.gen->getBinder().addBinding(1, mixer, 1, dst);
-
-		ctx.seq->setBeatsPerMinute(85);
-
-		//mixer->setParameter( (int) SimpleMixerParams::SLOT1_VOLUME, 0.1f);
-		ctx.seq->bind(1, s1);
-		ctx.seq->bind(2, s2);
-		ctx.seq->bind(3, s3);
-		ctx.seq->bind(4, s4);
-		ctx.seq->bind(5, s5);
-		ctx.seq->bind(6, s6);
-
-		mixer->setParameter( (int) SimpleMixerParams::MASTER_VOLUME, 0.15f);
-
-	}
+	// load stylesheet from skin
+	loadStyleSheet();
 
 
 
 
+
+
+	// initialize workspace using a task
+	class MyTask : public Task {
+
+		Context& ctx;
+		MainWin& mw;
+
+	public:
+
+		MyTask(Context& ctx, MainWin& mw) :
+			Task("initializing", true), ctx(ctx), mw(mw) {;}
+
+		void exec() override {
+
+			// create rack panel
+			setProgress("creating rack", 0.2f);
+			RackWidget* rw = new RackWidget(ctx);
+
+			// create Rack-Model
+			ctx.rack = new Rack(ctx, *rw);
+
+			// create sequencer panel
+			setProgress("creating sequencer", 0.4f);
+			SequencerWidget* sw = new SequencerWidget(ctx);
+
+			// create control panel
+			setProgress("creating control panel", 0.6f);
+			ControlPanelWidget* cpw = new ControlPanelWidget(ctx);
+
+			// add master target
+			setProgress("creating master target", 0.8f);
+			MasterTarget1* dst = new MasterTarget1(ctx);
+			ctx.setMasterTarget(dst);
+			ctx.rack->add(dst);
+
+
+			// add dock widgets
+			setProgress("docking widgets", 0.9f);
+			mw.addDockWidget(Qt::LeftDockWidgetArea, rw);
+			mw.addDockWidget(Qt::TopDockWidgetArea, sw);
+			mw.addDockWidget(Qt::BottomDockWidgetArea, cpw);
+
+			// TESTING
+			K::File f("/data/midi/superMario/smwintro.mid");
+			if (f.isFile()) {
+
+				setProgress("loading midi", 0.1f);
+
+				MidiFile midi;
+				MidiParser(f, midi);
+				ctx.getSequencer()->import(midi,0);
+
+				setProgress("loading mixer", 0.2f);
+				Mixer1* mixer = new Mixer1(ctx); mixer->setUserName("mixer");	ctx.getRack()->add(mixer);
+				setProgress("loading synth", 0.3f);
+				Synth1* s1 = new Synth1(ctx); s1->setUserName("synth 1");		ctx.getRack()->add(s1);
+				setProgress("loading synth", 0.4f);
+				Synth1* s2 = new Synth1(ctx); s2->setUserName("synth 2");		ctx.getRack()->add(s2);
+				setProgress("loading synth", 0.5f);
+				Synth1* s3 = new Synth1(ctx); s3->setUserName("synth 3");		ctx.getRack()->add(s3);
+				setProgress("loading synth", 0.6f);
+				Synth1* s4 = new Synth1(ctx); s4->setUserName("synth 4");		ctx.getRack()->add(s4);
+				setProgress("loading synth", 0.7f);
+				Synth1* s5 = new Synth1(ctx); s5->setUserName("synth 5");		ctx.getRack()->add(s5);
+				setProgress("loading synth", 0.8f);
+				Synth1* s6 = new Synth1(ctx); s6->setUserName("synth 6");		ctx.getRack()->add(s6);
+				setProgress("loading drums", 0.9f);
+				DrumComputer1* drums = new DrumComputer1(ctx); drums->setUserName("drums");	ctx.getRack()->add(drums);
+
+				ctx.gen->getBinder().addBinding(0, s1, 0, mixer);
+				ctx.gen->getBinder().addBinding(1, s1, 1, mixer);
+				ctx.gen->getBinder().addBinding(0, s2, 2, mixer);
+				ctx.gen->getBinder().addBinding(1, s2, 3, mixer);
+				ctx.gen->getBinder().addBinding(0, s3, 4, mixer);
+				ctx.gen->getBinder().addBinding(1, s3, 5, mixer);
+				ctx.gen->getBinder().addBinding(0, s4, 6, mixer);
+				ctx.gen->getBinder().addBinding(1, s4, 7, mixer);
+				ctx.gen->getBinder().addBinding(0, s5, 8, mixer);
+				ctx.gen->getBinder().addBinding(1, s5, 9, mixer);
+				ctx.gen->getBinder().addBinding(0, s6, 10, mixer);
+				ctx.gen->getBinder().addBinding(1, s6, 11, mixer);
+				ctx.gen->getBinder().addBinding(0, mixer, 0, ctx.getMasterTarget());
+				ctx.gen->getBinder().addBinding(1, mixer, 1, ctx.getMasterTarget());
+
+				ctx.seq->setBeatsPerMinute(85);
+
+				setProgress("binding", 0.95f);
+				ctx.seq->bind(1, s1);
+				ctx.seq->bind(2, s2);
+				ctx.seq->bind(3, s3);
+				ctx.seq->bind(4, s4);
+				ctx.seq->bind(5, s5);
+				ctx.seq->bind(6, s6);
+
+				mixer->setParameter( (int) SimpleMixerParams::MASTER_VOLUME, 0.15f);
+
+			}
+
+		}
+
+	};
+
+	// initialize the rack
+	ctx.getTasks()->addTaskForeground( new MyTask(ctx, mw) );
+
+	// done
 	ctx.seq->setBeatsPerMinute(90);
-	mw.setUpdatesEnabled(true);
+	ctx.getRack()->setRefreshing(true);
 
 	return app.exec();
 

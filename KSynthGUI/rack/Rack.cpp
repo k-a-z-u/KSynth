@@ -11,7 +11,7 @@
 #include "../model/Context.h"
 #include "../rack/MasterTarget1.h"
 
-Rack::Rack(Context& ctx, RackWidget& rw) : ctx(ctx), rw(rw), running(true), refreshing(true) {
+Rack::Rack(Context& ctx, RackWidget& rw) : ctx(ctx), rw(rw), running(true), refreshing(false) {
 
 	// create refresh thread
 	thread = new std::thread(&Rack::run, this);

@@ -44,7 +44,7 @@ void TextLabel::keyPressEvent(QKeyEvent *e) {
 		if (text.empty()) {return;}
 		text = text.substr(0, text.length() - 1);
 	} else if ( c >= (unsigned char) 32 && c <= (unsigned char) 127 ) {
-		text += e->text().toStdString();
+		text += e->text().toUtf8().constData();
 	} else {
 		return;
 	}

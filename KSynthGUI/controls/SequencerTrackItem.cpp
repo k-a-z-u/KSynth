@@ -12,7 +12,7 @@
 #include "../rack/Rack.h"
 #include "../rack/RackElement.h"
 #include "../model/RackElementModel.h"
-#include "../misc/Helper.h"
+#include "../misc/Skin.h"
 #include "SequencerTracksWidget.h"
 
 SequencerTrackItem::SequencerTrackItem(SequencerTracksWidget& tracks, Rack& rack, SequencerTrack& st, QWidget *parent) :
@@ -112,7 +112,7 @@ void SequencerTrackItem::updateCombo() {
 void SequencerTrackItem::paintEvent (QPaintEvent* event) {
 	Q_UNUSED(event);
 	QPainter p(this);
-	static QImage imgBg = Helper::getSkinImage("skin/sequencerTrack.png", "PNG");
+	static QImage imgBg = Skin::getImage("skin/sequencerTrack.png", "PNG");
 
 	if (focused) {
 		p.setBrush(QColor(192,192,255));
@@ -136,7 +136,7 @@ void SequencerTrackItem::resizeEvent(QResizeEvent* event) {
 }
 
 void SequencerTrackItem::onChangeTrackName() {
-	st.setName(txtName->text().toStdString());
+	st.setName(txtName->text().toUtf8().constData());
 }
 
 void SequencerTrackItem::onChangeTargetDevice() {

@@ -12,7 +12,7 @@
 #include "misc/SoundBase.h"
 
 #include <vector>
-
+#include <algorithm>
 
 /**
  * one endpoint of a binding identified by a device and a port-index.

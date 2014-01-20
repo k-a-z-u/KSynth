@@ -44,23 +44,52 @@ void Controller::save() {
 	}
 }
 
+#include "../controller/tasks/Tasks.h"
 void Controller::load() {
 
 	// supported formats
 	std::vector<FileDialogFilter> formats;
 	formats.push_back( FileDialogFilter("KSynth Workspace", "xml") );
-#ifdef WITH_ZLIB
-	formats.push_back( FileDialogFilter("KSynth Workspace (compressed)", "xml.gz") );
-#endif
 
+	// zlib support?
+	#ifdef WITH_ZLIB
+	formats.push_back( FileDialogFilter("KSynth Workspace (compressed)", "xml.gz") );
+	#endif
+
+	// show file-open dialog
 	std::string file = CtrlHelper::openFile("Load Workspace", formats);
 	if (file.empty()) {return;}
-	WorkspaceLoader wl(ctx);
-	try {
-		wl.load( K::File(file) );
-	} catch (std::exception& e) {
-		QMessageBox::critical(0, "error while loading file", e.what());
-	}
+
+	// execute
+	class MyTask : public Task {
+
+		Context& ctx;
+		const std::string& file;
+
+	public:
+
+		MyTask(Context& ctx, const std::string& file) :
+				Task("loading workspace", true), ctx(ctx), file(file) {;}
+
+		void exec() {
+
+			WorkspaceLoader wl(ctx);
+			StatusCallback sc = [this] (const std::string& msg, float val) {setProgress(msg, val);};
+
+			// load
+			try {
+				wl.load( K::File(file), sc );
+			} catch (std::exception& e) {
+				QMessageBox::critical(0, "error while loading file", e.what());
+			}
+
+		}
+
+	};
+
+	// run
+	ctx.getTasks()->addTaskForeground( new MyTask(ctx, file) );
+
 }
 
 

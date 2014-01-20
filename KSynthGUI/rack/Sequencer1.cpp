@@ -14,8 +14,8 @@
 #include "../controls/ImgSpin.h"
 #include "../controls/CheckBox.h"
 #include "../controls/CheckBoxGroup.h"
+#include "../misc/Skin.h"
 #include "../misc/Helper.h"
-
 
 Sequencer1::Sequencer1(Context& ctx, QWidget *parent) :
 	RackElement(ctx, parent) {
@@ -127,7 +127,7 @@ void Sequencer1::paintEvent(QPaintEvent* event) {
 	//p.drawRect(0,0,this->width()-1,this->height()-1);
 
 	// background
-	static QImage imgBg = Helper::getSkinImage("skin/sequencer1.png", "PNG");
+	static QImage imgBg = Skin::getImage("skin/sequencer1.png", "PNG");
 	p.drawImage(0,0, imgBg);
 	p.setPen(Qt::NoPen);
 

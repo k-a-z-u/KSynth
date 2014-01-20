@@ -2,22 +2,11 @@
 #define HELPER_H
 
 #include <QImage>
-#include <QIcon>
-#include <QCursor>
 #include <KSynth/oscillator/SimpleOscillator2.h>
 
 class Helper {
 
 public:
-
-	/** load the given image from an appropriate source (resource, filesystem, ...) */
-	static QImage getSkinImage(const std::string& file, const std::string& type = "PNG");
-
-	/** load the given icon from an appropriate source (resource, filesystem, ...) */
-	static QIcon getSkinIcon(const std::string& file, const std::string& type = "PNG");
-
-	/** load the given cursor from an appropriate source (resource, filesystem, ...) */
-	static QCursor getSkinCursor(const std::string& file, const std::string& type = "PNG", int hotX = -1, int hotY = -1);
 
 
 	/** get QImage for the given oscillator function */

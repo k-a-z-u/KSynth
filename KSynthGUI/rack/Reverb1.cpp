@@ -2,7 +2,7 @@
 
 #include <KSynth/fx/Reverb.h>
 #include "../controls/Knob.h"
-#include "../misc/Helper.h"
+#include "../misc/Skin.h"
 
 Reverb1::Reverb1(Context& ctx, QWidget *parent) :
 	RackElement(ctx, parent), Reverb() {
@@ -51,7 +51,7 @@ void Reverb1::paintEvent(QPaintEvent* event) {
 	Q_UNUSED(event);
 	QPainter p(this);
 
-	static QImage imgBg = Helper::getSkinImage("skin/reverb1.png", "PNG");
+	static QImage imgBg = Skin::getImage("skin/reverb1.png", "PNG");
 	p.drawImage(0,0,imgBg);
 
 }

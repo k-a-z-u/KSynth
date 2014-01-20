@@ -9,6 +9,7 @@
 #define RTMIDIOUTDEVICE_H_
 
 #include "RtMidiDevice.h"
+#include <vector>
 
 class RtMidiOutDevice : public RtMidiDevice {
 

@@ -3,7 +3,7 @@
 #include <QPainter>
 
 #include <KSynth/misc/Units.h>
-#include "../misc/Helper.h"
+#include "../misc/Skin.h"
 
 VUMeter::VUMeter(QWidget *parent) :
 	QWidget(parent), value(0), lastMS(0) {
@@ -61,9 +61,9 @@ void VUMeter::paintEvent (QPaintEvent* event) {
 
 	(void) event;
 
-	static QImage imgBg = Helper::getSkinImage("skin/vumeter_bg.png", "PNG");		// background
-	static QImage imgBar = Helper::getSkinImage("skin/vumeter_bar.png", "PNG");		// scaleable color-bar
-	static QImage imgLED = Helper::getSkinImage("skin/vumeter_leds.png", "PNG");		// led border
+	static QImage imgBg = Skin::getImage("skin/vumeter_bg.png", "PNG");		// background
+	static QImage imgBar = Skin::getImage("skin/vumeter_bar.png", "PNG");		// scaleable color-bar
+	static QImage imgLED = Skin::getImage("skin/vumeter_leds.png", "PNG");		// led border
 
 	QPainter p(this);
 

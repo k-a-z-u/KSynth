@@ -5,6 +5,7 @@ class Context;
 class RackElement;
 #include <KLib/fs/File.h>
 #include <unordered_map>
+#include "StatusCallback.h"
 
 #include "../lib/tinyxml2/tinyxml2.h"
 using namespace tinyxml2;
@@ -33,27 +34,27 @@ public:
 	~WorkspaceLoader();
 
 	/** load the given file */
-	void load(const K::File& file);
+	void load(const K::File& file, StatusCallback sc = nullptr);
 
 
 
 private:
 
 	/** parse loaded XML string */
-	void parseXML(const std::string& xml);
+	void parseXML(const std::string& xml, StatusCallback sc);
 
 
 	/** load all workspace settings */
-	void loadSettings(XMLElement* nSettings);
+	void loadSettings(XMLElement* nSettings, StatusCallback sc);
 
 	/** load all rack elements */
-	void loadRackElements(XMLElement* nRack);
+	void loadRackElements(XMLElement* nRack, StatusCallback sc);
 
 	/** load all bindings */
-	void loadBindings(XMLElement* nBindings);
+	void loadBindings(XMLElement* nBindings, StatusCallback sc);
 
 	/** load all tracks */
-	void loadTracks(XMLElement* nTracks);
+	void loadTracks(XMLElement* nTracks, StatusCallback sc);
 
 
 	/** the context to store to */

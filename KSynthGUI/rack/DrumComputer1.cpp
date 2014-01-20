@@ -9,6 +9,7 @@
 #include "../controls/LED1.h"
 #include "../controls/PinConnector.h"
 
+#include "../misc/Skin.h"
 #include "../misc/Helper.h"
 #include "../model/Context.h"
 #include <KSynth/Sequencer.h>
@@ -149,7 +150,7 @@ void DrumComputer1::paintEvent(QPaintEvent* event) {
 	Q_UNUSED(event);
 	QPainter p(this);
 
-	static QImage imgBg = Helper::getSkinImage("skin/drumcomputer1.png", "PNG");
+	static QImage imgBg = Skin::getImage("skin/drumcomputer1.png", "PNG");
 	p.drawImage(0,0, imgBg);
 
 }

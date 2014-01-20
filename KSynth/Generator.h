@@ -99,11 +99,10 @@ public:
 		// stop only once
 		if (!enabled) {return;}
 		enabled = false;
-		seq->stop();
 		thread->join();
 		delete thread;
 		thread = nullptr;
-
+		seq->stop();
 	}
 
 	/** get the binder to handle connections between SoundBase devices */

@@ -226,17 +226,16 @@ public:
 
 	/** jump to the given time within the song */
 	void jumpTo(TimeBase128 time) {
-		listeners.beatLock.lock();
-		stopAllNotes();
-		timing.cur128 = (float) time;
-		timing.last128 = (float) time;
-		for (SequencerTrack& st : tracks) {
-			for (unsigned int i = 0; i < st.getEvents()->size(); ++i) {
-				if ( st.getEvents()->at(i)->getDelay() >= time) {st.curEventIdx = i; break;}
-			}
-		}
-		listeners.beatLock.unlock();
+
+		// the jump-request is not executed directly
+		// instead we set a marker which is checked within
+		// the generator callback. thus we should be able to jump
+		// without using mutex -> faster?
+		timing.jumpTo = time;
+
 	}
+
+
 
 
 protected:
@@ -247,12 +246,12 @@ protected:
 
 		if (!dev) {return;}
 
-		//std::cout << "track(" << track.trackNr << ")\t";
-		std::cout << "beat(" << evt.delay << ")\t";
-		std::cout << "cmd(" << (int) evt.getType() << ")\t";
-		std::cout << "d1(" << (int) evt.d1 << ")\t";
-		std::cout << "d2(" << (int) evt.d2 << ")\t";
-		std::cout << std::endl;
+//		//std::cout << "track(" << track.trackNr << ")\t";
+//		std::cout << "beat(" << evt.delay << ")\t";
+//		std::cout << "cmd(" << (int) evt.getType() << ")\t";
+//		std::cout << "d1(" << (int) evt.d1 << ")\t";
+//		std::cout << "d2(" << (int) evt.d2 << ")\t";
+//		std::cout << std::endl;
 
 		if (evt.status) {
 			if (evt.getType() == MidiEventType::NOTE_OFF) {
@@ -321,7 +320,8 @@ protected:
 			onBeat( (TimeBase128) timing.cur128, timing.time);
 
 			// are we done yet?
-			bool done = true;
+			bool hasEvents = false;
+
 
 			// process each track
 			for (SequencerTrack& st : tracks) {
@@ -329,7 +329,7 @@ protected:
 				// skip empty tracks
 				if (st.events.size() <= st.curEventIdx) {continue;}
 
-				done = false;
+				hasEvents = true;
 
 				// execute all pending events
 				while( timing.cur128 >= st.events[st.curEventIdx]->delay) {
@@ -345,9 +345,14 @@ protected:
 			}
 			midi.evts.clear();
 
-			this->done = done;
+			// indicate wheter playback is done (no more events)
+			this->done = hasEvents;
 
 		}
+
+		// jump indication? -> jump
+		// should be faster than using mutexes to prevent race conditions
+		if (timing.jumpTo != -1) {jumpToIndication();}
 
 	}
 
@@ -376,6 +381,19 @@ protected:
 		for (SequencerStatusListener* l : listeners.status) {l->onStatusChange(status);}
 	}
 
+	/** jump to the currently indicated time */
+	void jumpToIndication() {
+		stopAllNotes();
+		timing.cur128 = (float) timing.jumpTo;
+		timing.last128 = (float) timing.jumpTo;
+		for (SequencerTrack& st : tracks) {
+			for (unsigned int i = 0; i < st.getEvents()->size(); ++i) {
+				if ( st.getEvents()->at(i)->getDelay() >= TimeBase128(timing.jumpTo) ) {st.curEventIdx = i; break;}
+			}
+		}
+		timing.jumpTo = -1;
+	}
+
 private:
 
 	struct Timing {
@@ -393,8 +411,10 @@ private:
 		SampleFrame frm;
 
 
+		int jumpTo;
+
 		/** ctor */
-		Timing() : cur128(0), last128(0), time(0), frm(0) {;}
+		Timing() : cur128(0), last128(0), time(0), frm(0), jumpTo(-1) {;}
 
 	} timing;
 

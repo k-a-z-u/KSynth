@@ -2,7 +2,7 @@
 
 #include <QPushButton>
 #include <QPainter>
-#include "../misc/Helper.h"
+#include "../misc/Skin.h"
 
 ImgSpin::ImgSpin(QWidget *parent) :
 	MidiUI(parent), curIdx(0) {
@@ -31,7 +31,7 @@ void ImgSpin::paintEvent(QPaintEvent* event) {
 	Q_UNUSED(event);
 	QPainter p(this);
 
-	static QImage imgBg = Helper::getSkinImage("skin/imgspin1.png", "PNG");
+	static QImage imgBg = Skin::getImage("skin/imgspin1.png", "PNG");
 	p.drawImage(0,0, imgBg);
 
 	if (!entries.empty()) {

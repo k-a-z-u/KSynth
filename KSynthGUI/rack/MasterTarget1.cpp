@@ -7,7 +7,7 @@
 #include "../controls/TextLabel.h"
 #include "../controls/PinConnector.h"
 
-#include "../misc/Helper.h"
+#include "../misc/Skin.h"
 
 MasterTarget1::MasterTarget1(Context& ctx, QWidget *parent) :
 	RackElement(ctx, parent) {
@@ -74,7 +74,7 @@ void MasterTarget1::paintEvent(QPaintEvent* event) {
 	Q_UNUSED(event);
 	QPainter p(this);
 
-	static QImage imgBg = Helper::getSkinImage("skin/masterTarget.png", "PNG");
+	static QImage imgBg = Skin::getImage("skin/masterTarget.png", "PNG");
 	p.drawImage(0,0, imgBg);
 
 }

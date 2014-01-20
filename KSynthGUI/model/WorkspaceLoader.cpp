@@ -20,7 +20,7 @@ WorkspaceLoader::~WorkspaceLoader() {
 	;
 }
 
-void WorkspaceLoader::load(const K::File& file) {
+void WorkspaceLoader::load(const K::File& file, StatusCallback sc) {
 
 	// clear rack
 	ctx.getRack()->reset();
@@ -31,18 +31,20 @@ void WorkspaceLoader::load(const K::File& file) {
 
 	// load
 	if (ext == "xml") {
+		if (sc) {sc("loading data", 0);}
 		K::FileInputStream fis(file);
 		K::LineInputStream lis(fis);
 		std::string xml = lis.readAll();
-		parseXML(xml);
+		parseXML(xml, sc);
 
 	} else if (ext == "xml.gz") {
 #ifdef WITH_ZLIB
+		if (sc) {sc("loading data", 0);}
 		K::FileInputStream fis(file);
 		K::GzipInputStream gis(fis, K::GzipOutputStreamHeader::MODE_GZIP);
 		K::LineInputStream lis(gis);
 		std::string xml = lis.readAll();
-		parseXML(xml);
+		parseXML(xml, sc);
 #else
 		throw WorkspaceLoaderException("can't load compressed XML as zlib support is not compiled!");
 #endif
@@ -54,7 +56,9 @@ void WorkspaceLoader::load(const K::File& file) {
 
 }
 
-void WorkspaceLoader::parseXML(const std::string& xml) {
+void WorkspaceLoader::parseXML(const std::string& xml, StatusCallback sc) {
+
+	if (sc) {sc("parsing XML", 0.05f);}
 
 	// open
 	XMLDocument doc;
@@ -78,21 +82,25 @@ void WorkspaceLoader::parseXML(const std::string& xml) {
 	if (!nTracks)	{throw WorkspaceLoaderException("the file is missing an element for 'Tracks'");}
 
 	// load workspace settings
-	loadSettings(nSettings);
+	if (sc) {sc("loading settings", 0.1f);}
+	loadSettings(nSettings, sc);
 
 	// load all rack elements
-	loadRackElements(nRack);
+	if (sc) {sc("loading rack elements", 0.15f);}
+	loadRackElements(nRack, sc);
 
 	// load all bindings
-	loadBindings(nBindings);
+	if (sc) {sc("loading bindings", 0.6f);}
+	loadBindings(nBindings, sc);
 
 	// load all tracks
-	loadTracks(nTracks);
+	if (sc) {sc("loading tracks", 0.7f);}
+	loadTracks(nTracks, sc);
 
 }
 
 
-void WorkspaceLoader::loadSettings(XMLElement* nSettings) {
+void WorkspaceLoader::loadSettings(XMLElement* nSettings, StatusCallback sc) {
 
 	XMLElement* nSeq = nSettings->FirstChildElement("Sequencer");
 	if (!nSeq) {throw WorkspaceLoaderException("the Settings node is missing a child for Sequencer");}
@@ -104,7 +112,7 @@ void WorkspaceLoader::loadSettings(XMLElement* nSettings) {
 }
 
 
-void WorkspaceLoader::loadRackElements(XMLElement* nRack) {
+void WorkspaceLoader::loadRackElements(XMLElement* nRack, StatusCallback sc) {
 
 	// load all rack elements
 	for (
@@ -159,7 +167,7 @@ void WorkspaceLoader::loadRackElements(XMLElement* nRack) {
 }
 
 
-void WorkspaceLoader::loadBindings(XMLElement* nBindings) {
+void WorkspaceLoader::loadBindings(XMLElement* nBindings, StatusCallback sc) {
 
 	// load all rack elements
 	for (
@@ -188,7 +196,7 @@ void WorkspaceLoader::loadBindings(XMLElement* nBindings) {
 }
 
 
-void WorkspaceLoader::loadTracks(XMLElement* nTracks) {
+void WorkspaceLoader::loadTracks(XMLElement* nTracks, StatusCallback sc) {
 
 	// load all tracks elements
 	for (

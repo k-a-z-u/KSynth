@@ -1,6 +1,7 @@
 #ifndef SEQUENCERTRACKEVENTS_H
 #define SEQUENCERTRACKEVENTS_H
 
+#include <algorithm>
 #include <queue>
 #include "midi/MidiEvent.h"
 
