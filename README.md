@@ -15,14 +15,19 @@ Besides some well known libraries as tinyxml2 (https://github.com/leethomason/ti
 
 
 # External Dependencies
-the external dependencies differ by your needs and your operating system. Currently the Qt-Project file sets some defines (like **-DWITH_FLAC**) to compile optional code using external libraries (here: **flac**) to provide additional functions (here: loading flac-compressed samples). 
+the external dependencies differ by your needs and your operating system. Currently the Qt-Project file accepts some parameters as additional QMake parameters to compile optional code using external libraries, providing additional functions:
+
 * **linux:**
- * alsa
+ * ALSA: alsa sound-output and midi support (needs libasound)
+ * PULSE_AUDIO: PulseAusio sound-output (needs pulse / pulse-simple)
 * **windows:**
- * winmm
-* **optionals:**
- * flac (for compressed audio samples)
- * lame (for mp3 export, see: ToDo)
+ * WAVE_OUT: windows WaveOut support (needs winmm)
+* **other:**
+ * ZLIB: load/save compressed workspace files (needs libz)
+ * FLAC: load compressed audio samples (needs flac)
+ * FFTW3: spectrum analysis (needs fftw3)
+ * LAME: mp3 audio export (needs mp3lame)
+
 
 
 # Compiling
@@ -51,6 +56,13 @@ git clone https://github.com/k-a-z-u/KSynth.git
 # open project in qtcreator
 qtcreator KSynthGUI/KSynthGUI.pro
 ```
+
+you may then choos additional libraries (sound-outputs, export-formats, etc..) to adjust the compilation:  
+"Projects (Symbol)" -> "Build" -> "Build Steps" -> "qmake" -> "Details" -> "Additional arguments"  
+An example might look like this:  
+  CONFIG+="ALSA ZLIB FLAC LAME FFTW3"  
+  
+For a full list of all available flags and necessary external libraries see "External Dependencies" of this readme.
 
 ## Details
 
