@@ -27,12 +27,12 @@ public:
 	virtual ~RtMidiDevice() {;}
 
 	/** get the name of this midi device */
-	const std::string& getName() {
+	const std::string& getName() const {
 		return name;
 	}
 
 	/** get the device's index */
-	unsigned int getDeviceIndex() {
+	unsigned int getDeviceIndex() const {
 		return id;
 	}
 

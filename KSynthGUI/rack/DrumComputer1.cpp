@@ -163,15 +163,18 @@ void DrumComputer1::resizeEvent(QResizeEvent* event) {
 
 	Q_UNUSED(event);
 
-	elements.sldVol->setGeometry(694,124-8, 0,0);
-	elements.vu->setGeometry(694+32,124, 0,0);
+//	elements.sldVol->setGeometry(694,124-8, 0,0);
+//	elements.vu->setGeometry(694+32,124, 0,0);
+
+	elements.sldVol->setGeometry(664,128-8, 0,0);
+	elements.vu->setGeometry(664+32,128, 0,0);
 
 	elements.memory.lbl->setGeometry(694, 16, 48, 32);
 
-	elements.connector->setGeometry(670, 48, 0,0);
+	elements.connector->setGeometry(727+4,8, 0,0);
 
 	// pattern selection buttons
-	unsigned int sx = 540;
+	unsigned int sx = 508;
 	unsigned int sy = 172;
 	unsigned int ssx = 16;
 	unsigned int ssy = 16;
@@ -186,7 +189,7 @@ void DrumComputer1::resizeEvent(QResizeEvent* event) {
 	// sample controls
 	sx = 12;
 	sy = 14;
-	ssx = 168;
+	ssx = 160;
 	ssy = 64;
 	for (unsigned int x = 0; x < 4; ++x) {
 		for (unsigned int y = 0; y < 2; ++y) {

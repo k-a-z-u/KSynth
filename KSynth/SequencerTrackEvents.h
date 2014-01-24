@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <queue>
 #include "midi/MidiEvent.h"
+//#include "KLib/memory/FixedPool.h"
 
 /**
  * this class provides a storage solution for all midi events within
@@ -32,9 +33,13 @@ public:
 	 * which is returned after the function succeeds.
 	 */
 	MidiEvent* add(const MidiEvent& e) {
+
 		MidiEvent* ep = new MidiEvent(e);
+		//MidiEvent* ep = memPool.alloc();
+		//memcpy(ep, &e, sizeof(MidiEvent));
+
 		push_back( ep );
-		sort();
+		//sort();
 		return ep;
 	}
 
@@ -66,6 +71,9 @@ private:
 		auto lambda = [] (const MidiEvent* a, const MidiEvent* b) {return a->delay < b->delay;};
 		std::sort(begin(), end(), lambda);
 	}
+
+	/** fast memory allocation for many many small midi events */
+	//K::FixedPool<MidiEvent> memPool;
 
 };
 

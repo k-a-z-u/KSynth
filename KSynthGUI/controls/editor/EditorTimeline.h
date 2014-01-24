@@ -22,6 +22,9 @@ private:
 
 	Editor& editor;
 
+	/** the last base after painting (used for caching) */
+	bool lastBase;
+
 signals:
 
 public slots:

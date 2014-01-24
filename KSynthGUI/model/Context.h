@@ -3,6 +3,7 @@
 
 
 #include <KSynth/misc/AudioFormat.h>
+#include "SystemSettings.h"
 
 class RackFactory;
 class MasterTarget1;
@@ -15,7 +16,15 @@ class QApplication;
 class Rack;
 class SoundBase;
 class Tasks;
+class RtMidiWrapper;
+class MidiBinder;
+class MidiBindingDialog;
+class MainWin;
 
+/**
+ * this clas describes the application's context and provides access
+ * to all elements needed in almost any place of the application.
+ */
 class Context {
 
 public:
@@ -54,11 +63,26 @@ public:
 	/** get the master target to send audio to */
 	MasterTarget1* getMasterTarget() const;
 
+	/** get the midi subsystem to communicate with midi devices */
+	RtMidiWrapper* getMidi() const;
+
+	/** the binder to glue midi events to device parameters */
+	MidiBinder* getMidiBinder() const;
+
+	/** get the convenience dialog automatically creating midi bindings */
+	MidiBindingDialog* getMidiBindingDialog() const;
+
+	/** get the main application window */
+	MainWin* getMainWindow() const;
+
+	/** get the system settings manager */
+	SystemSettings* getSettings() const;
 
 private:
 
-	/** sound destination */
-	SoundSink* snd;
+	/** all system settings reside here */
+	SystemSettings* settings;
+
 
 	/** the main sequencer */
 	Sequencer* seq;
@@ -87,6 +111,20 @@ private:
 
 	/** execute foreground/background tasks */
 	Tasks* tasks;
+
+	/** access external midi devices */
+	RtMidiWrapper* midi;
+
+	/** attach/detach midi bindings here */
+	MidiBinder* midiBinder;
+
+	/** dialog to bind midi events */
+	MidiBindingDialog* midiBindingDialog;
+
+	/** the main application window */
+	MainWin* mainWindow;
+
+
 
 };
 

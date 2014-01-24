@@ -12,6 +12,8 @@
 #include "../model/WorkspaceLoader.h"
 #include "CtrlHelper.h"
 
+#include "../SettingsDialog.h"
+
 #include <KSynth/Generator.h>
 #include <KSynth/Sequencer.h>
 #include <KSynth/midi/MidiParser.h>
@@ -94,6 +96,11 @@ void Controller::load() {
 
 
 
+void Controller::showSettings() {
+	SettingsDialog* dlg = new SettingsDialog( *ctx.getSettings(), (QWidget*) ctx.getMainWindow() );
+	dlg->exec();
+}
+
 void Controller::addNewRackElement(const std::string str) {
 	RackElement* re = ctx.getRackFactory()->getByString(str, ctx);
 	ctx.getRack()->add(re);
@@ -114,7 +121,7 @@ void Controller::clearTracks() {
 
 
 void Controller::addNewTrack() {
-	ctx.getSequencer()->addTrack(SequencerTrack());
+	ctx.getSequencer()->addTrack(new SequencerTrack());
 }
 
 void Controller::importMidi() {

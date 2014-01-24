@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 class Context;
+#include "controls/misc/OSStats.h"
 
 namespace Ui {
 	class MainWin;
@@ -36,11 +37,17 @@ private slots:
 
 	void clearTracks();
 
+	void showSettings();
+
+	void showAbout();
+
 private:
 
 	Ui::MainWin *ui;
 
 	Context& ctx;
+
+	OSStats* stats;
 
 };
 

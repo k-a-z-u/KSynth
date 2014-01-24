@@ -55,8 +55,6 @@ signals:
 	/** the knob's value changed */
 	void onChange();
 
-public slots:
-
 
 private:
 

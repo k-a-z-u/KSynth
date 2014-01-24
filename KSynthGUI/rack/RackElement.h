@@ -4,6 +4,7 @@
 #include <QWidget>
 class Context;
 class TextLabel;
+#include "../controls/RightClickMenu.h"
 
 #include <KSynth/misc/DeviceDetails.h>
 
@@ -11,7 +12,8 @@ class TextLabel;
  * @brief base class for every element to add to the rack.
  * each element will register itself to an update-thread called
  * peridodically to update all knobs, sliders, etc with the underlying
- * audio-generator classes.
+ * SoundBase classes as those values might have been changed by
+ * automation or external midi events.
  */
 class RackElement : public QWidget, virtual public DeviceDetails {
 	Q_OBJECT
@@ -40,6 +42,9 @@ public:
 	 */
 	virtual void onRackDetach() {;}
 
+	/** get the context this RackElement belongs to */
+	Context& getContext();
+
 protected:
 
 	/**
@@ -58,6 +63,7 @@ protected:
 
 private:
 
+	RightClickMenu rcMenu;
 
 
 signals:
@@ -81,11 +87,6 @@ private slots:
 	 * and update all GUI-elements like knobs, sliders and VU-meters.
 	 */
 	virtual void refresh() = 0;
-
-
-	/** show the context menu */
-	void showContextMenu(const QPoint& pt);
-
 
 	/** set the user-name from label and inform listeners */
 	void updateUserName();

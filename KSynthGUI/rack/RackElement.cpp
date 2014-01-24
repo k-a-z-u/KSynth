@@ -7,15 +7,34 @@
 #include "../model/Context.h"
 #include "Rack.h"
 #include "../controls/TextLabel.h"
+#include "../misc/Skin.h"
 
 #include "MasterTarget1.h"
 
+class RightClickMenuRackElement : public RightClickMenuListener {
+public:
+	RightClickMenuRackElement(RackElement* re) : re(re) {;}
+	void onRightClickMenu(QMenu& menu) override {
+		SoundBase* sb = dynamic_cast<SoundBase*>(re);
+		if (!re || !sb) {return;}
+		menu.addAction( (re->getProductString() + ": "+ re->getUserName()).c_str(), 0, 0)->setDisabled(true);
+		menu.addSeparator();
+		QAction* actDel = menu.addAction("delete", re, SLOT(deleteMe()));
+		actDel->setIcon(Skin::getIcon("skin/icons/delete.png"));
+	}
+private:
+	RackElement* re;
+};
+
+
+
 RackElement::RackElement(Context &ctx, QWidget *parent) :
-	QWidget(parent), ctx(ctx) {
+	QWidget(parent), ctx(ctx), rcMenu(this) {
 
-	setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+	// right-click menu
+	rcMenu.addRightClickMenuListener(new RightClickMenuRackElement(this));
 
+	// every rack-element has a label which allows changing its name
 	label = new TextLabel(this);
 	connect(label, SIGNAL(valueChanged()), this, SLOT(updateUserName()));
 
@@ -25,11 +44,8 @@ RackElement::~RackElement() {
 	;
 }
 
-#include <QMenu>
-void RackElement::showContextMenu(const QPoint& pt) {
-	QMenu menu;
-	menu.addAction("delete", this, SLOT(deleteMe()));
-	menu.exec(this->mapToGlobal(pt));
+Context& RackElement::getContext() {
+	return ctx;
 }
 
 void RackElement::deleteMe() {

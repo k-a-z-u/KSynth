@@ -107,7 +107,7 @@ private:
 
 	/** mouse-button pressed */
 	void _mousePress(QMouseEvent* e) {
-		mouse.isDown = true;
+		mouse.isDown = e->button() == Qt::LeftButton;
 		mouse.pos = e->pos();
 		mouse.grab = mouseInGrab(e->pos());
 		mouse.oldGeo = geometry();

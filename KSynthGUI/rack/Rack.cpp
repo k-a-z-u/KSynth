@@ -11,7 +11,8 @@
 #include "../model/Context.h"
 #include "../rack/MasterTarget1.h"
 
-Rack::Rack(Context& ctx, RackWidget& rw) : ctx(ctx), rw(rw), running(true), refreshing(false) {
+Rack::Rack(Context& ctx, RackWidget& rw) :
+	ctx(ctx), rw(rw), running(true), refreshing(false), refreshMS(70) {
 
 	// create refresh thread
 	thread = new std::thread(&Rack::run, this);
@@ -44,6 +45,16 @@ bool Rack::hasElementNamed(const std::string& name) const {
 	return false;
 }
 
+
+void Rack::setRefreshInterval(unsigned int ms) {
+	this->refreshMS = ms;
+}
+
+unsigned int Rack::getRefreshInterval() const {
+	return refreshMS;
+}
+
+
 void Rack::add(RackElement* re) {
 
 	// empty user name?
@@ -74,7 +85,7 @@ void Rack::add(RackElement* re) {
 	// attach
 	re->onRackAttach();
 
-	emit entryAdded( (unsigned int) elems.size() - 1);
+	//emit entryAdded( (unsigned int) elems.size() - 1);
 	emit onRackChanged();
 
 }
@@ -84,7 +95,6 @@ void Rack::remove(RackElement* re) {
 	// detach
 	re->onRackDetach();
 
-	int idx = 0;
 	mutex.lock(); {
 
 		// remove from visible rack
@@ -94,7 +104,7 @@ void Rack::remove(RackElement* re) {
 		//auto match = [el] (RackElement* re) {return el == re;};
 		//elems.erase( std::remove_if(elems.begin(), elems.end(), match), elems.end() );
 		for (unsigned int i = 0; i < elems.size(); ++i) {
-			if (elems[i] == re) {idx = i; elems.erase(elems.begin() + i); break;}
+			if (elems[i] == re) {elems.erase(elems.begin() + i); break;}
 		}
 
 	} mutex.unlock();
@@ -110,7 +120,7 @@ void Rack::remove(RackElement* re) {
 	// remove from ram
 	re->deleteLater();
 
-	emit entryRemoved(idx);
+	//emit entryRemoved(idx);
 	emit onRackChanged();
 
 }
@@ -131,7 +141,7 @@ void Rack::run() {
 
 	while (running) {
 
-		std::chrono::milliseconds dur(70);
+		std::chrono::milliseconds dur( refreshMS );
 		std::this_thread::sleep_for( dur );
 
 		// refresh each registered element

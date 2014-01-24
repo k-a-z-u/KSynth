@@ -4,7 +4,7 @@
 #include <KSynth/Sequencer.h>
 
 EditorTimeline::EditorTimeline(Editor& editor, QWidget *parent) :
-	QWidget(parent), editor(editor) {
+	QWidget(parent), editor(editor), lastBase(0) {
 
 	setMinimumHeight(28);
 	setMaximumHeight(28);
@@ -24,29 +24,29 @@ void EditorTimeline::paintEvent(QPaintEvent* e) {
 	//QWidget::paintEvent(e);
 	Q_UNUSED(e);
 
-	static QImage img = QImage(0,0, QImage::Format_ARGB32);
+	QPainter p(this);
 
-	// caching
-	if (img.width() != width() || img.height() != height()) {
+	QImage imgTile;
+
+	// sizing temporals
+	const unsigned int w = width() - 1;
+	const unsigned int h = height() - 1;
+	const unsigned int sx = editor.getScaler().getSX();
+	const unsigned int nw = editor.getScaler().getNW();
+	const unsigned int bw = editor.getScaler().getBarWidth();
+
+	static const QColor cFill(230,230,230);
+
+	// as background and ticks provide a repeating pattern, we cache one tile
+	// (width of one bar) and draw several tiles side by side
+
+	if (lastBase != editor.getScaler().getBase()) {
+		lastBase = editor.getScaler().getBase();
 
 		// create new image
-		img = QImage(width(), height(), QImage::Format_ARGB32);
-		img.fill(0x00000000);
-		QPainter p(&img);
-
-		QColor cFill(230,230,230);
-
-		// sizing temporals
-		const unsigned int w = width() - 1;
-		const unsigned int h = height() - 1;
-
-		// convert 128th notes to the requested base (= zoom)
-		const unsigned int len = editor.getScaler().getNumBars(editor.getSongLength());
-
-		const unsigned int sx = editor.getScaler().getSX();
-		const unsigned int nw = editor.getScaler().getNW();
-
-		const unsigned int bw = editor.getScaler().getBarWidth();
+		imgTile = QImage(bw, height(), QImage::Format_ARGB32);
+		imgTile.fill(0x00000000);
+		QPainter p(&imgTile);
 
 		// background gradient
 		QLinearGradient grad(0, 0, 0, height());
@@ -54,41 +54,71 @@ void EditorTimeline::paintEvent(QPaintEvent* e) {
 		grad.setColorAt(1, cFill.darker(140));
 		p.setPen(Qt::NoPen);
 		p.setBrush(grad);
-		p.drawRect(0,0,width(),height());
+		p.drawRect(0,0, bw,height());
 
-		// draw bars (one full beat) and subs
+		// lines
 		p.setPen(QColor(96,96,96));
-		for (unsigned int bar = 0; bar < len; ++bar) {
+		const int x = sx;
+		p.drawLine(x, 0, x, h);
 
-			int x = sx + bw*bar;
-			p.drawLine(x, 0, x, height());
-			p.drawText(x+2, 10, std::to_string(bar).c_str());
-
-			// draw sub lines
-			for (unsigned int sub = 1; sub < 8; ++sub) {
-				int xx = x+(nw/2)*sub;
-				int sy = (int) ( (sub % 2) ? (height()*0.8) : (height()*0.7) );
-				p.drawLine(xx, sy, xx, height());
-			}
-
+		// sub lines
+		for (unsigned int sub = 1; sub < 8; ++sub) {
+			const int xx = x+(nw/2)*sub;
+			const int sy = (int) ( (sub % 2) ? (h*0.8) : (h*0.7) );
+			p.drawLine(xx, sy, xx, h);
 		}
-
-		// outline
-		// draw dark outline
-		p.setPen(cFill.darker(200));
-		p.drawLine(0,h,w,h);
-		p.drawLine(w,0,w,h);
-
-		// draw bright outline
-		p.setPen(cFill.lighter());
-		p.drawLine(0,0,w,0);
-		p.drawLine(0,0,0,h);
-
 
 	}
 
-	// update
-	QPainter p(this);
-	p.drawImage(0,0,img);
+	// convert 128th notes to the requested base (= zoom)
+	const unsigned int len = editor.getScaler().getNumBars(editor.getSongLength());
+
+	// draw visible background tiles
+	for (unsigned int x = 0; x < (unsigned int) w; x += bw) {
+
+		// tile visible?
+		QRect tileRect(x,0, imgTile.width(), imgTile.height());
+		if (!e->region().contains(tileRect)) {continue;}
+
+		// draw
+		p.drawImage(x,0,imgTile);
+
+	}
+
+	// draw text
+	p.setPen(QColor(96,96,96));
+	for (unsigned int bar = 0; bar < len; ++bar) {
+
+		const int x = sx + bw*bar + 2;
+		const int y = 10;
+
+		// text visible?
+		if (!e->region().contains(QPoint(x,y))) {continue;}
+
+		// draw
+		p.drawText(x+2, y, std::to_string(bar).c_str());
+
+	}
+
+
+	// outline
+	// draw dark outline
+	p.setPen(cFill.darker(200));
+	p.drawLine(0,h,w,h);
+	p.drawLine(w,0,w,h);
+
+	// draw bright outline
+	p.setPen(cFill.lighter());
+	p.drawLine(0,0,w,0);
+	p.drawLine(0,0,0,h);
+
+
+
+
+//	}
+
+//	// update
+//	QPainter p(this);
+//	p.drawImage(0,0,img);
 
 }

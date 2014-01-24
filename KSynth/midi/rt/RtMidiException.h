@@ -10,6 +10,7 @@
 
 #include <string>
 #include <exception>
+#include "rtmidi/RtError.h"
 
 class RtMidiException : public std::exception {
 

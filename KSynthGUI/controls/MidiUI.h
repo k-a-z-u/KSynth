@@ -3,13 +3,26 @@
 
 #include <KSynth/misc/DataTypes.h>
 #include <QWidget>
+#include "RightClickMenu.h"
+#include "../rack/RackElement.h"
+#include <KSynth/misc/SoundBase.h>
 
+
+
+/**
+ * base class for all controls with "midi-flavour".
+ *
+ * those controls provide params within [0;1] and are
+ * bound to a parameter (index) of the device from the
+ * backend (e.g. synthesizer's master-volume).
+ */
 class MidiUI : public QWidget {
+	Q_OBJECT
 
 public:
 
 	/** ctor */
-	explicit MidiUI(QWidget* parent = 0) : QWidget(parent) {;}
+	explicit MidiUI(QWidget* parent = 0);
 
 	/** dtor */
 	virtual ~MidiUI() {;}
@@ -33,12 +46,23 @@ public:
 		connect(this, SIGNAL(onChange()), reciever, slot);
 	}
 
+
+protected slots:
+
+	void bindMidi();
+
+	void unbindMidi();
+
+
 protected:
 
 	/** the param index */
 	Param param;
 
+	RightClickMenu rcMenu;
+
 
 };
+
 
 #endif // MIDIUI_H

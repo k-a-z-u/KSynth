@@ -83,8 +83,8 @@ std::string WorkspaceSaver::getXML() {
 	}
 
 	// export all tracks
-	for (SequencerTrack& st : *ctx.getSequencer()->getTracks()) {
-		add(st, &doc, nTracks);
+	for ( auto& st : ctx.getSequencer()->getTracks() ) {
+		add(*st, &doc, nTracks);
 	}
 
 	// create XML

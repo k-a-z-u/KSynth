@@ -12,6 +12,13 @@
 #include <KLib/streams/LineInputStream.h>
 #include <KLib/streams/GzipInputStream.h>
 
+/** the number of childrent named name */
+unsigned int numChildren( XMLElement* elem, const char* name ) {
+	unsigned int cnt = 0;
+	for (XMLElement* s = elem->FirstChildElement(name); s; s = s->NextSiblingElement(name)) {++cnt;}
+	return cnt;
+}
+
 WorkspaceLoader::WorkspaceLoader(Context& ctx) : ctx(ctx) {
 	;
 }
@@ -102,6 +109,8 @@ void WorkspaceLoader::parseXML(const std::string& xml, StatusCallback sc) {
 
 void WorkspaceLoader::loadSettings(XMLElement* nSettings, StatusCallback sc) {
 
+	(void) sc;
+
 	XMLElement* nSeq = nSettings->FirstChildElement("Sequencer");
 	if (!nSeq) {throw WorkspaceLoaderException("the Settings node is missing a child for Sequencer");}
 
@@ -114,6 +123,10 @@ void WorkspaceLoader::loadSettings(XMLElement* nSettings, StatusCallback sc) {
 
 void WorkspaceLoader::loadRackElements(XMLElement* nRack, StatusCallback sc) {
 
+	// number of rack elements
+	unsigned int cnt = numChildren(nRack, "RackElement");
+	unsigned int i = 0;
+
 	// load all rack elements
 	for (
 		 XMLElement* nRackElement = nRack->FirstChildElement("RackElement");
@@ -125,6 +138,9 @@ void WorkspaceLoader::loadRackElements(XMLElement* nRack, StatusCallback sc) {
 		unsigned int id = nRackElement->IntAttribute("id");
 		std::string type = nRackElement->Attribute("type");
 		const char* userName = nRackElement->Attribute("user_name");
+
+		// status
+		sc("loading " + std::string(userName), 0.15f + 0.45f * float(i++) / float(cnt));
 
 		// create
 		RackElement* re;
@@ -198,6 +214,9 @@ void WorkspaceLoader::loadBindings(XMLElement* nBindings, StatusCallback sc) {
 
 void WorkspaceLoader::loadTracks(XMLElement* nTracks, StatusCallback sc) {
 
+	unsigned int cnt = numChildren(nTracks, "Track");
+	unsigned int tracks = 0;
+
 	// load all tracks elements
 	for (
 		 XMLElement* nTrack = nTracks->FirstChildElement("Track");
@@ -209,17 +228,18 @@ void WorkspaceLoader::loadTracks(XMLElement* nTracks, StatusCallback sc) {
 		std::string name = nTrack->Attribute("name");
 		std::string desc = nTrack->FirstChildElement("Desc")->GetText();
 
+
 		// create track
-		SequencerTrack st;
-		st.setName(name);
-		st.setDescription(desc);
+		SequencerTrack* st = new SequencerTrack();
+		st->setName(name);
+		st->setDescription(desc);
 
 		// device binding?
 		if (nTrack->Attribute("target_device") != 0) {
 			RackElement* re = idToElement[nTrack->IntAttribute("target_device")];
 			NoteDevice* ne = dynamic_cast<NoteDevice*>(re);
 			if (!ne) {throw WorkspaceLoaderException("element is not a note device!");}
-			st.setDevice(ne);
+			st->setDevice(ne);
 		}
 
 		// load all events
@@ -227,11 +247,17 @@ void WorkspaceLoader::loadTracks(XMLElement* nTracks, StatusCallback sc) {
 		if (!nEvents) {throw WorkspaceLoaderException("track has no events!");}
 
 		// load all events
+		unsigned int j = 0;
 		for (
 			 XMLElement* nEvent = nEvents->FirstChildElement("E");
 			 nEvent;
 			 nEvent = nEvent->NextSiblingElement("E")
 			 ) {
+
+			// status
+			if ( (j % 500) == 0 ) {
+				sc("loading " + name + " (evts: " + std::to_string(j) +")", 0.7f + 0.3f * float(cnt) / float(tracks));
+			}++j;
 
 			// get event params
 			int time = nEvent->IntAttribute("t");
@@ -241,13 +267,14 @@ void WorkspaceLoader::loadTracks(XMLElement* nTracks, StatusCallback sc) {
 
 			// add event
 			MidiEvent evt(time, (uint8_t) status, (uint8_t) d1, (uint8_t) d2);
-			st.getEvents()->add(evt);
+			st->getEvents()->add(evt);
 
 		}
 
 
 		// add track
 		ctx.getSequencer()->addTrack(st);
+		++tracks;
 
 	}
 

@@ -66,6 +66,10 @@ private:
 	/** this class provides functionality for adding new notes to the sheet */
 	EditorSheetDrawNote drawer;
 
+
+	/** the last base after painting (used for caching) */
+	bool lastBase;
+
 signals:
 
 public slots:

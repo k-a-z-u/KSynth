@@ -58,7 +58,7 @@ Editor::~Editor() {
 void Editor::setMode(EditorMode mode) {
 	this->mode = mode;
 	switch (mode) {
-		case EditorMode::DRAW:		setCursor(Skin::getCursor("skin/icons/pen.png", "PNG", 0, 0)); break;
+		case EditorMode::DRAW:		setCursor(Skin::getCursor("skin/icons/pen16.png", "PNG", 0, 0)); break;
 		case EditorMode::CURSOR:	setCursor(Qt::ArrowCursor); break;
 	}
 }

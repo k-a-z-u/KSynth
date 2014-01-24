@@ -79,6 +79,8 @@ private:
 		FlacFile ff(f);
 		s = Sample(ff.get(0), ff.getSampleRate(), ff.getNumChannels());
 #else
+		(void) f;
+		(void) s;
         throw SampleFactoryException("flac support not compiled!");
 #endif
 	}

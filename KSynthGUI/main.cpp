@@ -14,6 +14,8 @@
 #include "RackWidget.h"
 #include "MainWin.h"
 #include "ControlPanelWidget.h"
+#include "MidiBindingDialog.h"
+
 #include "controller/Controller.h"
 
 #include "rack/Rack.h"
@@ -29,6 +31,8 @@
 #include <QTextStream>
 
 #include "controller/tasks/Tasks.h"
+
+#include <KLib/memory/FixedPool.h>
 
 /** display error message */
 void showError(std::string err) {
@@ -94,25 +98,19 @@ public:
 
 int main(int argc, char *argv[]) {
 
+
 	MyApplication app(argc, argv);
 
 	Context ctx(app);
 
-	// the main window
-	MainWin mw(ctx);
-	mw.show();
-
 	// create task sheduler
-	ctx.tasks = new Tasks(&mw);
+	ctx.tasks = new Tasks(ctx.getMainWindow());
 
 	// check skin installation
-	Skin::checkPresent(ctx, mw);
+	Skin::checkPresent(ctx, *ctx.getMainWindow());
 
 	// load stylesheet from skin
 	loadStyleSheet();
-
-
-
 
 
 
@@ -124,8 +122,8 @@ int main(int argc, char *argv[]) {
 
 	public:
 
-		MyTask(Context& ctx, MainWin& mw) :
-			Task("initializing", true), ctx(ctx), mw(mw) {;}
+		MyTask(Context& ctx) :
+			Task("initializing", true), ctx(ctx), mw(*ctx.getMainWindow()) {;}
 
 		void exec() override {
 
@@ -218,7 +216,7 @@ int main(int argc, char *argv[]) {
 	};
 
 	// initialize the rack
-	ctx.getTasks()->addTaskForeground( new MyTask(ctx, mw) );
+	ctx.getTasks()->addTaskForeground( new MyTask(ctx) );
 
 	// done
 	ctx.seq->setBeatsPerMinute(90);

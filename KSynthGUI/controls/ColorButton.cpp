@@ -23,9 +23,9 @@ void ColorButton::mouseReleaseEvent (QMouseEvent* e) {
 	emit onChange();
 }
 
+#include <QMouseEvent>
 void ColorButton::mousePressEvent (QMouseEvent* e) {
-	Q_UNUSED(e);
-	this->isDown = true;
+	this->isDown = e->button() == Qt::LeftButton;
 	emit repaint();
 }
 

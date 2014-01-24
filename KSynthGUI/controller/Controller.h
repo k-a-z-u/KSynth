@@ -8,7 +8,7 @@ class RackElement;
 class SequencerTrack;
 
 
-class Controller{
+class Controller {
 
 public:
 
@@ -26,6 +26,10 @@ public:
 	void load();
 
 
+	/** show the settings dialog */
+	void showSettings();
+
+
 	/** add a new element to the rack */
 	void addNewRackElement(const std::string str);
 
@@ -34,6 +38,7 @@ public:
 
 	/** reset the rack to an initial state */
 	void resetRack();
+
 
 
 	/** add a new track to the sequencer */

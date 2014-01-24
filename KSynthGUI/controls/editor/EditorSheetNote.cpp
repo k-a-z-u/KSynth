@@ -85,14 +85,16 @@ void EditorSheetNote::paintEvent(QPaintEvent* e) {
 	//std::cout << "REPAINT NOTE" << std::endl;
 	Q_UNUSED(e);
 
-	// caching
-	static QImage img = QImage(0,0,QImage::Format_ARGB32);
+	QPainter p(this);
 
-	// update cache?
-	if (img.width() != width() || img.height() != height() || !cached) {
+//	// caching
+//	static QImage img = QImage(0,0,QImage::Format_ARGB32);
 
-		// now cached
-		cached = true;
+//	// update cache?
+//	if (img.width() != width() || img.height() != height() || !cached) {
+
+//		// now cached
+//		cached = true;
 
 		// select color
 		const QColor c = (selected) ? (QColor(192,0,0)) : (QColor(192,192,0));
@@ -102,10 +104,10 @@ void EditorSheetNote::paintEvent(QPaintEvent* e) {
 		grad.setColorAt(0, c);
 		grad.setColorAt(1, c.darker(150));
 
-		// resize caching image
-		img = QImage(width(),height(),QImage::Format_RGB32);
-		img.fill(0x000000);
-		QPainter p(&img);
+//		// resize caching image
+//		img = QImage(width(),height(),QImage::Format_RGB32);
+//		img.fill(0x000000);
+//		QPainter p(&img);
 
 		// sizing temporals
 		const unsigned int w = width() - 1;
@@ -126,11 +128,11 @@ void EditorSheetNote::paintEvent(QPaintEvent* e) {
 		p.drawLine(0,0,w,0);
 		p.drawLine(0,0,0,h);
 
-	}
+//	}
 
-	// render
-	QPainter p(this);
-	p.drawImage(0,0,img);
+//	// render
+//	QPainter p(this);
+//	p.drawImage(0,0,img);
 
 
 

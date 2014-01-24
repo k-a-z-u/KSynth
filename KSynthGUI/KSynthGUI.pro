@@ -75,7 +75,14 @@ SOURCES += main.cpp\
     controller/tasks/Task.cpp \
     controller/tasks/Tasks.cpp \
     misc/Skin.cpp \
-    misc/Download.cpp
+    misc/Download.cpp \
+    MidiBindingDialog.cpp \
+    controls/RightClickMenu.cpp \
+    controls/MidiUI.cpp \
+    controls/misc/OSStats.cpp \
+    SettingsDialog.cpp \
+    model/SoundSinks.cpp \
+    model/SystemSettings.cpp
 
 HEADERS  += \
     controls/Knob.h \
@@ -132,7 +139,18 @@ HEADERS  += \
     controller/tasks/Task.h \
     controller/tasks/Tasks.h \
     misc/Skin.h \
-    misc/Download.h
+    misc/Download.h \
+    MidiBindingDialog.h \
+    controls/RightClickMenu.h \
+    controls/misc/OSStats.h \
+    ../lib/KLib/os/CPUUsage.h \
+    ../lib/KLib/os/Time.h \
+    ../lib/KLib/os/MemoryUsage.h \
+    SettingsDialog.h \
+    model/SoundSinks.h \
+    ../KSynth/output/SoundSinkExport.h \
+    misc/SystemVersion.h \
+    model/SystemSettings.h
 
 FORMS    += \
     SynthWin.ui \
@@ -141,7 +159,13 @@ FORMS    += \
     SequencerWidget.ui \
     RackWidget.ui \
     SampleChooserDialog.ui \
-    ProgressDialog.ui
+    ProgressDialog.ui \
+    MidiBindingDialog.ui \
+    SettingsDialog.ui
+
+RESOURCES += \
+    icons.qrc
+
 
 
 
@@ -163,6 +187,10 @@ INCLUDEPATH += \
         ../lib
 SOURCES += \
         ../lib/KLib/inc/7z/*.c
+HEADERS += \
+        ../lib/KLib/memory/* \
+        ../lib/KLib/os/*
+
 QMAKE_CFLAGS += -D_7ZIP_ST
 
 # add KSynth
@@ -187,26 +215,68 @@ HEADERS += \
         ../KSynth/synth/*.h
 
 
-
-# OS specific stuff
+# linux specific build steps
 linux-g++ | linux-g++-64 | linux-g++-32 {
-        QMAKE_CXXFLAGS += -D__LINUX_ALSA__ -DWITH_ALSA -DWITH_LAME -DWITH_FLAC -DWWITH_ZLIB -DWITH_FFTW3
-	LIBS    += \
-		-lFLAC \
-		-lasound \
-		-lfftw3 \
-                -lmp3lame \
-                -lz
+
+    # compile with alsa support?
+    ALSA {
+        message("using ALSA")
+        QMAKE_CXXFLAGS += -D__LINUX_ALSA__ -DWITH_ALSA
+        LIBS += -lasound
+    }
+
+    PULSE_AUDIO {
+
+    }
+
 }
 
+# windows specific stuff
 win32 {
-	QMAKE_CXXFLAGS += -DWITH_WAVE_OUT
-	LIBS    += \
-		-lwinmm
+
+    WAVE_OUT {
+        message("using WaveOut")
+        QMAKE_CXXFLAGS += -DWITH_WAVE_OUT
+        LIBS += -lwinmm
+    }
+
+    # needed to get process's memory consumption
+    LIBS += -lpsapi
+
+}
+
+
+
+# compile with FLAC support?
+FLAC {
+    message("using FLAC")
+    QMAKE_CXXFLAGS += -DWITH_FLAC
+    LIBS += -lFLAC
+}
+
+# compile with LAME (mp3) support?
+LAME {
+    message("using LAME")
+    QMAKE_CXXFLAGS += -DWITH_LAME
+    LIBS += -lmp3lame
+}
+
+FFTW3 {
+    message("using FFTW3")
+    QMAKE_CXXFLAGS += -DWITH_FFTW3
+    LIBS += -lfftw3
+}
+
+ZLIB {
+    message("using ZLIB")
+    QMAKE_CXXFLAGS += -DWWITH_ZLIB
+    LIBS += -lz
 }
 
 
 
 
-RESOURCES += \
-    icons.qrc
+
+
+
+

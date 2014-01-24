@@ -16,6 +16,8 @@
 #include <exception>
 #include <string>
 #include <iostream>
+#include <memory>
+
 #include "SoundSink.h"
 #include "../misc/AudioFormat.h"
 
@@ -30,57 +32,30 @@ public:
 
 
 /**
- * A SoundSink sending all it's data to the primary alsa soundcard
+ * A SoundSink using linux' ALSA audio output.
+ *
+ * Sinks cannot be created directly but via fetching a list
+ * of all available sound devices.
+ *
  */
 class SoundSinkAlsa : public SoundSink {
 
 public:
 
-	SoundSinkAlsa(AudioFormat fmt) : playback_handle(nullptr), fmt(fmt) {
-		//init(fmt);
-	}
-
 	virtual ~SoundSinkAlsa() {
 		close();
 	}
 
-	void open() override {
+	void open(AudioFormat fmt) override {
 		init(fmt);
 	}
 
-//	/** play the given buffer */
-//	void push(short* buf, int samples) {
-//		long int err;
-//		int frames = samples / fmt.numChannels;
-//		if ((err = snd_pcm_writei (playback_handle, buf, frames)) != frames) {
-//			//snd_pcm_recover(playback_handle, err, 0);
-//			throw SoundException::getFromAlsaError("write to audio interface failed", err);
-//		}
-//		//std::cout << "snd flush" << std::endl;
-//	}
-
-	/** attach one value. flushes when buffer is full */
 	void push(const Amplitude** outputs, const SampleFrame frames) override {
-//		short sLeft = short ( (a.left / 2) * ((1 << 16) - 1) );
-//		short sRight = short ( (a.right / 2) * ((1 << 16) - 1) );
-//		if (bufIdx >= ALSA_BUF_SIZE) {push(buf, ALSA_BUF_SIZE); bufIdx = 0;}
-//		buf[bufIdx+0] = sLeft;
-//		buf[bufIdx+1] = sRight;
-//		bufIdx += fmt.numChannels;
-
-		// create interleaved output
-//		unsigned int sizePerChannel = frames * (unsigned int) sizeof(Amplitude);
-//		Amplitude* output = (Amplitude*) malloc( sizePerChannel * 2 );
-//		memcpy(output + 0, outputs[0], sizePerChannel);
-//		memcpy(output + frames, outputs[1], sizePerChannel);
 
 		long int err;
 		if ((err = snd_pcm_writen (playback_handle, (void**) outputs, frames)) != frames) {
-//			free(output);
-			throw SoundSinkAlsaException::getFromAlsaError("write to audio interface failed", err);
+			throw SoundSinkAlsaException::getFromAlsaError("writing to audio interface failed", err);
 		}
-
-//		free(output);
 
 	}
 
@@ -88,14 +63,66 @@ public:
 		close();
 	}
 
+	std::string getName() override {
+		return "ALSA: " + name;
+	}
+
+
+	/** get all available alsa devices */
+	static std::vector< std::unique_ptr<SoundSinkAlsa> > getAllDevices() {
+
+		std::vector< std::unique_ptr<SoundSinkAlsa> > vec;
+
+		char** hints;
+		int err = snd_device_name_hint(-1, "pcm", (void***) &hints );
+		if (err != 0) {return vec;}
+
+		// enumerate devices
+		char** n = hints;
+		while (*n != nullptr) {
+
+			char* name = snd_device_name_get_hint(*n, "NAME");
+
+			if (name != NULL && 0 != strcmp("null", name)) {
+
+				// create new sink
+				std::unique_ptr<SoundSinkAlsa> ptr(new SoundSinkAlsa(name));
+				vec.push_back( std::move(ptr) );
+
+				// cleanup
+				free(name);
+
+			}
+
+			++n;
+
+		}
+
+		// cleanup
+		snd_device_name_free_hint((void**)hints);
+
+		return vec;
+
+	}
+
+	int getLatencyMS() override {
+		return -1;
+	}
 
 private:
 
-	/** init the soundcard */
+	/** hidden ctor */
+	SoundSinkAlsa(const std::string& name) :
+		name(name), playback_handle(nullptr) {
+		;
+	}
+
+
+	/** initialize the sound-card for using the given audio format */
 	void init(AudioFormat fmt) {
 
 		int err;
-		const char* dev = "default";
+		const char* dev = name.c_str();//"default";
 
 		snd_pcm_hw_params_t *hw_params;
 
@@ -151,9 +178,13 @@ private:
 
 private:
 
+	/** the device's name */
+	std::string name;
+
 	int bufIdx = 0;
-	//short buf[ALSA_BUF_SIZE];
+
 	snd_pcm_t *playback_handle;
+
 	AudioFormat fmt;
 
 

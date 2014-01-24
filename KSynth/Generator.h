@@ -9,33 +9,37 @@
 #define GENERATOR_H_
 
 #include <thread>
+#include <vector>
+#include <algorithm>
+
 #include "misc/SoundSource.h"
 #include "misc/DataTypes.h"
 #include "misc/AudioFormat.h"
-//#include "analyzer/FFTAnalyzer.h"
 
 #include "Sequencer.h"
 #include "output/SoundSink.h"
 #include "SoundBaseBinder.h"
 
-static void bindCurrentThreadToCore(int coreNr) {
 
-#ifdef __linux__
 
-	// whole process
-	cpu_set_t my_set;
-	CPU_ZERO(&my_set);
-	CPU_SET(coreNr, &my_set);
-	//sched_setaffinity(0, sizeof(cpu_set_t), &my_set);
+//static void bindCurrentThreadToCore(int coreNr) {
 
-	// one thread only
-	//unsigned long mask = 1;
-	int ret = pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &my_set);
-	if (ret != 0) {std::cout << "error while settings thread affinity" << std::endl; exit(1);}
+//#ifdef __linux__
 
-#endif
+//	// whole process
+//	cpu_set_t my_set;
+//	CPU_ZERO(&my_set);
+//	CPU_SET(coreNr, &my_set);
+//	//sched_setaffinity(0, sizeof(cpu_set_t), &my_set);
 
-}
+//	// one thread only
+//	//unsigned long mask = 1;
+//	int ret = pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &my_set);
+//	if (ret != 0) {std::cout << "error while settings thread affinity" << std::endl; exit(1);}
+
+//#endif
+
+//}
 
 
 /** exception handling */
@@ -45,6 +49,17 @@ public:
 	const char* what() const throw() override {return msg.c_str();}
 private:
 	std::string msg;
+};
+
+
+/** listen for events / errors within the generator */
+class GeneratorListener {
+
+public:
+
+	/** an error occured */
+	virtual void onError(GeneratorException& e) = 0;
+
 };
 
 
@@ -66,14 +81,30 @@ public:
 		this->src = src;
 	}
 
-	/** set the sound destination */
+	/** set the sink to pipe the generated audio output to */
 	void setSink(SoundSink* sink) {
 		this->sink = sink;
+	}
+
+	/** get the currently selected SoundSink */
+	SoundSink* getSink() const {
+		return sink;
 	}
 
 	/** set the sequencer to use */
 	void setSequencer(Sequencer* seq) {
 		this->seq = seq;
+	}
+
+	/** add a new listener to the generator */
+	void addListener(GeneratorListener* l) {
+		listeners.push_back(l);
+	}
+
+	/** remove an existring listener from the generator */
+	void removeListener(GeneratorListener* l) {
+		auto match = [l] (const GeneratorListener* other) {return l == other;};
+		listeners.erase( std::remove_if(listeners.begin(), listeners.end(), match), listeners.end() );
 	}
 
 	/** start rendering */
@@ -99,10 +130,15 @@ public:
 		// stop only once
 		if (!enabled) {return;}
 		enabled = false;
-		thread->join();
-		delete thread;
-		thread = nullptr;
+
+		if (thread) {
+			thread->join();
+			delete thread;
+			thread = nullptr;
+		}
+
 		seq->stop();
+
 	}
 
 	/** get the binder to handle connections between SoundBase devices */
@@ -174,17 +210,14 @@ private:
 	/** the thread */
 	void render() {
 
-		bindCurrentThreadToCore(0);
-
-		//unsigned int sample = 0;
-		//const unsigned int sample1MS = fmt.sampleRate / 200;		// 5 milliseconds
-
 		SampleFrame frm = 0;
 
 		try {
 
-			sink->open();
+			// open the sound sink (might fail)
+			sink->open(fmt);
 
+			// generate data and stream to sink (might fail)
 			while(enabled) {
 
 				frm += SNDBASE_BLK_SIZE;
@@ -196,22 +229,31 @@ private:
 				audio[0] = get( src, 0, frm );
 				audio[1] = get( src, 1, frm );
 
-				try {
-					sink->push((const Amplitude**) audio, SNDBASE_BLK_SIZE);
-				} catch (std::exception& e) {
-					std::cout << e.what() << std::endl;
-					stop();
-				}
+				//try {
+				sink->push((const Amplitude**) audio, SNDBASE_BLK_SIZE);
+				//} catch (std::exception& e) {
+				//	std::cout << e.what() << std::endl;
+				//	stop();
+				//}
 
 			}
 
+			// cleanup
 			sink->finalize();
 
-		} catch (...) {
-			std::cout << "EXCEPTION" << std::endl;
+		} catch (std::exception& e) {
+
+			// inform listeners
+			GeneratorException ge( std::string("error during rendering:\n") + e.what() );
+			for (GeneratorListener* l : listeners) {l->onError(ge);}
+			seq->stop();
+			enabled = false;
+
 		}
 
 		thread->detach();
+		delete thread;
+		thread = nullptr;
 
 	}
 
@@ -237,7 +279,8 @@ private:
 	/** handle connections between inputs and outputs of SoundBase devices */
 	SoundBaseBinder binder;
 
-	//FFTAnalyzer fft;
+	/** all registered listeners */
+	std::vector<GeneratorListener*> listeners;
 
 };
 

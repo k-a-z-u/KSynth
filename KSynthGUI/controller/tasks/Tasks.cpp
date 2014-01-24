@@ -2,7 +2,7 @@
 #include "../../ProgressDialog.h"
 #include <QApplication>
 
-Tasks::Tasks(QWidget* parent) {
+Tasks::Tasks(QWidget* parent) : enabled(true) {
 
 	// start background thread
 	thread = new std::thread(&Tasks::runInBackground, this);
@@ -15,9 +15,19 @@ Tasks::Tasks(QWidget* parent) {
 Tasks::~Tasks() {
 
 	if (thread) {
+
+		// switch to disabled
+		enabled = false;
+
+		// release the semaphore.
+		// due to "enabled=false": loop terminates
+		sema.release();
+
+		// cleanup
 		thread->join();
 		delete thread;
 		thread = nullptr;
+
 	}
 
 	delete dialog;
@@ -44,10 +54,11 @@ void Tasks::addTaskBackground(Task* t) {
 
 void Tasks::runInBackground() {
 
-	while (true) {
+	while (enabled) {
 
 		// wait for next task
 		sema.acquire();
+		if (!enabled) {break;}
 
 		// get next task
 		Task* t = tasks.front();
@@ -73,7 +84,7 @@ void Tasks::exec(Task* t, bool foreground) {
 	dialog->setText("");
 
 	if (foreground) {QApplication::processEvents();}
-	std::this_thread::sleep_for( std::chrono::milliseconds(250) );
+	std::this_thread::sleep_for( std::chrono::milliseconds(150) );
 
 	// run
 	t->exec();
@@ -87,7 +98,7 @@ void Tasks::exec(Task* t, bool foreground) {
 	if (t->deleteOnDone) {delete t;}
 
 	// hide progress dialog
-	std::this_thread::sleep_for( std::chrono::milliseconds(250) );
+	std::this_thread::sleep_for( std::chrono::milliseconds(150) );
 	dialog->setVisible(false);
 
 }
@@ -96,5 +107,5 @@ void Tasks::onProgress(TaskStatus& s) {
 	dialog->setText(s.msg);
 	dialog->setProgress(s.val);
 	QApplication::processEvents();
-	std::this_thread::sleep_for( std::chrono::milliseconds(25) );
+	std::this_thread::sleep_for( std::chrono::milliseconds(5) );
 }

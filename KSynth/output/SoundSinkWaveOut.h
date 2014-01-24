@@ -135,21 +135,12 @@ class SoundSinkWaveOut : public SoundSink {
 public:
 
 	/** ctor */
-	SoundSinkWaveOut(unsigned int sRate, unsigned int numBuffers = 3, unsigned int bufferEntries = 4096) :
+	SoundSinkWaveOut(unsigned int numBuffers = 3, unsigned int bufferEntries = 4096) :
 		buffersAvailable(numBuffers), curBuffer(0), hWaveOut(nullptr) {
 
 		// create buffers
 		buffers.resize(3);
 		for (auto& buf : buffers) { buf.allocate(bufferEntries); }
-
-		// setup for 16-bit signed-int audio
-		wfx.nSamplesPerSec = sRate;
-		wfx.nChannels = 2;
-		wfx.cbSize = 0;
-		wfx.wBitsPerSample = 16;
-		wfx.wFormatTag = WAVE_FORMAT_PCM;
-		wfx.nBlockAlign = (wfx.wBitsPerSample >> 3) * wfx.nChannels;
-		wfx.nAvgBytesPerSec = wfx.nBlockAlign * wfx.nSamplesPerSec;
 
 	}
 
@@ -158,7 +149,16 @@ public:
 		close();
 	}
 
-	void open() override {
+	void open(AudioFormat fmt) override {
+
+		// setup for 16-bit signed-int audio
+		wfx.nSamplesPerSec = fmt.sampleRate;
+		wfx.nChannels = 2;
+		wfx.cbSize = 0;
+		wfx.wBitsPerSample = 16;
+		wfx.wFormatTag = WAVE_FORMAT_PCM;
+		wfx.nBlockAlign = (wfx.wBitsPerSample >> 3) * wfx.nChannels;
+		wfx.nAvgBytesPerSec = wfx.nBlockAlign * wfx.nSamplesPerSec;
 
 		// open sound-card
 		MMRESULT ret = waveOutOpen( &hWaveOut, WAVE_MAPPER, &wfx, (DWORD)WaveCallback, (DWORD)this, CALLBACK_FUNCTION);

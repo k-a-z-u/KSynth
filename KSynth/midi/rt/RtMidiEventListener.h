@@ -13,7 +13,8 @@ class RtMidiInDevice;
 #include "../MidiEvent.h"
 
 /**
- * listen for incoming midi events
+ * the midi event listener is informed whenever a midi-event
+ * (note, control-change, ..) of a registered device is received.
  */
 class RtMidiEventListener {
 

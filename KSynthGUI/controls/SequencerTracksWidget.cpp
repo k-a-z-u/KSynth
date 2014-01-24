@@ -62,6 +62,11 @@ void SequencerTracksWidget::setSeleceted(SequencerTrackItem& item) {
 #include <QSpacerItem>
 void SequencerTracksWidget::refreshMe() {
 
+	// as we use a very ugly approach here (remove all old entries
+	// and adding them all again) it is much faster to hide the widget
+	// during refresh
+
+	setVisible(false);
 	RemoveLayout(this);
 
 	lay = new QVBoxLayout();
@@ -69,8 +74,8 @@ void SequencerTracksWidget::refreshMe() {
 	lay->setSpacing(0);
 
 	//qDeleteAll(findChildren<QWidget*>());
-	for (SequencerTrack& st : *ctx.getSequencer()->getTracks()) {
-		lay->addWidget(new SequencerTrackItem(*this, *ctx.getRack(), st));
+	for ( auto& st : ctx.getSequencer()->getTracks() ) {
+		lay->addWidget(new SequencerTrackItem(*this, *ctx.getRack(), *st));
 	}
 	lay->addItem(new QSpacerItem(0,0,QSizePolicy::Minimum,QSizePolicy::Expanding));
 
@@ -78,6 +83,7 @@ void SequencerTracksWidget::refreshMe() {
 	selected = nullptr;
 
 	setLayout(lay);
+	setVisible(true);
 
 }
 

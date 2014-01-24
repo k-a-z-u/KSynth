@@ -13,7 +13,7 @@
 
 
 EditorSheet::EditorSheet(Editor& editor, SequencerTrack& track, QWidget *parent) :
-	QWidget(parent), editor(editor), track(track), drawer(*this) {
+	QWidget(parent), editor(editor), track(track), drawer(*this), lastBase(0) {
 
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	setFocusPolicy(Qt::ClickFocus);
@@ -96,64 +96,68 @@ void EditorSheet::paintEvent(QPaintEvent* e) {
 	Q_UNUSED(e);
 
 	// we use caching for enhanced performance
-	static QImage img = QImage(0, 0, QImage::Format_ARGB32);
+	QImage imgTile;
 
 	// check caching
-	if (img.width() != width() || img.height() != height()) {
+	if (lastBase != editor.getScaler().getBase()) {
+		lastBase = editor.getScaler().getBase();
 
-		// create new image
-		img = QImage(width(), height(), QImage::Format_ARGB32);
-		img.fill(0x00000000);
-		QPainter p(&img);
+		// NOTE:
+		// creating a cached image holding the whole size of the editor sheet
+		// would consume a huge amount of memory when the song is very long!
+		// thus: we just cache one "tile" (for one bar) and draw several of
+		// those cached images side by side
 
-		static QColor lines(164,164,164);
-		static QColor black(200,200,200);
-		static QColor white(245,245,245);
+		const unsigned int w = (unsigned int) width() - 1;
+		const unsigned int h = (unsigned int) height() - 1;
+		const unsigned int base = editor.getScaler().getBase();
+		const unsigned int bw = editor.getScaler().getBarWidth();
+		const unsigned int nh = editor.getScaler().getNH();
+		const unsigned int sx = editor.getScaler().getSX();
+		const unsigned int sy = editor.getScaler().getSY();
+
+		// create new image for ONE base
+		// (images are tiled)
+		imgTile = QImage(bw, height(), QImage::Format_ARGB32);
+		imgTile.fill(0x00000000);
+		QPainter p(&imgTile);
+
+		static const QColor lines(164,164,164);
+		static const QColor black(200,200,200);
+		static const QColor white(245,245,245);
 
 		QPen p1; p1.setColor(lines); p1.setWidth(1);
-		QPen p2; p2.setColor(lines); p2.setWidth(2);
-
-		unsigned int w = (unsigned int) width();
-		unsigned int h = (unsigned int) height();
-		unsigned int base = editor.getScaler().getBase();
-		unsigned int bw = editor.getScaler().getBarWidth();
-		unsigned int nw = editor.getScaler().getNW();
-		unsigned int nh = editor.getScaler().getNH();
-		unsigned int sx = editor.getScaler().getSX();
-		unsigned int sy = editor.getScaler().getSY();
-
-		unsigned int len = editor.getSongLength();
-		unsigned int bars = editor.getScaler().getNumBars(len);
+		QPen p2; p2.setColor(lines); p2.setWidth(3);
 
 		// draw black bars for better orientation
 		p.setPen(Qt::NoPen);
 
 		for (int i = 0; i <= ES_MAX_NOTE-ES_MIN_NOTE; ++i) {
-			unsigned int note = ES_MAX_NOTE - i; note %= 12;
+
+			const unsigned int note = (ES_MAX_NOTE - i) % 12;
 			if (!( note == 10 || note == 8 || note == 6 || note == 3 || note == 1 )) {
 				p.setBrush(white);
 			} else {
 				p.setBrush(black);
 			}
-			int y = i * nh;
+
+			const int y = i * nh;
 			p.drawRect(sx, y, w, nh);
+
 		}
 
 		// draw bars (one full beat)
 		p.setPen(QColor(96,96,96));
-		for (unsigned int bar = 0; bar < bars; ++bar) {
+		const int x = sx;
+		p.setPen(p2);
+		p.drawLine(x, 0, x, h);			// left border
+		p.drawLine(x+bw, 0, x+bw, h);	// right border
 
-			int x = sx + bw*bar;
-			p.setPen(p2);
-			p.drawLine(x, 0, x, height());
-
-			// draw sub lines
-			p.setPen(p1);
-			for (unsigned int sub = 1; sub < base; ++sub) {
-				int xx = x+bw*sub/base;
-				p.drawLine(xx, 0, xx, height());
-			}
-
+		// draw sub lines
+		p.setPen(p1);
+		for (unsigned int sub = 1; sub < base; ++sub) {
+			int xx = x+bw*sub/base;
+			p.drawLine(xx, 0, xx, height());
 		}
 
 		// draw horizontal lines
@@ -164,9 +168,22 @@ void EditorSheet::paintEvent(QPaintEvent* e) {
 
 	}
 
-	// draw cached image
+	// draw all visible tiles
 	QPainter p(this);
-	p.drawImage(0,0,img);
+	const unsigned int bw = editor.getScaler().getBarWidth();
+	const unsigned int tileW = imgTile.width();
+	const unsigned int tileH = imgTile.height();
+
+	for (unsigned int x = 0; x < (unsigned int) width(); x += bw) {
+
+		// is this tile visible?
+		QRect tileRect(x,0,tileW,tileH);
+		if (!e->region().contains(tileRect)) {continue;}
+
+		// draw
+		p.drawImage(x,0,imgTile);
+
+	}
 
 }
 

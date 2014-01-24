@@ -58,6 +58,9 @@ private:
 	/** visible status dialog */
 	ProgressDialog* dialog;
 
+	/** task subsystem active? */
+	bool enabled;
+
 
 private slots:
 

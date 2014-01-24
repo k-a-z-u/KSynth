@@ -73,6 +73,11 @@ private:
 		int trackL;			// track inset from the left
 	} size;
 
+	struct Mouse {
+		bool isDown;
+		Mouse() : isDown(false) {;}
+	} mouse;
+
 	/** the slider's title */
 	std::string title;
 

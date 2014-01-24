@@ -8,9 +8,13 @@
 #ifndef RTMIDIINDEVICE_H_
 #define RTMIDIINDEVICE_H_
 
+#include <algorithm>
 #include <vector>
+
+#include "RtMidiException.h"
 #include "RtMidiEventListener.h"
 #include "RtMidiDevice.h"
+#include "rtmidi/RtMidi.h"
 
 
 class RtMidiInDevice : public RtMidiDevice {
@@ -30,6 +34,12 @@ public:
 	void addListener(RtMidiEventListener* l) {
 		listeners.push_back(l);
 		open();
+	}
+
+	/** remove an existring event listener */
+	void removeListener(RtMidiEventListener* l) {
+		auto match = [l] (const RtMidiEventListener* other) {return l == other;};
+		listeners.erase( std::remove_if(listeners.begin(), listeners.end(), match), listeners.end());
 	}
 
 

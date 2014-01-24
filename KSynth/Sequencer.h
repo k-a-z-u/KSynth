@@ -10,12 +10,14 @@
 
 #include <vector>
 #include <exception>
+#include <memory>
 
 #include "midi/MidiFile.h"
 #include "midi/rt/RtMidiWrapper.h"
 #include "pattern/PatternSequencer.h"
 #include "SequencerListener.h"
 #include "SequencerTrack.h"
+
 
 
 /** exception handling within sequencer */
@@ -51,12 +53,12 @@ public:
 	}
 
 	~Sequencer() {
-		//		delete midi.wrap;
+		;
 	}
 
 	/** get all of the sequencer's tracks */
-	std::vector<SequencerTrack>* getTracks() {
-		return &tracks;
+	const std::vector<std::unique_ptr<SequencerTrack>>& getTracks() {
+		return tracks;
 	}
 
 	void onMidiEvent(RtMidiInDevice& src, MidiEvent evt) override {
@@ -67,15 +69,15 @@ public:
 	/** bind a note-device to the given track number */
 	void bind(unsigned int track, NoteDevice* nd) {
 		if (tracks.size() <= track) {throw SequencerException("out of bounds while binding device to track");}
-		tracks[track].dev = nd;
+		tracks[track]->dev = nd;
 		for (SequencerTrackListener* l : listeners.track) {l->onTracksChanged();}
 	}
 
 	/** unbind the given note-device from all tracks */
 	void unbind(NoteDevice* nd) {
-		for (SequencerTrack& st : tracks) {
-			if (st.dev == nd) {
-				st.dev = nullptr;
+		for ( auto& st : tracks ) {
+			if (st->dev == nd) {
+				st->dev = nullptr;
 			}
 		}
 		for (SequencerTrackListener* l : listeners.track) {l->onTracksChanged();}
@@ -132,14 +134,15 @@ public:
 
 
 	/** add a new track to the sequencer */
-	void addTrack(SequencerTrack st) {
-		tracks.push_back(st);
+	void addTrack(SequencerTrack* st) {
+		std::unique_ptr<SequencerTrack> uniquePtr(st);
+		tracks.push_back( std::move(uniquePtr) );
 		for (SequencerTrackListener* l : listeners.track) {l->onTracksChanged();}
 	}
 
 	/** remove the given (existring) track */
 	void removeTrack(const SequencerTrack& st) {
-		auto match = [&st] (const SequencerTrack& other) {return &st == &other;};
+		auto match = [&st] ( std::unique_ptr<SequencerTrack>& other) {return &st == other.get();};
 		tracks.erase(std::remove_if(tracks.begin(), tracks.end(), match), tracks.end());
 		for (SequencerTrackListener* l : listeners.track) {l->onTracksChanged();}
 	}
@@ -147,8 +150,8 @@ public:
 	/** get the song's length in multiples of 128th notes */
 	TimeBase128 getSongLength() const {
 		TimeBase128 len = 0;
-		for (const SequencerTrack& st : tracks) {
-			if (st.getLength() > len) {len = st.getLength();}
+		for (const auto& st : tracks) {
+			if (st->getLength() > len) {len = st->getLength();}
 		}
 		return len;
 	}
@@ -162,15 +165,15 @@ public:
 		for (const MidiTrack& mt : midi.getTracks()) {
 
 			// create new track
-			SequencerTrack track;
+			std::unique_ptr<SequencerTrack> track(new SequencerTrack());
 
 			// fetch name from midi name (if any)
-			track.name = mt.getName();
+			track->name = mt.getName();
 
 			// some descriptive parts
 			std::string desc = "Instruments: ";
 			for (const std::string& s : mt.getInstrumentsAsString()) {desc += s + " ";}
-			track.setDescription(desc);
+			track->setDescription(desc);
 
 			// convert all relative delays to absolute values
 			unsigned int lastDelay = offset;
@@ -182,12 +185,12 @@ public:
 				lastDelay += evt.delay;
 
 				// append event to track
-				track.events.add(evtN);
+				track->events.add(evtN);
 
 			}
 
 			// attach
-			tracks.push_back(track);
+			tracks.push_back( std::move(track) );
 
 		}
 
@@ -270,9 +273,9 @@ protected:
 
 	/** stop all currently pending notes within all attached devices */
 	void stopAllNotes() {
-		for (SequencerTrack& st : tracks) {
-			st.curEventIdx = 0;
-			if (st.dev) {st.dev->stopNotes();}
+		for ( auto& st : tracks) {
+			st->curEventIdx = 0;
+			if (st->dev) {st->dev->stopNotes();}
 		}
 	}
 
@@ -324,24 +327,24 @@ protected:
 
 
 			// process each track
-			for (SequencerTrack& st : tracks) {
+			for ( auto& st : tracks ) {
 
 				// skip empty tracks
-				if (st.events.size() <= st.curEventIdx) {continue;}
+				if (st->events.size() <= st->curEventIdx) {continue;}
 
 				hasEvents = true;
 
 				// execute all pending events
-				while( timing.cur128 >= st.events[st.curEventIdx]->delay) {
-					fire(st.dev, *st.events[st.curEventIdx]);
-					++st.curEventIdx;
-					if (st.events.size() <= st.curEventIdx) {break;}
+				while( timing.cur128 >= st->events[st->curEventIdx]->delay) {
+					fire(st->dev, *st->events[st->curEventIdx]);
+					++st->curEventIdx;
+					if (st->events.size() <= st->curEventIdx) {break;}
 				}
 
 			}
 
 			for (MidiEvent& e : midi.evts) {
-				fire(tracks[0].dev, e);
+				fire(tracks[0]->dev, e);
 			}
 			midi.evts.clear();
 
@@ -386,9 +389,9 @@ protected:
 		stopAllNotes();
 		timing.cur128 = (float) timing.jumpTo;
 		timing.last128 = (float) timing.jumpTo;
-		for (SequencerTrack& st : tracks) {
-			for (unsigned int i = 0; i < st.getEvents()->size(); ++i) {
-				if ( st.getEvents()->at(i)->getDelay() >= TimeBase128(timing.jumpTo) ) {st.curEventIdx = i; break;}
+		for ( auto& st : tracks ) {
+			for (unsigned int i = 0; i < st->getEvents()->size(); ++i) {
+				if ( st->getEvents()->at(i)->getDelay() >= TimeBase128(timing.jumpTo) ) {st->curEventIdx = i; break;}
 			}
 		}
 		timing.jumpTo = -1;
@@ -427,7 +430,7 @@ private:
 	SequencerStatus status;
 
 	/** all tracks within the sequencer */
-	std::vector<SequencerTrack> tracks;
+	std::vector< std::unique_ptr<SequencerTrack> > tracks;
 
 	struct {
 		RtMidiWrapper* wrap;

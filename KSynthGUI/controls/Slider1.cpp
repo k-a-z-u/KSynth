@@ -81,15 +81,15 @@ void Slider1::setValueFromParam(ParamValue val) {
 #include <QMouseEvent>
 void Slider1::mouseReleaseEvent (QMouseEvent* e) {
 	Q_UNUSED(e);
-	//mouseDown.isDown = false;
+	mouse.isDown = false;
 }
 void Slider1::mousePressEvent (QMouseEvent* e) {
-	//mouseDown.isDown = true;
-	//mouseDown.x = e->x();
-	//mouseDown.y = e->y();
+	mouse.isDown = e->button() == Qt::LeftButton;
+	if (!mouse.isDown) {return;}
 	recalc(e->x(), e->y());
 }
 void Slider1::mouseMoveEvent(QMouseEvent* e) {
+	if (!mouse.isDown) {return;}
 	recalc(e->x(), e->y());
 }
 

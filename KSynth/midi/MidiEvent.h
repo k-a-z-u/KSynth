@@ -36,6 +36,7 @@ enum class MidiEventType {
  */
 struct MidiEvent {
 
+
 	/** delay to the previous event on the same track */
 	uint32_t delay;
 
@@ -97,6 +98,11 @@ struct MidiEvent {
 		return d2;
 	}
 
+	/** get the second data-value as float between [0;1] */
+	float getData2AsFloat() const {
+		return float(getData2()) / 127.0f;
+	}
+
 	/** set the second data-value */
 	void setData2(int d2) {
 		this->d2 = uint8_t(d2);
@@ -122,6 +128,20 @@ struct MidiEvent {
 		return status & 15;		// 15 = 0b1111
 	}
 
+
+	/** get the event type as string */
+	std::string getTypeString() const {
+		switch(getType()) {
+			case MidiEventType::NOTE_OFF:					return "NOTE_OFF";
+			case MidiEventType::NOTE_ON:					return "NOTE_ON";
+			case MidiEventType::POLYPHONIC_KEY_PRESSURE:	return "POLYPHONIC_KEY_PRESSURE";
+			case MidiEventType::CONTROL_CHANGE:				return "CONTROL_CHANGE";
+			case MidiEventType::PROGRAM_CHANGE:				return "PROGRAM_CHANGE";
+			case MidiEventType::CHANNEL_PRESSURE:			return "CHANNEL_PRESSURE";
+			case MidiEventType::PITCH_WHEEL_CHANGE:			return "PITCH_WHEEL_CHANGE";
+			default:										return "UNKNOWN";
+		}
+	}
 
 	/** textual display of a midi-event */
 	std::string asString() const {

@@ -23,8 +23,10 @@
   <property name="styleSheet">
    <string notr="true"/>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
-  <widget class="QMenuBar" name="menubar">
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout"/>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -55,6 +57,10 @@
     <addaction name="separator"/>
     <addaction name="menuFileImportMidi"/>
     <addaction name="separator"/>
+    <addaction name="menuFileExportSong"/>
+    <addaction name="separator"/>
+    <addaction name="menuFileSettings"/>
+    <addaction name="separator"/>
     <addaction name="menuFileExit"/>
    </widget>
    <widget class="QMenu" name="menuTracks">
@@ -63,10 +69,18 @@
     </property>
     <addaction name="menuTracksClear"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="menuHelpAbout"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="mnuRack"/>
    <addaction name="menuTracks"/>
+   <addaction name="menuHelp"/>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionLol">
    <property name="text">
     <string>lol</string>
@@ -79,12 +93,15 @@
   </action>
   <action name="menuFileSave">
    <property name="text">
-    <string>Save</string>
+    <string>Save Workspace</string>
    </property>
   </action>
   <action name="menuFileLoad">
    <property name="text">
-    <string>Load</string>
+    <string>Load Workspace</string>
+   </property>
+   <property name="iconText">
+    <string>Load Workspace</string>
    </property>
   </action>
   <action name="menuFileImportMidi">
@@ -108,6 +125,21 @@
   <action name="menuTracksClear">
    <property name="text">
     <string>clear</string>
+   </property>
+  </action>
+  <action name="menuFileExportSong">
+   <property name="text">
+    <string>Export Song</string>
+   </property>
+  </action>
+  <action name="menuFileSettings">
+   <property name="text">
+    <string>Settings</string>
+   </property>
+  </action>
+  <action name="menuHelpAbout">
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>

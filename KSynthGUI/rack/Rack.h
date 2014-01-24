@@ -43,6 +43,14 @@ public:
 	bool hasElementNamed(const std::string& name) const;
 
 
+	/** set the refresh interval (in milliseconds) */
+	void setRefreshInterval(unsigned int ms);
+
+	/** get the refresh interval (in milliseconds) */
+	unsigned int getRefreshInterval() const;
+
+
+
 	/** get a list of all NoteDevices within the Rack */
 	std::vector<NoteDevice*> getNoteDevices() const;
 
@@ -74,6 +82,8 @@ private:
 	/** the refreshing thread */
 	std::thread* thread;
 
+	/** the refresh interval */
+	unsigned int refreshMS;
 
 
 	/** refresh all gui elements */
@@ -83,13 +93,13 @@ private:
 signals:
 
 	/** a new entry has been added to the rack */
-	void entryAdded(int i);
+	//void entryAdded(int i);
 
 	/** an entry has been removed from the rack */
-	void entryRemoved(int i);
+	//void entryRemoved(int i);
 
 	/** the entry at index i has been changed */
-	void entryChanged(int i);
+	//void entryChanged(int i);
 
 	/** the racks content changed / elements have been edited */
 	void onRackChanged();

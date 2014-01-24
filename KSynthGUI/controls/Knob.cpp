@@ -20,6 +20,8 @@ Knob::Knob(QWidget* parent) :
 
 	title = "misc";
 
+	//addRightClickMenuListener(new RightClickMenuMIDI());
+
 }
 
 Knob::Knob(const std::string& title, int min, int max, int val, unsigned int mouseWheelSteps, QWidget* parent) :
@@ -31,6 +33,8 @@ Knob::Knob(const std::string& title, int min, int max, int val, unsigned int mou
 	value.value = -1;
 	setValue(val);
 }
+
+
 
 ParamValue Knob::getValueAsParam() const {
 	//return (value.value - value.min) / (float) (value.max - value.min);
@@ -70,7 +74,7 @@ void Knob::mouseReleaseEvent (QMouseEvent* e) {
 }
 void Knob::mousePressEvent (QMouseEvent* e) {
 	mouseState.downValue = getValue();
-	mouseState.isDown = true;
+	mouseState.isDown = e->button() == Qt::LeftButton;
 	mouseState.x = e->x();
 	mouseState.y = e->y();
 }
