@@ -8,6 +8,7 @@
 #include "../controls/Slider1.h"
 #include "../controls/LED1.h"
 #include "../controls/PinConnector.h"
+#include "../controls/TextLabel.h"
 
 #include "../misc/Skin.h"
 #include "../misc/Helper.h"
@@ -94,17 +95,23 @@ DrumComputer1::~DrumComputer1() {
 void DrumComputer1::openSample() {
 
 	QObject* caller = sender();
-	unsigned int idx = caller->property("IDX").toInt();
+	const unsigned int idx = caller->property("IDX").toInt();
+	const unsigned int paramIdx = (int)SimpleDrumComputerParameter::BANK1_FILE + idx;
 
 	// currently selected sample (if any)
-	std::string curFile = getParameterName(idx);
+	std::string curFile = getParameterName(paramIdx);
+	std::string newFile;
 
 	// show chooser dialog
-	std::string file = SampleChooserDialog::openSampleFile("select new sample for slot " + std::to_string(idx+1), this);
+	if ( !curFile.empty() && K::File(curFile).getParent().isFolder() ) {
+		newFile = SampleChooserDialog::openSampleFile("select new sample for slot " + std::to_string(idx+1), K::File(curFile).getParent(), this);
+	} else {
+		newFile = SampleChooserDialog::openSampleFile("select new sample for slot " + std::to_string(idx+1), this);
+	}
 
 	// set new sample?
-	if (file.empty()) {return;}
-	setParameterName( (int)SimpleDrumComputerParameter::BANK1_FILE + idx, file);
+	if (newFile.empty()) {return;}
+	setParameterName(paramIdx, newFile);
 
 }
 
@@ -155,36 +162,29 @@ void DrumComputer1::paintEvent(QPaintEvent* event) {
 
 }
 
-//std::string DrumComputer1::getDeviceType() const {
-//	return "Drumcomputer1";
-//}
-
 void DrumComputer1::resizeEvent(QResizeEvent* event) {
 
 	Q_UNUSED(event);
 
-//	elements.sldVol->setGeometry(694,124-8, 0,0);
-//	elements.vu->setGeometry(694+32,124, 0,0);
-
 	elements.sldVol->setGeometry(664,128-8, 0,0);
 	elements.vu->setGeometry(664+32,128, 0,0);
 
-	elements.memory.lbl->setGeometry(694, 16, 48, 32);
+	elements.memory.lbl->setGeometry(661, 21, 54, 22);
 
 	elements.connector->setGeometry(727+4,8, 0,0);
+	label->setGeometry(723+4,45, 32,92);
 
 	// pattern selection buttons
-	unsigned int sx = 508;
-	unsigned int sy = 172;
+	unsigned int sx = 574;
+	unsigned int sy = 142;
 	unsigned int ssx = 16;
 	unsigned int ssy = 16;
-	for (unsigned int y = 0; y < 2; ++y) {
-		for (unsigned int x = 0; x < 8; ++x) {
-			unsigned int i = y * 8 + x;
+	for (unsigned int y = 0; y < 4; ++y) {
+		for (unsigned int x = 0; x < 4; ++x) {
+			unsigned int i = y * 4 + x;
 			elements.chkPattern[i]->setGeometry(sx+ssx*x,sy+ssy*y, 0,0);
 		}
 	}
-
 
 	// sample controls
 	sx = 12;
@@ -212,7 +212,6 @@ void DrumComputer1::resizeEvent(QResizeEvent* event) {
 		int j = i % 16;
 		elements.chkBeat[i]->setGeometry(	sx+ssx*j+(j/4*5),	sy,			0,0);
 	}
-
 
 }
 
@@ -306,7 +305,7 @@ void DrumComputer1::refresh() {
 	if (elements.memory.used != getMemoryUsage()) {
 		elements.memory.used = getMemoryUsage();
 		unsigned int kb = elements.memory.used / 1024;
-		elements.memory.img = Helper::getForNumber(kb, 48, 22);
+		elements.memory.img = Helper::getForNumber(kb, 54, 22);
 		elements.memory.lbl->setPixmap(QPixmap::fromImage(elements.memory.img));
 	}
 

@@ -163,7 +163,7 @@ void WorkspaceSaver::add(SequencerTrack& st, tinyxml2::XMLDocument* doc, tinyxml
 	nTrack->InsertEndChild(nEvts);
 
 	// now export all midi events
-	for (const MidiEvent* evt : *st.getEvents()) {
+	for ( auto& evt : *st.getEvents()) {
 		tinyxml2::XMLElement* nEvt = doc->NewElement("E");
 		nEvts->InsertEndChild(nEvt);
 		nEvt->SetAttribute("t", evt->getDelay());

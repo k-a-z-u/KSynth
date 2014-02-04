@@ -107,8 +107,8 @@ private:
 			// index within the old PCM data as float (for interpolation)
 			float oldSample = (float) newSample * (float) oldsr / (float) newsr;
 
-			SampleFrame oldSample1 = int( std::floor(oldSample) );
-			SampleFrame oldSample2 = int( std::ceil(oldSample) );
+			SampleFrame oldSample1 = (unsigned int) std::floor(oldSample);
+			SampleFrame oldSample2 = (unsigned int) std::ceil(oldSample);
 			float blend1 = 1.0f - (oldSample - float(oldSample1));
 			float blend2 = 1.0f - blend1;
 

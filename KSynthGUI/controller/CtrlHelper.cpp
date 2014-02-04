@@ -7,7 +7,7 @@
 std::string CtrlHelper::getFilterString(std::vector<FileDialogFilter> filter) {
 	std::string ret = "";
 	for (const FileDialogFilter& f : filter) {
-		ret += f.desc + " (*." + f.ext + ");;";
+		ret += f.getFilterString() + ";;";
 	}
 	return ret.substr(0, ret.length()-2);
 }
@@ -20,7 +20,7 @@ std::string CtrlHelper::openFile(const std::string& caption, FileDialogFilter fi
 	return openFile(caption, vec);
 }
 
-std::string CtrlHelper::openFile(const std::string& caption, std::vector<FileDialogFilter> filter) {
+std::string CtrlHelper::openFile(const std::string& caption, std::vector<FileDialogFilter> filter, FileDialogFilter* selection) {
 
 	QFileDialog dialog;
 	std::string fs = getFilterString(filter);
@@ -28,8 +28,18 @@ std::string CtrlHelper::openFile(const std::string& caption, std::vector<FileDia
 	dialog.setViewMode(QFileDialog::Detail);
 	dialog.setWindowTitle(caption.c_str());
 	if (dialog.exec()) {
+
+		// pass selected filter back to the caller?
+		if (selection) {
+			std::string fs = dialog.selectedFilter().toUtf8().constData();
+			for (FileDialogFilter& f : filter) {
+				if (f.getFilterString() == fs) {*selection = f;}
+			}
+		}
+
 		std::string file = dialog.selectedFiles().at(0).toUtf8().constData();
 		return file;
+
 	}
 	return "";
 
@@ -41,13 +51,21 @@ std::string CtrlHelper::saveFile(const std::string& caption, FileDialogFilter fi
 	return saveFile(caption, vec);
 }
 
-std::string CtrlHelper::saveFile(const std::string& caption, std::vector<FileDialogFilter> filter) {
+std::string CtrlHelper::saveFile(const std::string& caption, std::vector<FileDialogFilter> filter, FileDialogFilter* selection) {
 
 	// show chooser
 	QString selFilter;
 	std::string fs = getFilterString(filter);
 	std::string file = QFileDialog::getSaveFileName(0, caption.c_str(), "", fs.c_str(), &selFilter).toUtf8().constData();
 	if (file.empty()) {return "";}
+
+	// pass selected filter back to the caller?
+	if (selection) {
+		std::string selFilterStr = selFilter.toUtf8().constData();
+		for (FileDialogFilter& f : filter) {
+			if (f.getFilterString() == selFilterStr) {*selection = f;}
+		}
+	}
 
 	// get selected file-extension from filter
 	int p1 = selFilter.lastIndexOf("(*.");

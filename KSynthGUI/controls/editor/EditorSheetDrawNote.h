@@ -2,7 +2,7 @@
 #define EDITORSHEETDRAWNOTE_H
 
 #include <QWidget>
-#include "EditorNote.h"
+#include "EditorSheetNoteModel.h"
 class EditorSheetNote;
 class EditorSheet;
 class QMouseEvent;
@@ -35,6 +35,8 @@ private:
 	void onMousePress(QMouseEvent*);
 	void onMouseRelease(QMouseEvent*);
 
+	/** snap the currently drawn note (if snapping is enabled) */
+	void mouseSnapNote();
 
 private:
 

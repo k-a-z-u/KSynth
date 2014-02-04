@@ -3,7 +3,7 @@
 
 #include <QDialog>
 class SystemSettings;
-class SoundSink;
+class SoundSinkHardware;
 
 namespace Ui {
 	class SettingsDialog;
@@ -19,21 +19,29 @@ class SettingsDialog : public QDialog {
 
 public:
 
-	/** ctor */
-	explicit SettingsDialog(SystemSettings& settings, QWidget* parent = 0);
-
 	/** dtor */
 	~SettingsDialog();
 
+	/** show settings dialog. returns true on "ok" and false on "cancel" */
+	static bool show(SystemSettings& settings, QWidget* parent = 0);
+
 private:
+
+	/** hidden ctor. use singleton */
+	explicit SettingsDialog(SystemSettings& settings, QWidget* parent = 0);
+
+private:
+
+
 
 	Ui::SettingsDialog *ui;
 
 	/** the underlying model */
 	SystemSettings& settings;
 
+	bool okClicked;
 
-	void showLatency(SoundSink* ss);
+	void showLatency(SoundSinkHardware* ss);
 
 private slots:
 

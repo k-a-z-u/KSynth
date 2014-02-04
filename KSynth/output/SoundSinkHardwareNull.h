@@ -5,24 +5,24 @@
  *      Author: kazu
  */
 
-#ifndef SOUNDSINKNULL_H_
-#define SOUNDSINKNULL_H_
+#ifndef SOUNDSINKHARDWARENULL_H_
+#define SOUNDSINKHARDWARENULL_H_
 
-#include "SoundSink.h"
+#include "SoundSinkHardware.h"
 
 /**
  * dummy sound sink.
  * simply does nothing at all.
  */
-class SoundSinkNull : public SoundSink {
+class SoundSinkHardwareNull : public SoundSinkHardware {
 
 public:
 
 	/** ctor */
-	SoundSinkNull() {;}
+	SoundSinkHardwareNull() {;}
 
 	/** dtor */
-	~SoundSinkNull() {;}
+	~SoundSinkHardwareNull() {;}
 
 	void open(AudioFormat fmt) override {
 		(void) fmt;
@@ -50,4 +50,4 @@ private:
 };
 
 
-#endif /* SOUNDSINKNULL_H_ */
+#endif /* SOUNDSINKHARDWARENULL_H_ */

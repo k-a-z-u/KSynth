@@ -50,6 +50,9 @@ protected:
 
 private:
 
+	/** set the slider's current value */
+	void _setValue(int value);
+
 	void recalc(int x, int y);
 
 	/** the number of steps the controll will move when the mouse-wheel is used */

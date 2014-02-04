@@ -50,6 +50,13 @@ protected:
 
 	void wheelEvent(QWheelEvent *event) override;
 
+
+private:
+
+	/** set the knob's value */
+	void _setValue(int v);
+
+
 signals:
 
 	/** the knob's value changed */

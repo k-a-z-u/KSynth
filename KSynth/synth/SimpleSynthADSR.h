@@ -33,17 +33,17 @@ public:
 
 
 	/** set the attack (in ms between [0, 100]) */
-	void setAttack(int a)				{this->params.attack = a; recalc();}
+	void setAttack(unsigned int a)		{this->params.attack = a; recalc();}
 
 	/** get the attack (in ms between [0, 100]) */
-	int getAttack() const				{return this->params.attack;}
+	unsigned int getAttack() const		{return this->params.attack;}
 
 
 	/** set the decay (in ms between [0, 100]) */
-	void setDecay(int d)				{this->params.decay = d; recalc();}
+	void setDecay(unsigned int d)		{this->params.decay = d; recalc();}
 
 	/** get the decay (in ms between [0, 100]) */
-	int getDecay() const				{return this->params.decay;}
+	unsigned int getDecay() const		{return this->params.decay;}
 
 
 	/** set the sustain volume (between [0,1]) */
@@ -54,13 +54,13 @@ public:
 
 
 	/** set the release (in ms between [0,1000]) */
-	void setRelease(int r)				{this->params.release = r; recalc();}
+	void setRelease(unsigned int r)		{this->params.release = r; recalc();}
 
 	/** get the release (in ms between [0,1000]) */
-	int getRelease() const				{return this->params.release;}
+	unsigned int getRelease() const		{return this->params.release;}
 
 
-	void setADSR(int a, int d, Volume s, int r, SampleRate rate) {
+	void setADSR(unsigned int a, unsigned int d, Volume s, unsigned int r, SampleRate rate) {
 		this->params.attack = a;
 		this->params.decay = d;
 		this->params.sustain = s;
@@ -117,10 +117,10 @@ private:
 
 	/** parameters */
 	struct {
-		int attack;
-		int decay;
+		unsigned int attack;
+		unsigned int decay;
 		Volume sustain;
-		int release;
+		unsigned int release;
 		SampleRate rate;
 	} params;
 

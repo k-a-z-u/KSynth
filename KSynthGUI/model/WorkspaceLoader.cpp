@@ -185,6 +185,8 @@ void WorkspaceLoader::loadRackElements(XMLElement* nRack, StatusCallback sc) {
 
 void WorkspaceLoader::loadBindings(XMLElement* nBindings, StatusCallback sc) {
 
+	(void) sc;
+
 	// load all rack elements
 	for (
 		 XMLElement* nBinding = nBindings->FirstChildElement("Binding");
@@ -226,7 +228,10 @@ void WorkspaceLoader::loadTracks(XMLElement* nTracks, StatusCallback sc) {
 
 		// track details
 		std::string name = nTrack->Attribute("name");
-		std::string desc = nTrack->FirstChildElement("Desc")->GetText();
+		std::string desc = "";
+		if (nTrack->FirstChildElement("Desc") && nTrack->FirstChildElement("Desc")->GetText()) {
+			desc = nTrack->FirstChildElement("Desc")->GetText();
+		}
 
 
 		// create track

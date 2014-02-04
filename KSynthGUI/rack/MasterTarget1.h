@@ -58,15 +58,16 @@ protected:
 		// render
 		float pStep = 3.0f / float(width());
 		unsigned int x = 0;
-		unsigned int h = height();
+		int h = height();
 
 		for (float percent = 0; percent <= 1.0; percent += pStep) {
 
 			// rescale
 			float pScale = float( std::pow(percent, 2) );
-			int idx = int ( float(values.size()) * pScale);
+			unsigned int idx = (unsigned int) (float(values.size()) * pScale);
 
-			float v = values[idx];
+			float v = values.at(idx);
+			if (v < 0 || v > 100) {continue;}
 			int y1 = h - int( float(h) * v / max * 0.95);
 			p.drawLine(x-1, h, x-1, y1);
 			x += 3;

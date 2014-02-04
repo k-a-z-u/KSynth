@@ -89,7 +89,7 @@ private:
 	/** the static callback for every midi event */
 	static void staticCallback( double deltatime, std::vector< unsigned char >* message, void* userData ) {
 		RtMidiInDevice* me = (RtMidiInDevice*) userData;
-		MidiEvent evt( (uint32_t)(deltatime * 1000), (int)(message->at(0)), (int)(message->at(1)), (int)(message->at(2)));
+		MidiEvent evt( (uint32_t)(deltatime * 1000), (uint8_t)(message->at(0)), (uint8_t)(message->at(1)), (uint8_t)(message->at(2)));
 		me->callback(evt);
 	}
 

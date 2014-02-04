@@ -1,10 +1,3 @@
-/*
- * SoundSinkWave.h
- *
- *  Created on: Oct 27, 2013
- *      Author: kazu
- */
-
 #ifndef SOUNDSINKWAVE_H_
 #define SOUNDSINKWAVE_H_
 
@@ -96,9 +89,15 @@ public:
 	}
 
 	void open(AudioFormat fmt) override {
+
+		// ensure a target file has been set
+		if (!out) {throw SoundSinkException("set an output-file first!");}
+
+		// setup
 		this->fmt = fmt;
 		numBytes = 0;
 		out->reset();
+
 	}
 
 	void push(const Amplitude** outputs, const SampleFrame frames) override {
@@ -126,7 +125,11 @@ public:
 	}
 
 	std::string getName() override {
-		return "wave file (*.wav)";
+		return "WAVE";
+	}
+
+	std::string getFileExtension() override {
+		return "wav";
 	}
 
 private:

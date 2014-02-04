@@ -31,6 +31,8 @@ private slots:
 
 	void importMidi();
 
+	void exportSong();
+
 	void addRackElement();
 
 	void resetRack();

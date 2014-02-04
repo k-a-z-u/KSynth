@@ -10,6 +10,7 @@
 #include <QScrollBar>
 #include <QWidget>
 
+#include "../scroll/AdvScrollArea.h"
 #include "../../model/Context.h"
 #include "../../controls/SequencerTracksWidget.h"
 #include "../../misc/Skin.h"
@@ -18,8 +19,8 @@
 #include <KSynth/midi/MidiEvent.h>
 
 
-Editor::Editor(Context& ctx, SequencerTracksWidget& tracks, QWidget *parent) :
-	QWidget(parent), ctx(ctx), tracks(tracks), mode(EditorMode::CURSOR) {
+Editor::Editor(Context& ctx, SequencerTracksWidget& tracks, AdvScrollArea& scroller, QWidget *parent) :
+	QWidget(parent), ctx(ctx), tracks(tracks), scroller(scroller), mode(EditorMode::CURSOR) {
 
 	// layout for the content
 	layout = new QVBoxLayout();
@@ -63,6 +64,7 @@ void Editor::setMode(EditorMode mode) {
 	}
 }
 
+
 EditorMode Editor::getMode() const {
 	return mode;
 }
@@ -75,13 +77,25 @@ Context& Editor::getContext() const {
 	return ctx;
 }
 
+#include <QMetaObject>
 void Editor::onBeat(Beat beat, Time time) {
+
 	Q_UNUSED(time);
+
 	static unsigned int cnt = 0;
 	if (++cnt % 10 != 0) {return;}
+
+	// as onBeat is received via another thread, queue the connection
+	QMetaObject::invokeMethod(this, "updateSlider", Qt::QueuedConnection, Q_ARG(unsigned int, beat));
+
+}
+
+void Editor::updateSlider(unsigned int beat) {
 	unsigned int x = getScaler().getObjectWidth(beat);
 	slider->move(x, 0);
+	scroller.ensureVisibleX(x);
 }
+
 
 #include <QCoreApplication>
 void Editor::onTrackSelectionChanged(SequencerTrack* st) {
@@ -114,29 +128,29 @@ QWidget* Editor::getHeaderWidget() const {
 }
 
 #include<vector>
-std::vector<EditorNote> Editor::getNotes(SequencerTrack& st) const {
+std::vector<EditorSheetNoteModel> Editor::getNotes(SequencerTrack& st) const {
 
 	// store all notes here
-	std::vector<EditorNote> notes;
+	std::vector<EditorSheetNoteModel> notes;
 
-	for (MidiEvent* evt : *st.getEvents()) {
+	for ( auto& evt : *st.getEvents() ) {
 
 		if (evt->getType() == MidiEventType::NOTE_ON) {
 
 			// note on? -> new entry
-			notes.push_back(EditorNote( evt ));
+			notes.push_back(EditorSheetNoteModel( evt.get() ));
 
 		} else if (evt->getType() == MidiEventType::NOTE_OFF) {
 
 			// lambda to find matching element
-			auto lambda = [&evt] (const EditorNote& o) {
-				return o.on->getData1() == evt->getData1() && o.off == nullptr;
+			auto lambda = [&evt] (const EditorSheetNoteModel& o) {
+				return o.getOnEvt()->getData1() == evt->getData1() && o.getOffEvt() == nullptr;
 			};
 
 			// found?
 			auto it = std::find_if( notes.begin(), notes.end(), lambda );
 			if (it != notes.end()) {
-				it->off = evt;
+				it->setOffEvt( evt.get() );
 			}
 
 		}
@@ -169,12 +183,12 @@ void Editor::resizeMe() {
 }
 
 void Editor::zoomUp() {
-	scaler.setBase(scaler.getBase()*2);
+	scaler.set4thWidth(scaler.get4thWidth()+2);
 	resizeMe();
 }
 
 void Editor::zoomDown() {
-	scaler.setBase(scaler.getBase()/2);
+	scaler.set4thWidth(scaler.get4thWidth()-2);
 	resizeMe();
 }
 

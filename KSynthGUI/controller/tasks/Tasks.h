@@ -64,8 +64,17 @@ private:
 
 private slots:
 
-	/** progress changed */
-	void onProgress(TaskStatus& s);
+	/** task's progress changed */
+	void onTaskProgress(TaskStatus s);
+
+	/** task is starting */
+	void onTaskStart();
+
+	/** task is done */
+	void onTaskDone();
+
+	/** task encountered an error */
+	void onTaskError(QString err);
 
 signals:
 

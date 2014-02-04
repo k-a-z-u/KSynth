@@ -18,26 +18,19 @@ class Synth1 : public RackElement, public SimpleSynth {
 	Q_OBJECT
 
 public:
-	explicit Synth1(Context& ctx, QWidget *parent = 0);
 
-	//	SoundSource* getSoundSource() {return &synth;}
-	//	NoteDevice* getNoteDevice() {return &synth;}
+	/** ctor */
+	explicit Synth1(Context& ctx, QWidget *parent = 0);
 
 	void refresh() override;
 
-	//std::string getDeviceType() const override;
-
-	//RackElement* createFromPrototype(Context& ctx) const override;
-
-//	virtual std::string getProductString() const {
-//		return SimpleSynth::getProductString();
-//	}
 
 protected:
 
 	void paintEvent (QPaintEvent* event) override;
 
 	void resizeEvent(QResizeEvent* event) override;
+
 
 private:
 
@@ -49,6 +42,7 @@ private:
 		Slider1* sldVolume;
 
 		Knob* kMix;
+		Knob* kFM;
 
 		struct {
 			Slider1* sA;

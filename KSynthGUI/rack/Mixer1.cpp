@@ -150,7 +150,7 @@ void Mixer1::refresh() {
 
 	//elements.vuMeter->setValue(getVU());
 
-	for (unsigned int i = 0; i < 8; ++i) {
+	for (unsigned int i = 0; i < 9; ++i) {
 //		BindingEndpoint src = ctx.gen->getBinder().getBindingToInputChannel(this, i*2);
 //		if (!src.dev) {continue;}
 //		elements.gslots[i].vuMeter->setValue(src.dev->getVU());

@@ -41,6 +41,8 @@ private:
 	K::CPUUsage cpu;
 	K::MemoryUsage mem;
 
+	bool enabled;
+
 };
 
 #endif // OSSTATS_H

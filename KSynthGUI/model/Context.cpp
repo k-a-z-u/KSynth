@@ -8,6 +8,7 @@
 #include "../MidiBindingDialog.h"
 
 #include "model/SoundSinks.h"
+#include "controller/SongExport.h"
 
 #include <KSynth/output/MasterTarget.h>
 
@@ -21,14 +22,14 @@
 #include <QMessageBox>
 
 Context::Context(QApplication& app) :
-	app(app), fmt(2,48000,16), tasks(nullptr), midiBinder(nullptr) {
+	app(app), fmt(2,48000,16), dst(nullptr), tasks(nullptr), midiBinder(nullptr) {
 
 	ctrl = new Controller(*this);
 	seq = new Sequencer();
 	gen = new Generator(fmt);
 
 	gen->setSequencer(seq);
-	gen->setSource(dst);
+	gen->setSource(nullptr);
 
 	// the main window
 	mainWindow = new MainWin(*this);
@@ -50,7 +51,7 @@ Context::Context(QApplication& app) :
 		midi->addListener(midiBinder);
 
 	} catch (RtMidiException& e) {
-		QMessageBox::information(0, "midi system",
+		QMessageBox::information(mainWindow, "midi system",
 								 ("initialization of the midi subsystem failed.\n"
 								  "you won't be able to use external midi devices!\n\n"
 								  "error message was:\n\n" + std::string(e.what())
@@ -60,6 +61,9 @@ Context::Context(QApplication& app) :
 
 	// dialog for binding midi events
 	midiBindingDialog = new MidiBindingDialog(*this, mainWindow);
+
+	// song exporter
+	songExp = new SongExport(*this);
 
 	// settings object
 	settings = new SystemSettings(*this);
@@ -72,24 +76,27 @@ Context::~Context() {
 	gen->stop();
 
 	// delete background task system
-	delete tasks;				tasks = nullptr;
+	delete tasks;				tasks = nullptr;	std::cout << 1 << std::endl;
 
 	// delete midi related stuff
-	delete midiBindingDialog;	midiBindingDialog = nullptr;
-	delete midiBinder;			midiBinder = nullptr;
-	delete midi;				midi = nullptr;
+	delete midiBindingDialog;	midiBindingDialog = nullptr; std::cout << 2 << std::endl;
+	delete midiBinder;			midiBinder = nullptr; std::cout << 3 << std::endl;
+	delete midi;				midi = nullptr; std::cout << 4 << std::endl;
 
 	dst = nullptr;				// the Rack will delete this device!
-	delete mainWindow;			mainWindow = nullptr;
+	delete mainWindow;			mainWindow = nullptr; std::cout << 5 << std::endl;
 
-	delete ctrl;				ctrl = nullptr;
-	delete gen;					gen = nullptr;
-	delete seq;					seq = nullptr;
-	delete rackFactory;			rackFactory = nullptr;
-	delete rack;				rack = nullptr;
+	delete ctrl;				ctrl = nullptr; std::cout << 6 << std::endl;
+	delete gen;					gen = nullptr; std::cout << 7 << std::endl;
+	delete seq;					seq = nullptr; std::cout << 8 << std::endl;
+	delete rackFactory;			rackFactory = nullptr; std::cout << 9 << std::endl;
+	delete rack;				rack = nullptr; std::cout << 10 << std::endl;
+
+	// song exporter
+	delete songExp;				songExp = nullptr; std::cout << 11 << std::endl;
 
 	// system settings
-	delete settings;			settings = nullptr;
+	delete settings;			settings = nullptr; std::cout << 12 << std::endl;
 
 }
 
@@ -149,4 +156,8 @@ MainWin* Context::getMainWindow() const {
 
 SystemSettings* Context::getSettings() const {
 	return settings;
+}
+
+SongExport* Context::getSongExporter() const {
+	return songExp;
 }

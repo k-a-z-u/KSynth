@@ -53,8 +53,8 @@ void RackElement::deleteMe() {
 }
 
 void RackElement::setSize(unsigned int width, unsigned int height) {
-	setMinimumSize(width, height);
-	setMaximumSize(width, height);
+	setMinimumSize( int(width), int(height));
+	setMaximumSize( int(width), int(height));
 }
 
 void RackElement::updateUserName() {

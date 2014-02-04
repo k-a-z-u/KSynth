@@ -94,7 +94,7 @@ private:
 			QLabel* lbl;
 
 			/** ctor */
-			Memory() : used(0), img(), lbl(nullptr) {;}
+			Memory() : used(1), img(), lbl(nullptr) {;}
 
 		} memory;
 

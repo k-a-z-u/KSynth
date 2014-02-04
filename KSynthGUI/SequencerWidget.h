@@ -42,6 +42,12 @@ private slots:
 	/** change the editors mode */
 	void changeMode();
 
+	/** change snapping mode */
+	void changeSnap();
+
+	/** change snapping interval */
+	void changeSnapInterval();
+
 	/** add a new track */
 	void addTrack();
 

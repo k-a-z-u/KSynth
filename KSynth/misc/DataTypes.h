@@ -29,6 +29,9 @@ typedef float Time;
 /** "time" in multiples of 128th notes */
 typedef unsigned int TimeBase128;
 
+/** same as TimeBase128 but also allows negative numbers */
+typedef int TimeOffset128;
+
 /** the volume between [0;1] */
 typedef float Volume;
 
@@ -48,12 +51,14 @@ struct ParamValue {
 
 	ParamValue(float val) : val(val) {;}
 	ParamValue(int min, int max, int val) : val( float(val-min) / float(max-min) ) {;}
+	ParamValue(unsigned int min, unsigned int max, unsigned int val) : val( float(val-min) / float(max-min) ) {;}
 	ParamValue(float min, float max, float val) : val( (val-min) / (max-min) ) {;}
 	ParamValue(bool en) : val(en?1:0) {;}
 
 	operator float()					{return val;}
 	bool asBool()						{return val >= 0.5;}
 	int asInt(int min, int max)			{return min + (int) std::round( float(max-min) * val);}
+	unsigned int asUInt(unsigned int min, unsigned int max) {return min + (unsigned int) std::round( float(max-min) * val);}
 	float asFloat(float min, float max)	{return min + (max-min) * val;}
 
 private:

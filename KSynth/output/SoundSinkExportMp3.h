@@ -1,10 +1,3 @@
-/*
- * SoundSinkMp3.h
- *
- *  Created on: Nov 9, 2013
- *      Author: kazu
- */
-
 #ifndef SOUNDSINKMP3_H_
 #define SOUNDSINKMP3_H_
 
@@ -26,7 +19,7 @@ class SoundSinkMp3 : public SoundSinkExport {
 public:
 
 	/** ctor */
-	SoundSinkMp3() {
+	SoundSinkMp3() : lame(nullptr), out(nullptr) {
 		;
 	}
 
@@ -92,7 +85,11 @@ public:
 	}
 
 	std::string getName() override {
-		return "mp3 file (*.mp3)";
+		return "MP3 (lame)";
+	}
+
+	std::string getFileExtension() override {
+		return "mp3";
 	}
 
 private:

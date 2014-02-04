@@ -1,10 +1,3 @@
-/*
- * SoundSink.h
- *
- *  Created on: Oct 27, 2013
- *      Author: kazu
- */
-
 #ifndef SOUNDSINK_H_
 #define SOUNDSINK_H_
 
@@ -67,12 +60,6 @@ public:
 	 * get a name describing this audio-sink
 	 */
 	virtual std::string getName() = 0;
-
-	/**
-	 * if applicable, get the latency (in milliseconds) of the underlying
-	 * device. this is mainly intended for hardware sinks (sound-cards).
-	 */
-	virtual int getLatencyMS() {return -1;}
 
 
 };

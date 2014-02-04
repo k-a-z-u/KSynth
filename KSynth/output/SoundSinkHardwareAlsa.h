@@ -1,12 +1,5 @@
-/*
- * SoundSinkAlsa.h
- *
- *  Created on: Oct 23, 2013
- *      Author: kazu
- */
-
-#ifndef SOUNDSINKALSA_H_
-#define SOUNDSINKALSA_H_
+#ifndef SOUNDSINKHARDWAREALSA_H_
+#define SOUNDSINKHARDWAREALSA_H_
 
 #ifdef WITH_ALSA
 
@@ -18,15 +11,15 @@
 #include <iostream>
 #include <memory>
 
-#include "SoundSink.h"
+#include "SoundSinkHardware.h"
 #include "../misc/AudioFormat.h"
 
 /** exception handling within alsa backend */
-class SoundSinkAlsaException : public SoundSinkException {
+class SoundSinkHardwareAlsaException : public SoundSinkException {
 public:
-	SoundSinkAlsaException(const std::string& str) : SoundSinkException(str) {;}
-	static SoundSinkAlsaException getFromAlsaError(const std::string& str, long int err) {
-		return SoundSinkAlsaException("ALSA Error:\n" + str + "\n" + "error: " + snd_strerror((int)err));
+	SoundSinkHardwareAlsaException(const std::string& str) : SoundSinkException(str) {;}
+	static SoundSinkHardwareAlsaException getFromAlsaError(const std::string& str, long int err) {
+		return SoundSinkHardwareAlsaException("ALSA Error:\n" + str + "\n" + "error: " + snd_strerror((int)err));
 	}
 };
 
@@ -38,11 +31,12 @@ public:
  * of all available sound devices.
  *
  */
-class SoundSinkAlsa : public SoundSink {
+class SoundSinkHardwareAlsa : public SoundSinkHardware {
 
 public:
 
-	virtual ~SoundSinkAlsa() {
+	/** dtor */
+	virtual ~SoundSinkHardwareAlsa() {
 		close();
 	}
 
@@ -54,7 +48,7 @@ public:
 
 		long int err;
 		if ((err = snd_pcm_writen (playback_handle, (void**) outputs, frames)) != frames) {
-			throw SoundSinkAlsaException::getFromAlsaError("writing to audio interface failed", err);
+			throw SoundSinkHardwareAlsaException::getFromAlsaError("writing to audio interface failed", err);
 		}
 
 	}
@@ -69,9 +63,9 @@ public:
 
 
 	/** get all available alsa devices */
-	static std::vector< std::unique_ptr<SoundSinkAlsa> > getAllDevices() {
+	static std::vector< std::unique_ptr<SoundSinkHardwareAlsa> > getAllDevices() {
 
-		std::vector< std::unique_ptr<SoundSinkAlsa> > vec;
+		std::vector< std::unique_ptr<SoundSinkHardwareAlsa> > vec;
 
 		char** hints;
 		int err = snd_device_name_hint(-1, "pcm", (void***) &hints );
@@ -86,7 +80,7 @@ public:
 			if (name != NULL && 0 != strcmp("null", name)) {
 
 				// create new sink
-				std::unique_ptr<SoundSinkAlsa> ptr(new SoundSinkAlsa(name));
+				std::unique_ptr<SoundSinkHardwareAlsa> ptr(new SoundSinkHardwareAlsa(name));
 				vec.push_back( std::move(ptr) );
 
 				// cleanup
@@ -112,7 +106,7 @@ public:
 private:
 
 	/** hidden ctor */
-	SoundSinkAlsa(const std::string& name) :
+	SoundSinkHardwareAlsa(const std::string& name) :
 		name(name), playback_handle(nullptr) {
 		;
 	}
@@ -127,41 +121,41 @@ private:
 		snd_pcm_hw_params_t *hw_params;
 
 		if ((err = snd_pcm_open (&playback_handle, dev, SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
-			throw SoundSinkAlsaException::getFromAlsaError("error while opening device", err);
+			throw SoundSinkHardwareAlsaException::getFromAlsaError("error while opening device", err);
 		}
 
 		if ((err = snd_pcm_hw_params_malloc (&hw_params)) < 0) {
-			throw SoundSinkAlsaException::getFromAlsaError("cannot allocate hardware parameter structure", err);
+			throw SoundSinkHardwareAlsaException::getFromAlsaError("cannot allocate hardware parameter structure", err);
 		}
 
 		if ((err = snd_pcm_hw_params_any (playback_handle, hw_params)) < 0) {
-			throw SoundSinkAlsaException::getFromAlsaError("cannot initialize hardware parameter structure", err);
+			throw SoundSinkHardwareAlsaException::getFromAlsaError("cannot initialize hardware parameter structure", err);
 		}
 
 		if ((err = snd_pcm_hw_params_set_access (playback_handle, hw_params, SND_PCM_ACCESS_RW_NONINTERLEAVED)) < 0) {
-			throw SoundSinkAlsaException::getFromAlsaError("cannot set access type", err);
+			throw SoundSinkHardwareAlsaException::getFromAlsaError("cannot set access type", err);
 		}
 
 		if ((err = snd_pcm_hw_params_set_format (playback_handle, hw_params, SND_PCM_FORMAT_FLOAT)) < 0) {
-			throw SoundSinkAlsaException::getFromAlsaError("cannot set sample format", err);
+			throw SoundSinkHardwareAlsaException::getFromAlsaError("cannot set sample format", err);
 		}
 
 		if ((err = snd_pcm_hw_params_set_rate_near (playback_handle, hw_params, &fmt.sampleRate, 0)) < 0) {
-			throw SoundSinkAlsaException::getFromAlsaError("cannot set sample rate", err);
+			throw SoundSinkHardwareAlsaException::getFromAlsaError("cannot set sample rate", err);
 		}
 
 		if ((err = snd_pcm_hw_params_set_channels (playback_handle, hw_params, fmt.numChannels)) < 0) {
-			throw SoundSinkAlsaException::getFromAlsaError("cannot set channel count", err);
+			throw SoundSinkHardwareAlsaException::getFromAlsaError("cannot set channel count", err);
 		}
 
 		if ((err = snd_pcm_hw_params (playback_handle, hw_params)) < 0) {
-			throw SoundSinkAlsaException::getFromAlsaError("cannot set parameters", err);
+			throw SoundSinkHardwareAlsaException::getFromAlsaError("cannot set parameters", err);
 		}
 
 		snd_pcm_hw_params_free (hw_params);
 
 		if ((err = snd_pcm_prepare (playback_handle)) < 0) {
-			throw SoundSinkAlsaException::getFromAlsaError("cannot prepare audio interface for use", err);
+			throw SoundSinkHardwareAlsaException::getFromAlsaError("cannot prepare audio interface for use", err);
 		}
 
 	}
@@ -193,4 +187,4 @@ private:
 
 #endif
 
-#endif /* SOUNDSINKALSA_H_ */
+#endif /* SOUNDSINKHARDWAREALSA_H_ */

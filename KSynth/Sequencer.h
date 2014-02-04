@@ -176,7 +176,7 @@ public:
 			track->setDescription(desc);
 
 			// convert all relative delays to absolute values
-			unsigned int lastDelay = offset;
+			int lastDelay = offset;
 			for (const MidiEvent& evt : mt.getEvents()) {
 
 				// convert delay from relative to absolute
@@ -260,10 +260,10 @@ protected:
 			if (evt.getType() == MidiEventType::NOTE_OFF) {
 				//|| (track.evt.getType() == MidiEventType::NOTE_ON && track.evt.d2 == 0) ) {
 				dev->stopNote( Note(evt.d1) );
-				std::cout << "stop" << std::endl;
+				//std::cout << "stop" << std::endl;
 			} else if (evt.getType() == MidiEventType::NOTE_ON) {
 				dev->startNote( Note(evt.d1), evt.d2 / 127.0f);
-				std::cout << "start" << std::endl;
+				//std::cout << "start" << std::endl;
 			}
 		}
 
@@ -299,6 +299,10 @@ protected:
 	/** called every X milliseconds from the generator */
 	void onGeneratorCallback(SampleFrame frm) {
 
+		// jump indication? -> jump
+		// should be faster than using mutexes to prevent race conditions
+		if (timing.jumpTo != -1) {jumpToIndication();}
+
 		// delta (in sample frames) to last call
 		SampleFrame deltaFrm = frm - timing.frm;
 		timing.frm = frm;
@@ -312,8 +316,6 @@ protected:
 
 		// get current beat using beats-per-minute
 		timing.cur128 += deltaTime * Time(beatsPerMinute) * 128.0f / 60.0f;
-
-		//std::cout << deltaTime << ":" << timing.time << ":" << timing.cur128 << ":" << TimeBase128(timing.cur128) << std::endl;
 
 		// new 128th note?
 		if ( (TimeBase128) timing.cur128 != (TimeBase128) timing.last128 ) {
@@ -349,13 +351,9 @@ protected:
 			midi.evts.clear();
 
 			// indicate wheter playback is done (no more events)
-			this->done = hasEvents;
+			this->done = !hasEvents;
 
 		}
-
-		// jump indication? -> jump
-		// should be faster than using mutexes to prevent race conditions
-		if (timing.jumpTo != -1) {jumpToIndication();}
 
 	}
 
@@ -366,12 +364,14 @@ protected:
 
 	/** start the sequencer */
 	void start() {
+		if (status == SequencerStatus::PLAYING) {return;}
 		status = SequencerStatus::PLAYING;
 		for (SequencerStatusListener* l : listeners.status) {l->onStatusChange(status);}
 	}
 
 	/** stop the sequencer */
 	void stop() {
+		if (status == SequencerStatus::STOPPED) {return;}
 		reset();
 		stopAllNotes();
 		status = SequencerStatus::STOPPED;
@@ -380,9 +380,12 @@ protected:
 
 	/** TODO start the sequencer in recording mode */
 	void record() {
+		if (status == SequencerStatus::RECORDING) {return;}
 		status = SequencerStatus::RECORDING;
 		for (SequencerStatusListener* l : listeners.status) {l->onStatusChange(status);}
 	}
+
+private:
 
 	/** jump to the currently indicated time */
 	void jumpToIndication() {

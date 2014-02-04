@@ -18,7 +18,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>417</width>
+    <width>651</width>
     <height>191</height>
    </size>
   </property>
@@ -118,21 +118,36 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="btnCursor">
-         <property name="minimumSize">
-          <size>
-           <width>24</width>
-           <height>24</height>
-          </size>
+        <widget class="QRadioButton" name="chkCursor">
+         <property name="text">
+          <string/>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>24</width>
-           <height>24</height>
-          </size>
+         <attribute name="buttonGroup">
+          <string notr="true">grpEditorMode</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="chkDraw">
+         <property name="text">
+          <string/>
          </property>
-         <property name="toolTip">
-          <string>edit existing notes</string>
+         <attribute name="buttonGroup">
+          <string notr="true">grpEditorMode</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkSnap">
+         <property name="styleSheet">
+          <string notr="true"/>
          </property>
          <property name="text">
           <string/>
@@ -140,24 +155,9 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="btnDraw">
-         <property name="minimumSize">
-          <size>
-           <width>24</width>
-           <height>24</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>24</width>
-           <height>24</height>
-          </size>
-         </property>
-         <property name="toolTip">
-          <string>draw new notes</string>
-         </property>
-         <property name="text">
-          <string/>
+        <widget class="QComboBox" name="cmbSnapInterval">
+         <property name="frame">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -175,6 +175,13 @@
         </spacer>
        </item>
       </layout>
+     </widget>
+    </item>
+    <item row="0" column="1" rowspan="3">
+     <widget class="Line" name="line_2">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
      </widget>
     </item>
     <item row="0" column="0">
@@ -255,7 +262,7 @@
       </layout>
      </widget>
     </item>
-    <item row="1" column="0">
+    <item row="1" column="0" rowspan="2">
      <widget class="QScrollArea" name="scrollTracks">
       <property name="minimumSize">
        <size>
@@ -293,19 +300,15 @@
       </widget>
      </widget>
     </item>
-    <item row="1" column="2">
+    <item row="1" column="2" rowspan="2">
      <layout class="QVBoxLayout" name="editor"/>
-    </item>
-    <item row="0" column="1" rowspan="2">
-     <widget class="Line" name="line_2">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-     </widget>
     </item>
    </layout>
   </widget>
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="grpEditorMode"/>
+ </buttongroups>
 </ui>

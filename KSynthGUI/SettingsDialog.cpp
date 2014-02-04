@@ -6,6 +6,13 @@
 
 class SoundSink;
 
+bool SettingsDialog::show(SystemSettings& settings, QWidget* parent) {
+	SettingsDialog dlg(settings, parent);
+	dlg.exec();
+	return dlg.okClicked;
+}
+
+
 SettingsDialog::SettingsDialog(SystemSettings& settings, QWidget *parent) :
 	QDialog(parent), ui(new Ui::SettingsDialog), settings(settings) {
 
@@ -38,17 +45,19 @@ SettingsDialog::~SettingsDialog() {
 	delete ui;
 }
 
-void SettingsDialog::showLatency(SoundSink* ss) {
+void SettingsDialog::showLatency(SoundSinkHardware* ss) {
 	int latency = ss->getLatencyMS();
 	std::string str = (latency == -1) ? ("unknown") : (std::to_string(latency) + " ms");
 	ui->lblSoundSinkLatency->setText( str.c_str() );
 }
 
 void SettingsDialog::onCancel() {
+	okClicked = false;
 	emit close();
 }
 
 void SettingsDialog::onOk() {
+	okClicked = true;
 	emit close();
 }
 
@@ -57,7 +66,7 @@ void SettingsDialog::onRefreshChanged(int val) {
 }
 
 void SettingsDialog::onSelectSoundSink(int idx) {
-	SoundSink* ss = SoundSinks::get().getHardwareSinks().at(idx);
+	SoundSinkHardware* ss = SoundSinks::get().getHardwareSinks().at(idx);
 	settings.setSoundSink(ss);
 	showLatency(ss);
 }

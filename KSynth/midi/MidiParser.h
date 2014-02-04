@@ -107,7 +107,7 @@ private:
 	}
 
 	/** parse the midi header */
-	void readHeader(int length) {
+	void readHeader(unsigned int length) {
 
 		std::cout << "header" << std::endl;
 		if (length != 6) {throw MidiParserException("header length != 6 is currently not supported", file);}
@@ -130,7 +130,7 @@ private:
 	}
 
 	/** parse data for one track */
-	void readTrack(int length) {
+	void readTrack(unsigned int length) {
 		if (midiType == 0)	{readTrackV0(length);}
 		else 				{readTrackV1(length);}
 	}
@@ -141,7 +141,7 @@ private:
 	 * for better editing we will create one track per channel
 	 * and split events into multiple tracks (max 16)
 	 */
-	void readTrackV0(int length) {
+	void readTrackV0(unsigned int length) {
 
 		MidiTrack track[16];
 
@@ -178,7 +178,7 @@ private:
 	}
 
 	/** parse data for one track */
-	void readTrackV1(int length) {
+	void readTrackV1(unsigned int length) {
 
 		MidiTrack track;
 
@@ -210,7 +210,7 @@ private:
 	void readTrackMeta(MidiTrack& dst) {
 		std::cout << " meta:\t";
 		uint8_t type = *head++;
-		int len = readVarLen();
+		unsigned int len = readVarLen();
 		if		(type == 0x2F && len == 0x00) {std::cout << "end of track" << std::endl;}
 		else if	(type == 0x54 && len == 0x05) {
 			std::cout << "SMPTE offset" << std::endl;
@@ -233,8 +233,8 @@ private:
 	// TODO!
 	void readTrackSystem() {
 		std::cout << " system:\t";
-		int len = readVarLen();
-		std::cout << "len:" << (int)len << std::endl;
+		unsigned int len = readVarLen();
+		std::cout << "len:" << len << std::endl;
 		head += len;
 	}
 
@@ -267,12 +267,12 @@ private:
 	}
 
 	/** read a length-value with variable number of bytes (like UTF-8) */
-	int readVarLen() {
-		int len = 0;
+	unsigned int readVarLen() {
+		unsigned int len = 0;
 		bool hasMore = false;
 		do {
-			hasMore = *head & 0x80;		// MSB = another byte following=
-			int val = *head & 0x7F;		// all other bits = value;
+			hasMore = *head & 0x80;				// MSB = another byte following=
+			unsigned int val = *head & 0x7F;	// all other bits = value;
 			len <<= 7;
 			len |= val;
 			++head;

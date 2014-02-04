@@ -8,7 +8,7 @@
 class RackFactory;
 class MasterTarget1;
 class SoundSink;
-class AudioFormat;
+struct AudioFormat;
 class Sequencer;
 class Generator;
 class Controller;
@@ -20,6 +20,8 @@ class RtMidiWrapper;
 class MidiBinder;
 class MidiBindingDialog;
 class MainWin;
+class SongExport;
+
 
 /**
  * this clas describes the application's context and provides access
@@ -78,7 +80,15 @@ public:
 	/** get the system settings manager */
 	SystemSettings* getSettings() const;
 
+	/** get a helper function for exporting songs */
+	SongExport* getSongExporter() const;
+
+
 private:
+
+
+	friend int main(int argc, char** argv);
+	friend class InitTask;
 
 	/** all system settings reside here */
 	SystemSettings* settings;
@@ -91,7 +101,6 @@ private:
 	Generator* gen;
 
 	/** the main Rack */
-	friend int main(int argc, char** argv);
 	Rack* rack;
 
 	/** the main application */
@@ -123,6 +132,9 @@ private:
 
 	/** the main application window */
 	MainWin* mainWindow;
+
+	/** song exporter */
+	SongExport* songExp;
 
 
 

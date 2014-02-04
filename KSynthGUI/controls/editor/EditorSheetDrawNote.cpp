@@ -29,6 +29,20 @@ bool EditorSheetDrawNote::eventFilter(QObject* o, QEvent* e) {
 	return false;
 }
 
+
+
+void EditorSheetDrawNote::mouseSnapNote() {
+
+	EditorScaler::Snap snap = sheet.getEditor().getScaler().snap;
+	if (snap.enabled) {
+		unsigned int snapBase = 128 / snap.base;
+		mouse.noteOn->delay = mouse.noteOn->delay / snapBase * snapBase;
+		mouse.noteOff->delay = mouse.noteOff->delay / snapBase * snapBase;
+		if (mouse.noteOff->delay <= mouse.noteOn->delay) {mouse.noteOff->delay = mouse.noteOn->delay + snapBase;}
+	}
+
+}
+
 void EditorSheetDrawNote::onMouseMove(QMouseEvent* e) {
 
 	// only act if mouse is currently down
@@ -37,6 +51,8 @@ void EditorSheetDrawNote::onMouseMove(QMouseEvent* e) {
 	// resize the note (change note-off event)
 	int time = sheet.getEditor().getScaler().getNoteDelay(e->x());
 	mouse.noteOff->setDelay(time);
+
+	mouseSnapNote();
 
 	// update the note's visible part
 	mouse.sheetNote->updateSize();
@@ -57,12 +73,14 @@ void EditorSheetDrawNote::onMousePress(QMouseEvent* e) {
 	int noteNr = sheet.getEditor().getScaler().getNoteNr(e->y());
 	int time = sheet.getEditor().getScaler().getNoteDelay(e->x());
 	MidiEvent noteOn(time,0,0,0);  noteOn.setType(MidiEventType::NOTE_ON);   noteOn.setData1(noteNr);  noteOn.setData2(100);
-	MidiEvent noteOff(time,0,0,0); noteOff.setType(MidiEventType::NOTE_OFF); noteOff.setData1(noteNr); noteOff.setData2(0);
+	MidiEvent noteOff(time+4,0,0,0); noteOff.setType(MidiEventType::NOTE_OFF); noteOff.setData1(noteNr); noteOff.setData2(0);
 	mouse.noteOn = sheet.getTrack().getEvents()->add(noteOn);
 	mouse.noteOff = sheet.getTrack().getEvents()->add(noteOff);
 
+	mouseSnapNote();
+
 	// create a new GUI note and attach it to the EditorSheet
-	mouse.sheetNote = new EditorSheetNote(sheet, EditorNote(mouse.noteOn, mouse.noteOff), &sheet);
+	mouse.sheetNote = new EditorSheetNote(sheet, EditorSheetNoteModel(mouse.noteOn, mouse.noteOff), &sheet);
 	mouse.sheetNote->setVisible(true);
 
 }
@@ -70,16 +88,25 @@ void EditorSheetDrawNote::onMousePress(QMouseEvent* e) {
 void EditorSheetDrawNote::onMouseRelease(QMouseEvent* e) {
 
 	Q_UNUSED(e);
+
+	if (mouse.isDown) {
+
+		// some sanity checks
+		mouseSnapNote();
+		if (mouse.noteOff->delay <= mouse.noteOn->delay) {mouse.noteOff->delay = mouse.noteOn->delay + 4;}
+
+		// we finished drawing a new note.
+		// the new note (note-on/note-off event) belongs to the SequenerTrack.
+		// thus: we do not need those two pointers any more
+		mouse.noteOn = nullptr;
+		mouse.noteOff = nullptr;
+
+		// re-sort all entries within the sequencer track!
+		sheet.getTrack().getEvents()->eventsChanged();
+
+	}
+
 	mouse.isDown = false;
-
-	// we finished drawing a new note.
-	// the new note (note-on/note-off event) belongs to the SequenerTrack.
-	// thus: we do not need those two pointers any more
-	mouse.noteOn = nullptr;
-	mouse.noteOff = nullptr;
-
-	// re-sort all entries within the sequencer track!
-	sheet.getTrack().getEvents()->eventsChanged();
 
 	//sheet.updateNotes();
 

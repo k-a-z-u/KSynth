@@ -1,6 +1,10 @@
 #ifdef WITH_WAVE_OUT
 
-#include "SoundSink.h"
+#ifndef SOUNDSINKHARDWAREWAVEOUT_H_
+#define SOUNDSINKHARDWAREWAVEOUT_H_
+
+#include "SoundSinkHardware.h"
+
 #include <windows.h>
 #include <mmsystem.h>
 #include <stdio.h>
@@ -130,12 +134,12 @@ void CALLBACK WaveCallback(HWAVEOUT hWave, UINT uMsg, DWORD dwUser, DWORD dw1, D
  * SoundSink for Windows using the WaveOut API
  * and several buffers to avoid "clicking".
  */
-class SoundSinkWaveOut : public SoundSink {
+class SoundSinkHardwareWaveOut : public SoundSinkHardware {
 
 public:
 
 	/** ctor */
-	SoundSinkWaveOut(unsigned int numBuffers = 3, unsigned int bufferEntries = 4096) :
+	SoundSinkHardwareWaveOut(unsigned int numBuffers = 3, unsigned int bufferEntries = 4096) :
 		buffersAvailable(numBuffers), curBuffer(0), hWaveOut(nullptr) {
 
 		// create buffers
@@ -145,7 +149,7 @@ public:
 	}
 
 	/** dtor */
-	~SoundSinkWaveOut() {
+	~SoundSinkHardwareWaveOut() {
 		close();
 	}
 
@@ -249,5 +253,7 @@ void CALLBACK WaveCallback(HWAVEOUT hWave, UINT uMsg, DWORD dwUser, DWORD dw1, D
 		ss->mutex.unlock();
 	}
 }
+
+#endif //SOUNDSINKHARDWAREWAVEOUT_H_
 
 #endif

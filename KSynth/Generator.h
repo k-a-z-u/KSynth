@@ -74,12 +74,23 @@ public:
 
 	/** ctor */
 	Generator(AudioFormat fmt) :
-		fmt(fmt), src(nullptr), sink(nullptr), seq(nullptr), thread(nullptr), enabled(false) {;}
+		fmt(fmt), src(nullptr), sink(nullptr), seq(nullptr), enabled(false) {;}
+
+	/** dtor */
+	~Generator() {
+		;
+	}
 
 	/** set the sound source */
 	void setSource(SoundBase* src) {
 		this->src = src;
 	}
+
+	/** get the current sound source */
+	SoundBase* getSource() const {
+		return src;
+	}
+
 
 	/** set the sink to pipe the generated audio output to */
 	void setSink(SoundSink* sink) {
@@ -91,10 +102,23 @@ public:
 		return sink;
 	}
 
+
 	/** set the sequencer to use */
 	void setSequencer(Sequencer* seq) {
 		this->seq = seq;
 	}
+
+	/** get the underlying sequencer */
+	Sequencer* getSequencer() const {
+		return seq;
+	}
+
+
+	/** get the current audio format */
+	AudioFormat getAudioFormat() const {
+		return fmt;
+	}
+
 
 	/** add a new listener to the generator */
 	void addListener(GeneratorListener* l) {
@@ -116,11 +140,11 @@ public:
 		// sanity checks
 		if (src == nullptr) {throw GeneratorException("cannot start generator without attaching an audio-source first!");}
 
-
-		//seq->start();
-		enabled = true;
-		seq->start();
-		thread = new std::thread(&Generator::render, this);
+		// run
+		//threadLock.lock(); {
+			enabled = true;
+			thread = std::thread(&Generator::render, this);
+		//}; threadLock.unlock();
 
 	}
 
@@ -131,20 +155,63 @@ public:
 		if (!enabled) {return;}
 		enabled = false;
 
-		if (thread) {
-			thread->join();
-			delete thread;
-			thread = nullptr;
-		}
-
-		seq->stop();
+		thread.join();
 
 	}
+
+	/** is the generator currently acitve? (thread running) */
+	bool isActive() {return enabled;}
 
 	/** get the binder to handle connections between SoundBase devices */
 	SoundBaseBinder& getBinder() {
 		return binder;
 	}
+
+
+	/** render the song in a blocking mode until end of sequencer's track */
+	void blockingRender() {
+
+		enabled = true;
+		SampleFrame frm = 0;
+
+		// open the sound sink (might fail)
+		sink->open(fmt);
+
+		// inform the sequencer we are starting
+		seq->start();
+
+		// generate data and stream to sink (might fail)
+		while(enabled) {
+
+			frm += SNDBASE_BLK_SIZE;
+
+			// inform the sequencer we are rendering the next block of frames
+			seq->onGeneratorCallback(frm);
+
+			// fetch data from all elements
+			Amplitude* audio[2];
+			audio[0] = get( src, 0, frm );
+			audio[1] = get( src, 1, frm );
+
+			// send output to the sink
+			sink->push((const Amplitude**) audio, SNDBASE_BLK_SIZE);
+
+			// check wether we are done
+			if (seq->isDone()) {
+				break;
+			}
+
+		}
+
+		// cleanup
+		seq->stop();
+		sink->finalize();
+		thread.detach();
+		enabled = false;
+
+	}
+
+
 
 private:
 
@@ -155,91 +222,65 @@ private:
 		 * @param idx the channel we requested the output for
 		 * @param out the pointer to attach the output to
 		 */
-		Amplitude* get(SoundBase* sb, unsigned int idx, unsigned int hash) {
+	Amplitude* get(SoundBase* sb, unsigned int idx, unsigned int hash) {
 
-			// lazy-allocate the output-buffer
-			// TODO: better solution? one big buffer for all elements??
-			sb->createOutputBuffer();
-			sb->createInputPointers();
+		// lazy-allocate the output-buffer
+		// TODO: better solution? one big buffer for all elements??
+		sb->createOutputBuffer();
+		sb->createInputPointers();
 
-			// fill the buffer with zeros
-			// TODO: maybe this can be avoided if the underlying device overwrites all data
-			if (sb->hash != hash) {sb->resetOutputBuffer();}
-			if (sb->hash != hash) {sb->resetInputPointers();}
+		// fill the buffer with zeros
+		// TODO: maybe this can be avoided if the underlying device overwrites all data
+		if (sb->hash != hash) {sb->resetOutputBuffer();}
+		if (sb->hash != hash) {sb->resetInputPointers();}
 
 
-			// synthesizer?
-			if (sb->numInputs == 0) {
+		// synthesizer?
+		if (sb->numInputs == 0) {
 
-				// if this is a synthesizer -> create samples into output buffer
-				if (hash != sb->hash) {sb->process(nullptr, sb->outputs);}
+			// if this is a synthesizer -> create samples into output buffer
+			if (hash != sb->hash) {sb->process(nullptr, sb->outputs);}
 
-				sb->hash = hash;
+			sb->hash = hash;
 
-			} else {
+		} else {
 
-				// not a synthesizer
-				// process data from lower levels
+			// not a synthesizer
+			// process data from lower levels
 
-				if (sb->hash != hash) {
+			if (sb->hash != hash) {
 
-					// fetch data from all inputs
-					// (next recursion depth)
-					std::vector<Binding> bindings = binder.getBindingsToInputsOf(sb);
-					for (Binding& b : bindings) {
-						sb->inputs[b.dst.idx] = get( b.src.dev, b.src.idx, hash );
-					}
-
-					// process input data to output data
-					sb->process(sb->inputs, sb->outputs);
-
+				// fetch data from all inputs
+				// (next recursion depth)
+				std::vector<Binding> bindings = binder.getBindingsToInputsOf(sb);
+				for (Binding& b : bindings) {
+					sb->inputs[b.dst.idx] = get( b.src.dev, b.src.idx, hash );
 				}
 
-				sb->hash = hash;
+				// process input data to output data
+				sb->process(sb->inputs, sb->outputs);
 
 			}
 
-			// done.. attach to output and proceed with next layer
-			// attach device's output to the requested output
-			//std::cout << idx << ":" << outputs[idx] << std::endl;
-			return sb->outputs[idx];
+			sb->hash = hash;
 
 		}
+
+		// done.. attach to output and proceed with next layer
+		// attach device's output to the requested output
+		//std::cout << idx << ":" << outputs[idx] << std::endl;
+		return sb->outputs[idx];
+
+	}
 
 
 	/** the thread */
 	void render() {
 
-		SampleFrame frm = 0;
-
 		try {
 
-			// open the sound sink (might fail)
-			sink->open(fmt);
-
-			// generate data and stream to sink (might fail)
-			while(enabled) {
-
-				frm += SNDBASE_BLK_SIZE;
-
-				// throw sequencer event
-				seq->onGeneratorCallback(frm);
-
-				Amplitude* audio[2];
-				audio[0] = get( src, 0, frm );
-				audio[1] = get( src, 1, frm );
-
-				//try {
-				sink->push((const Amplitude**) audio, SNDBASE_BLK_SIZE);
-				//} catch (std::exception& e) {
-				//	std::cout << e.what() << std::endl;
-				//	stop();
-				//}
-
-			}
-
-			// cleanup
-			sink->finalize();
+			// perform magic
+			blockingRender();
 
 		} catch (std::exception& e) {
 
@@ -250,10 +291,6 @@ private:
 			enabled = false;
 
 		}
-
-		thread->detach();
-		delete thread;
-		thread = nullptr;
 
 	}
 
@@ -271,7 +308,7 @@ private:
 	Sequencer* seq;
 
 	/** the thread for rendering */
-	std::thread* thread;
+	std::thread thread;
 
 	/** currently enabled or disabled? */
 	bool enabled;
@@ -281,6 +318,8 @@ private:
 
 	/** all registered listeners */
 	std::vector<GeneratorListener*> listeners;
+
+	//std::mutex threadLock;
 
 };
 

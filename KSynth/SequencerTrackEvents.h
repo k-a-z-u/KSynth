@@ -1,6 +1,7 @@
 #ifndef SEQUENCERTRACKEVENTS_H
 #define SEQUENCERTRACKEVENTS_H
 
+#include <memory>
 #include <algorithm>
 #include <queue>
 #include "midi/MidiEvent.h"
@@ -16,15 +17,20 @@
  * all events are properly sorted.
  *
  */
-class SequencerTrackEvents : public std::vector<MidiEvent*> {
+#include <iostream>
+class SequencerTrackEvents : public std::vector< std::unique_ptr<MidiEvent> > {
 
 public:
 
 	/** ctor */
-	SequencerTrackEvents() {;}
+	SequencerTrackEvents() {
+		;
+	}
 
 	/** dtor */
-	~SequencerTrackEvents() {;}
+	~SequencerTrackEvents() {
+		;
+	}
 
 
 	/**
@@ -33,20 +39,31 @@ public:
 	 * which is returned after the function succeeds.
 	 */
 	MidiEvent* add(const MidiEvent& e) {
-
 		MidiEvent* ep = new MidiEvent(e);
-		//MidiEvent* ep = memPool.alloc();
-		//memcpy(ep, &e, sizeof(MidiEvent));
-
-		push_back( ep );
-		//sort();
+		std::unique_ptr<MidiEvent> ptr(ep);
+		push_back( std::move(ptr) );
 		return ep;
 	}
 
 	/** remove this existring MidiEvent */
 	void remove(const MidiEvent& e) {
-		auto match = [&e] (const MidiEvent* other) {return e == *other;};
+
+
+		auto match = [&e] ( std::unique_ptr<MidiEvent>& other) {
+			std::cout << other->asString() << std::endl;
+			return e == *other;
+		};
 		erase(std::remove_if(begin(), end(), match), end());
+
+//		for ( auto it = begin(); it != end(); ) {
+//			if (*it == &e) {
+//				delete *it;
+//				it = erase(it);
+//			} else {
+//				++it;
+//			}
+//		}
+
 	}
 
 	/**
@@ -68,7 +85,9 @@ private:
 	 * this costly "complete re-sort"
 	 */
 	void sort() {
-		auto lambda = [] (const MidiEvent* a, const MidiEvent* b) {return a->delay < b->delay;};
+		auto lambda = [] (const std::unique_ptr<MidiEvent>& a, const std::unique_ptr<MidiEvent>& b) {
+			return a->delay < b->delay;
+		};
 		std::sort(begin(), end(), lambda);
 	}
 

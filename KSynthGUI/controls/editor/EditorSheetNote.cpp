@@ -4,31 +4,29 @@
 #include "Editor.h"
 #include "KSynth/SequencerTrack.h"
 
-EditorSheetNote::EditorSheetNote(EditorSheet& sheet, const EditorNote& note, QWidget *parent) :
-	Grabable(parent), sheet(sheet), note(note), selected(false), cached(false) {
+EditorSheetNote::EditorSheetNote(EditorSheet& sheet, const EditorSheetNoteModel& model, QWidget *parent) :
+	Grabable(parent), sheet(sheet), model(model), selected(false), cached(false) {
 
 	setFocusPolicy(Qt::ClickFocus);
 
 	updateSize();
 	setMouseTracking(true);
 
+	// register for model changed events
+	connect(&(this->model), SIGNAL(changed()), this, SLOT(updateSize()));
+
 }
 
 #include <iostream>
 void EditorSheetNote::updateSize() {
 
-	unsigned int x = sheet.getEditor().getScaler().getObjectWidth(note.on->getDelay());
-	unsigned int y = sheet.getEditor().getScaler().getNoteY(note.on->getData1());
-	unsigned int h = sheet.getEditor().getScaler().getNH();
-	unsigned int w = sheet.getEditor().getScaler().getNoteWidth(note);
-
-	onGrab(x,y,w,h);
+	// set geometry from underlying model
+	setGeometry( sheet.getEditor().getScaler().getNote(model) );
 
 	setGrabY(false);
-	setSnapX(4);
+	//setSnapX( sheet.getEditor().getScaler().getBarWidth() / 4 );
 	setSnapY(8);
 
-	std::cout << x << ":" << y << " : " << w << ":" << h << std::endl;
 
 }
 
@@ -44,21 +42,22 @@ void EditorSheetNote::focusOutEvent(QFocusEvent* e) {
 }
 
 void EditorSheetNote::onGrab(int x, int y, int w, int h) {
-	setGeometry(x+1, y+1, w-1, h-1);
+
+	Q_UNUSED(h);
+	sheet.getEditor().getScaler().setNote(model, x,y,w);
+	setGeometry( sheet.getEditor().getScaler().getNote(model) );
+
 }
 
 void EditorSheetNote::onGrabDone(int x, int y, int w, int h) {
 
-	// update underlying note event
-	(void) h;
+	Q_UNUSED(h);
 
-	// change note's number
-	note.on->setData1( sheet.getEditor().getScaler().getNoteNr(y) );
-	note.off->setData1( sheet.getEditor().getScaler().getNoteNr(y) );
+	// change note's model: number and on/off timing
+	sheet.getEditor().getScaler().setNote(model, x,y,w);
 
-	// change note's on/off timing
-	note.on->setDelay( sheet.getEditor().getScaler().getNoteDelay(x) );
-	note.off->setDelay( sheet.getEditor().getScaler().getNoteDelay(x+w) );
+	// update the geometry of the note
+	setGeometry( sheet.getEditor().getScaler().getNote(model) );
 
 	// as the timings (might) have changed,
 	//the track's MidiEvents need to be sorted again
@@ -75,11 +74,12 @@ void EditorSheetNote::setSelected(bool selected) {
 	if (changed) {cached = false; emit repaint();}
 }
 
-const EditorNote& EditorSheetNote::getNote() const {
-	return note;
+EditorSheetNoteModel& EditorSheetNote::getModel() {
+	return model;
 }
 
 #include <QPainter>
+#include "EditorHelper.h"
 void EditorSheetNote::paintEvent(QPaintEvent* e) {
 
 	//std::cout << "REPAINT NOTE" << std::endl;
@@ -87,51 +87,42 @@ void EditorSheetNote::paintEvent(QPaintEvent* e) {
 
 	QPainter p(this);
 
+	// sizing temporals
+	const unsigned int sx = 0;
+	//const unsigned int sy = 1;
+	const unsigned int w = width() - 1;
+	const unsigned int h = height() - 1;
+
 //	// caching
-//	static QImage img = QImage(0,0,QImage::Format_ARGB32);
+//	static QImage img;// = QImage(0,0,QImage::Format_ARGB32);
 
 //	// update cache?
 //	if (img.width() != width() || img.height() != height() || !cached) {
-
-//		// now cached
 //		cached = true;
 
 		// select color
-		const QColor c = (selected) ? (QColor(192,0,0)) : (QColor(192,192,0));
+		const QColor c = (selected) ? (QColor(220,32,0)) : (QColor(220,220,0));
 
 		// set-up gradient
-		QLinearGradient grad (0, 0, 0, height());
+		QLinearGradient grad (0, 0, 0, h);
 		grad.setColorAt(0, c);
-		grad.setColorAt(1, c.darker(150));
+		grad.setColorAt(1, c.darker(200));
 
 //		// resize caching image
-//		img = QImage(width(),height(),QImage::Format_RGB32);
-//		img.fill(0x000000);
+//		img = QImage(width(),height(),QImage::Format_ARGB32);
+//		img.fill(0x00000000);
 //		QPainter p(&img);
-
-		// sizing temporals
-		const unsigned int w = width() - 1;
-		const unsigned int h = height() - 1;
 
 		// gradient-faded rectangle
 		p.setPen(Qt::NoPen);
 		p.setBrush(grad);
-		p.drawRect(0,0,w,h);
+		p.drawRect(sx+1,sx+1,w-1,h-1);
 
-		// draw dark outline
-		p.setPen(c.darker(200));
-		p.drawLine(0,h,w,h);
-		p.drawLine(w,0,w,h);
-
-		// draw bright outline
-		p.setPen(c.lighter(200));
-		p.drawLine(0,0,w,0);
-		p.drawLine(0,0,0,h);
+		EditorHelper::drawBorder3D(p,1,1,w,h);
 
 //	}
 
 //	// render
-//	QPainter p(this);
 //	p.drawImage(0,0,img);
 
 

@@ -86,9 +86,9 @@ int ImgSpin::getSelectedValue() {
 }
 
 ParamValue ImgSpin::getValueAsParam() const {
-	return ParamValue(0, (unsigned int) entries.size() - 1, curIdx);
+	return ParamValue(0u, (unsigned int) entries.size() - 1, curIdx);
 }
 
 void ImgSpin::setValueFromParam(ParamValue val) {
-	setSelectedIndex(val.asInt(0, (unsigned int) entries.size() - 1));
+	setSelectedIndex(val.asUInt(0u, (unsigned int) entries.size() - 1));
 }

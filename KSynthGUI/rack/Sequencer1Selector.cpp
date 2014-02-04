@@ -45,9 +45,9 @@ void Sequencer1Selector::onMouse(int x, int y) {
 	seq.mscaler.getNoteTick(x,y, noteNumber,tick);
 	if (tick < 0 || tick > (int) seq.getCurrentPattern().getTicks()) {return;}
 	if (noteNumber == -1) {
-		seq.getCurrentPattern().unbindNote(tick);
+		seq.getCurrentPattern().unbindNote( (unsigned int) tick );
 	} else {
-		seq.getCurrentPattern().bindNote(tick, Note(noteNumber), 0.75);
+		seq.getCurrentPattern().bindNote( (unsigned int) tick, Note( (unsigned int) noteNumber ), 0.75);
 	}
 
 	emit repaint();
@@ -95,7 +95,7 @@ void Sequencer1Selector::paintEvent(QPaintEvent* event) {
 
 		// get the position
 		int x; int y; int w; int h;
-		seq.mscaler.getBeatX(i, x, w);
+		seq.mscaler.getBeatX( int(i), x, w);
 		seq.mscaler.getNoteY(entries[i].note, y, h);
 
 		// ignore lower/higher octaves
@@ -109,7 +109,7 @@ void Sequencer1Selector::paintEvent(QPaintEvent* event) {
 
 	// grid hor
 	p.setPen(pGridB);
-	for (unsigned int i = 0; i <= 12; ++i) {
+	for (int i = 0; i <= 12; ++i) {
 		int oy = i * noteH;
 		p.drawLine(seq.mscaler.x, seq.mscaler.y+oy, seq.mscaler.x+seq.mscaler.w, seq.mscaler.y+oy);
 	}
@@ -119,8 +119,8 @@ void Sequencer1Selector::paintEvent(QPaintEvent* event) {
 		int x; int w;
 		int y = seq.mscaler.y;
 		int h = seq.mscaler.h;
-		int granularity = seq.getCurrentPattern().getGranularity();
-		seq.mscaler.getBeatX(i, x, w);
+		unsigned int granularity = seq.getCurrentPattern().getGranularity();
+		seq.mscaler.getBeatX( int(i), x, w);
 		if ( (i % granularity) == 0 ) {p.setPen(pGridA); y+=2; h-=2;} else {p.setPen(pGridB);}
 		p.drawLine(x, y, x, y + h);
 	}

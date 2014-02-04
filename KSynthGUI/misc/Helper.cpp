@@ -10,7 +10,7 @@ QImage Helper::getForOscFunction(SimpleOscillator2Mode mode, unsigned int w, uns
 	//osc.setFrequency(1);
 	osc.setMode(mode);
 
-	QImage img(w,h, QImage::Format_ARGB32);
+	QImage img(int(w), int(h), QImage::Format_ARGB32);
 	QPainter p;
 	p.begin(&img);
 	p.setRenderHint(QPainter::Antialiasing, true);
@@ -27,7 +27,7 @@ QImage Helper::getForOscFunction(SimpleOscillator2Mode mode, unsigned int w, uns
 	const int dh = h-6;
 	const int step = 1;
 
-	for (unsigned int x = 0; x < w-1; x += step) {
+	for (int x = 0; x < w-1; x += step) {
 		float a1 = osc.get((float)(x+0   ) / (float) w);
 		float a2 = osc.get((float)(x+step) / (float) w);
 		int y1 = int( float(h/2) + a1 * float(dh/2) );
@@ -55,7 +55,7 @@ QImage Helper::getForOscFunction(SimpleOscillator2Mode mode, unsigned int w, uns
 QImage Helper::getForNumber(int number, unsigned int w, unsigned int h) {
 
 	// the image
-	QImage img(w,h, QImage::Format_ARGB32);
+	QImage img(int(w), int(h), QImage::Format_ARGB32);
 	img.fill(0x00000000);
 
 	// painter
@@ -64,7 +64,7 @@ QImage Helper::getForNumber(int number, unsigned int w, unsigned int h) {
 	p.setRenderHint(QPainter::Antialiasing, true);
 
 	// font
-	static QFont font; font.setPixelSize(h); font.setBold(true);
+	static QFont font; font.setPixelSize( int(h) ); font.setBold(true);
 	p.setFont(font);
 
 	// color
@@ -94,8 +94,8 @@ void Helper::LEDify(QImage& img) {
 
 
 
-	unsigned int w = img.width();
-	unsigned int h = img.height();
+	int w = img.width();
+	int h = img.height();
 
 
 	// clear original
@@ -107,14 +107,14 @@ void Helper::LEDify(QImage& img) {
 	p.setBrush(QColor(255,0,0));
 
 	// fill rects
-	for (unsigned int x = 0; x < w; x += 2) {
-		for (unsigned int y = 0; y < h; y += 2) {
+	for (int x = 0; x < w; x += 2) {
+		for (int y = 0; y < h; y += 2) {
 
-			unsigned int r = 0;
-			unsigned int g = 0;
-			unsigned int b = 0;
-			unsigned int a = 0;
-			unsigned int cnt = 4;
+			int r = 0;
+			int g = 0;
+			int b = 0;
+			int a = 0;
+			int cnt = 4;
 			for (int x1 = 0; x1 <= 1; ++x1) {
 				for (int y1 = 0; y1 <= 1; ++y1) {
 					QRgb rgba = img2.pixel(x+x1, y+y1);
@@ -138,10 +138,10 @@ void Helper::LEDify(QImage& img) {
 	p.setPen(pen);
 
 //	// draw vertical grid
-	for (unsigned int x = 0; x < w; x += 2) {p.drawLine(x,0,x,h);}
+	for (int x = 0; x < w; x += 2) {p.drawLine(x,0,x,h);}
 
 //	// draw horizontal grid
-	for (unsigned int y = 0; y < h; y += 2) {p.drawLine(0,y,w,y);}
+	for (int y = 0; y < h; y += 2) {p.drawLine(0,y,w,y);}
 
 	p.end();
 

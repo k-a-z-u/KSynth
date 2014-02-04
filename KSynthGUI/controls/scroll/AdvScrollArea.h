@@ -39,10 +39,7 @@ public:
 		return children().size();
 	}
 
-private:
-
-
-};
+	};
 
 class AdvScrollArea : public QWidget {
 	Q_OBJECT
@@ -51,6 +48,7 @@ public:
 
 	/** ctor */
 	AdvScrollArea(QWidget* parent = 0);
+
 
 	/** set the widget to scroll */
 	void setWidget(QWidget* content);
@@ -63,6 +61,35 @@ public:
 
 	/** add a new widget which is displayed on top of all other widgets */
 	void addOverlayWidget(QWidget* overlay);
+
+
+	/** get the width of the scrollable area */
+	unsigned int getScrollAreaWidth() const;
+
+	/** get the height of the scrollable area */
+	unsigned int getScrollAreaHeight() const;
+
+
+	/** get the number of scrolled X pixels */
+	unsigned int getScrollX() const;
+
+	/** get the number of scrolled Y pixels */
+	unsigned int getScrollY() const;
+
+
+	/** scroll x pixels (from the start) in x direction */
+	void setScrollX(int x);
+
+	/** scroll y pixels (from the start) in y direction */
+	void setScrollY(int y);
+
+
+	/** ensure the given x coordinate is visible */
+	void ensureVisibleX(int x);
+
+	/** ensure the given y coordinate is visible */
+	void ensureVisibleY(int y);
+
 
 protected:
 

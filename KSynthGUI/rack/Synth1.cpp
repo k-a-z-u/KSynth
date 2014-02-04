@@ -28,6 +28,7 @@ Synth1::Synth1(Context& ctx, QWidget *parent) :
 	elements.kFilterRes = new Knob("res", 0, 100, 0, 5, this);
 	elements.kMix = new Knob("mix", 0, 100, 50, 5, this);
 	elements.kMix->addSnap(50, 3);
+	elements.kFM = new Knob("FM", 0, 100, 0, 5, this);
 	elements.sldVolume = new Slider1("vol", 0, 127, 0, 5, this);
 	elements.sldVolume->addSnap(100, 5);
 
@@ -103,12 +104,13 @@ Synth1::Synth1(Context& ctx, QWidget *parent) :
 	elements.glfo[0].kFreq->connectTo((int) SimpleSynthParams::LFO1_FREQUENCY, this, SLOT(onParamChange()));
 	elements.glfo[0].spnMode->connectTo((int) SimpleSynthParams::LFO1_MODE, this, SLOT(onParamChange()));
 
-	elements.kMix->connectTo((int) SimpleSynthParams::OSC_MIX, this, SLOT (onParamChange()));
-	elements.cRingMod->connectTo((int) SimpleSynthParams::USE_RING_MODULATION, this, SLOT (onParamChange()));
-	elements.sldVolume->connectTo((int) SimpleSynthParams::OUTPUT_VOLUME, this, SLOT (onParamChange()));
+	elements.kMix->connectTo((int) SimpleSynthParams::OSC_MIX, this, SLOT(onParamChange()));
+	elements.kFM->connectTo((int) SimpleSynthParams::OSC_FM, this, SLOT(onParamChange()));
+	elements.cRingMod->connectTo((int) SimpleSynthParams::USE_RING_MODULATION, this, SLOT(onParamChange()));
+	elements.sldVolume->connectTo((int) SimpleSynthParams::OUTPUT_VOLUME, this, SLOT(onParamChange()));
 
-	elements.kFilterFreq->connectTo((int) SimpleSynthParams::FILTER_FREQUENCY, this, SLOT (onParamChange()));
-	elements.kFilterRes->connectTo((int) SimpleSynthParams::FILTER_RESONANCE, this, SLOT (onParamChange()));
+	elements.kFilterFreq->connectTo((int) SimpleSynthParams::FILTER_FREQUENCY, this, SLOT(onParamChange()));
+	elements.kFilterRes->connectTo((int) SimpleSynthParams::FILTER_RESONANCE, this, SLOT(onParamChange()));
 
 	//connect(elements.label, SIGNAL(valueChanged()), this, SIGNAL(userNameChanged()));
 
@@ -178,6 +180,9 @@ void Synth1::refresh() {
 	elements.kFilterFreq->setValueFromParam(getParameter(elements.kFilterFreq->getParamType()));
 	elements.kFilterRes->setValueFromParam(getParameter(elements.kFilterRes->getParamType()));
 
+	elements.kMix->setValueFromParam(getParameter(elements.kMix->getParamType()));
+	elements.kFM->setValueFromParam(getParameter(elements.kFM->getParamType()));
+
 }
 
 void Synth1::resizeEvent(QResizeEvent* event) {
@@ -229,7 +234,8 @@ void Synth1::resizeEvent(QResizeEvent* event) {
 	elements.gosc[1].chkKey->setGeometry(sx+s*4,	56+4,	0,0);
 
 	elements.kMix->setGeometry(267,56, 0,0);
-	elements.cRingMod->setGeometry(262,20, 20,20);
+	elements.kFM->setGeometry(267,24, 0,0);
+	elements.cRingMod->setGeometry(262,16, 20,20);
 
 	elements.con->setGeometry(727+4,8, 0,0);
 	label->setGeometry(723+4,45, 32,92);

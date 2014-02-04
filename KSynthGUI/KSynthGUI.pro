@@ -22,8 +22,8 @@ QMAKE_CXXFLAGS += -std=c++11
 
 #QMAKE_CXXFLAGS += -Weffc++
 QMAKE_CXXFLAGS += -Wall -Wextra -pedantic
-QMAKE_CXXFLAGS += -Wconversion -Werror=return-type -Werror=maybe-uninitialized -Wreorder -Werror=reorder
-QMAKE_CXXFLAGS += -Werror=uninitialized
+QMAKE_CXXFLAGS += -Wconversion -Werror=return-type -Wreorder -Werror=reorder
+QMAKE_CXXFLAGS += -Werror=uninitialized -Wno-c99-extensions -Wno-sign-conversion
 QMAKE_CXXFLAGS += -isystem "/usr/include/qt4"
 
 
@@ -82,7 +82,10 @@ SOURCES += main.cpp\
     controls/misc/OSStats.cpp \
     SettingsDialog.cpp \
     model/SoundSinks.cpp \
-    model/SystemSettings.cpp
+    model/SystemSettings.cpp \
+    controller/SongExport.cpp \
+    controls/editor/EditorHelper.cpp \
+    controls/editor/EditorSheetNoteModel.cpp
 
 HEADERS  += \
     controls/Knob.h \
@@ -127,7 +130,6 @@ HEADERS  += \
     controls/editor/EditorSlider.h \
     controls/editor/EditorSheet.h \
     controls/editor/EditorSheetNote.h \
-    controls/editor/EditorNote.h \
     controls/scroll/AdvScrollArea.h \
     controls/editor/EditorSheetHeader.h \
     controls/editor/Grabable.h \
@@ -150,7 +152,12 @@ HEADERS  += \
     model/SoundSinks.h \
     ../KSynth/output/SoundSinkExport.h \
     misc/SystemVersion.h \
-    model/SystemSettings.h
+    model/SystemSettings.h \
+    controller/SongExport.h \
+    ../KSynth/output/SoundSinkHardware.h \
+    controls/editor/EditorSheetNoteModel.h \
+    controls/editor/EditorHelper.h \
+    controls/editor/SelectionRect.h
 
 FORMS    += \
     SynthWin.ui \
@@ -216,7 +223,7 @@ HEADERS += \
 
 
 # linux specific build steps
-linux-g++ | linux-g++-64 | linux-g++-32 {
+linux-g++ | linux-g++-64 | linux-g++-32 | unix {
 
     # compile with alsa support?
     ALSA {
@@ -272,11 +279,3 @@ ZLIB {
     QMAKE_CXXFLAGS += -DWWITH_ZLIB
     LIBS += -lz
 }
-
-
-
-
-
-
-
-

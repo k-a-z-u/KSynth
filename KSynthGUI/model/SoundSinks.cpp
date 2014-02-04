@@ -1,8 +1,9 @@
 #include "SoundSinks.h"
 
-#include <KSynth/output/SoundSinkNull.h>
-#include <KSynth/output/SoundSinkAlsa.h>
-#include <KSynth/output/SoundSinkWaveOut.h>
+#include <KSynth/output/SoundSinkHardwareNull.h>
+#include <KSynth/output/SoundSinkHardwareAlsa.h>
+#include <KSynth/output/SoundSinkHardwareWaveOut.h>
+
 #include <KSynth/output/SoundSinkExportWave.h>
 #include <KSynth/output/SoundSinkExportMp3.h>
 
@@ -14,60 +15,84 @@ SoundSinks& SoundSinks::get() {
 }
 
 
-std::vector<SoundSink*> SoundSinks::getHardwareSinks() {
+std::vector<SoundSinkHardware*> SoundSinks::getHardwareSinks() {
 
 	// remove the unique pointer stuff for external handling
-	std::vector<SoundSink*> vec;
+	std::vector<SoundSinkHardware*> vec;
 	for ( auto& s : hardware ) {vec.push_back(s.get());}
 	return vec;
 
 }
 
+std::vector<SoundSinkExport*> SoundSinks::getExportSinks() {
+
+	// remove the unique pointer stuff for external handling
+	std::vector<SoundSinkExport*> vec;
+	for ( auto& s : exports ) {vec.push_back(s.get());}
+	return vec;
+
+}
+
+SoundSinkHardware* SoundSinks::getHardwareSinkByName(const std::string& name) {
+	for ( auto& s : hardware ) {if(s->getName() == name) {return s.get();}}
+	return nullptr;
+}
+
+SoundSinkExport* SoundSinks::getExportSinkByName(const std::string &name) {
+	for ( auto& s : exports ) {if(s->getName() == name) {return s.get();}}
+	return nullptr;
+}
+
+
 SoundSinks::SoundSinks() {
 
+	/** -------- hardware -------- */
+
 	{
-		std::unique_ptr<SoundSink> ptr(new SoundSinkNull());
+		std::unique_ptr<SoundSinkHardware> ptr(new SoundSinkHardwareNull());
 		hardware.push_back( std::move(ptr) );
 	}
 
-#ifdef WITH_ALSA
+#if defined(WITH_ALSA)
 	{
-		std::vector< std::unique_ptr<SoundSinkAlsa> > devs;
-		devs = SoundSinkAlsa::getAllDevices();
+		std::vector< std::unique_ptr<SoundSinkHardwareAlsa> > devs;
+		devs = SoundSinkHardwareAlsa::getAllDevices();
 		for ( auto& dev : devs ) {
 			hardware.push_back( std::move(dev) );
 		}
 	}
 #endif
 
-#ifdef WITH_COREAUDIO
+#if defined(WITH_COREAUDIO)
 	{
 		;
 	}
 #endif
 
-#ifdef WITH_WAVE_OUT
+#if defined(WITH_WAVE_OUT)
 	{
 		std::unique_ptr<SoundSink> ptr(new SoundSinkWaveOut());
 		hardware.push_back( std::move(ptr) );
 	}
 #endif
 
-#ifdef WITH_PULSE_AUDIO
+#if defined(WITH_PULSE_AUDIO)
 	{
 		;
 	}
 #endif
 
 
+	/** -------- exports -------- */
+
 	{
-		std::unique_ptr<SoundSink> ptr(new SoundSinkWave());
+		std::unique_ptr<SoundSinkExport> ptr(new SoundSinkWave());
 		exports.push_back( std::move(ptr) );
 	}
 
-#ifdef WITH_LAME
+#if defined(WITH_LAME)
 	{
-		std::unique_ptr<SoundSink> ptr(new SoundSinkMp3());
+		std::unique_ptr<SoundSinkExport> ptr(new SoundSinkMp3());
 		exports.push_back( std::move(ptr) );
 	}
 #endif

@@ -5,9 +5,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 
-OSStats::OSStats(QWidget* parent) : QWidget(parent) {
-
-	thread = new std::thread(&OSStats::run, this);
+OSStats::OSStats(QWidget* parent) : QWidget(parent), enabled(true) {
 
 	QHBoxLayout* lay = new QHBoxLayout();
 
@@ -24,11 +22,21 @@ OSStats::OSStats(QWidget* parent) : QWidget(parent) {
 	lay->setSpacing(1);
 	this->setLayout(lay);
 
+	// start the thread
+	thread = new std::thread(&OSStats::run, this);
+
 }
 
 OSStats::~OSStats() {
-	thread->detach();
-	delete thread;
+
+	enabled = false;
+
+	if (thread) {
+		thread->join();
+		delete thread;
+		thread = nullptr;
+	}
+
 }
 
 void OSStats::update() {
@@ -44,7 +52,7 @@ void OSStats::update() {
 void OSStats::run() {
 
 
-	while(true) {
+	while(enabled) {
 
 		QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
 

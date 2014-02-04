@@ -5,9 +5,10 @@
 class Editor;
 class SequencerTrack;
 class EditorSheetNote;
+#include "SelectionRect.h"
 #include "EditorSheetDrawNote.h"
 
-class EditorSheet : public QWidget {
+class EditorSheet : public QWidget, public SelectionRectListener {
 	Q_OBJECT
 
 public:
@@ -30,11 +31,13 @@ protected:
 
 	void keyPressEvent(QKeyEvent*) override;
 
-	void focusInEvent(QFocusEvent*) override;
+//	void focusInEvent(QFocusEvent*) override;
 
-	void focusOutEvent(QFocusEvent*) override;
+//	void focusOutEvent(QFocusEvent*) override;
 
 	void resizeEvent(QResizeEvent*) override;
+
+	void onSelection(std::vector<QWidget*> list, QMouseEvent* e) override;
 
 
 	friend class EditorSheetNote;
@@ -66,9 +69,11 @@ private:
 	/** this class provides functionality for adding new notes to the sheet */
 	EditorSheetDrawNote drawer;
 
+	/** draw selection rectangles and capture all child widgets within */
+	SelectionRect selRect;
 
 	/** the last base after painting (used for caching) */
-	bool lastBase;
+	unsigned int lastNW4;
 
 signals:
 

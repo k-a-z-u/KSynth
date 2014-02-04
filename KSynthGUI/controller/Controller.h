@@ -29,6 +29,12 @@ public:
 	/** show the settings dialog */
 	void showSettings();
 
+	/** load settings from file */
+	void loadSettings();
+
+	/** save settings to file */
+	void saveSettings();
+
 
 	/** add a new element to the rack */
 	void addNewRackElement(const std::string str);
@@ -51,8 +57,16 @@ public:
 	/** import a new midi file */
 	void importMidi();
 
+	/** export the current song */
+	void exportSong();
+
+
 	/** remove all tracks from the sequencer */
 	void clearTracks();
+
+
+	/** show an error message */
+	void messageError(const std::string& title, const std::string& text);
 
 private:
 

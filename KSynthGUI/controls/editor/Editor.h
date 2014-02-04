@@ -2,7 +2,7 @@
 #define EDITOR_H
 
 #include <QWidget>
-#include "EditorNote.h"
+#include "EditorSheetNoteModel.h"
 
 class EditorSheet;
 class EditorSheetHeader;
@@ -13,11 +13,12 @@ class SequencerTrack;
 class QScrollArea;
 class QVBoxLayout;
 class QScrollBar;
-
+class AdvScrollArea;
 
 #include "EditorMode.h"
 #include "EditorScaler.h"
 #include "KSynth/SequencerListener.h"
+
 
 
 /**
@@ -34,7 +35,7 @@ class Editor : public QWidget, public SequencerBeatListener {
 public:
 
 	/** ctor */
-	explicit Editor(Context& ctx, SequencerTracksWidget& tracks, QWidget *parent = 0);
+	explicit Editor(Context& ctx, SequencerTracksWidget& tracks, AdvScrollArea& scroller, QWidget *parent = 0);
 
 	/** dtor */
 	~Editor();
@@ -48,7 +49,7 @@ public:
 
 
 	/** convert midi events of the given track to notes (combined on+off) */
-	std::vector<EditorNote> getNotes(SequencerTrack& st) const;
+	std::vector<EditorSheetNoteModel> getNotes(SequencerTrack& st) const;
 
 	/** get the widget to use for the left header */
 	QWidget* getHeaderWidget() const;
@@ -59,6 +60,7 @@ public:
 	 * draw: add new entries
 	 */
 	void setMode(EditorMode mode);
+
 
 	/** get the editor's current mode */
 	EditorMode getMode() const;
@@ -83,6 +85,9 @@ private:
 	/** the track-selection widget */
 	SequencerTracksWidget& tracks;
 
+	/** the parent of the editor */
+	AdvScrollArea& scroller;
+
 	/** scaling of all entries */
 	EditorScaler scaler;
 
@@ -101,6 +106,7 @@ private:
 	/** the editor's current mode */
 	EditorMode mode;
 
+
 signals:
 
 
@@ -109,6 +115,8 @@ public slots:
 	void zoomUp();
 
 	void zoomDown();
+
+	void updateSlider(unsigned int beat);
 
 
 private slots:

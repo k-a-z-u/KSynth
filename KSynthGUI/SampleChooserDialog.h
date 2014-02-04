@@ -28,11 +28,13 @@ public:
 	/** show a dialog to choose a sample file */
 	static std::string openSampleFile(const std::string& caption, QWidget* parent = 0);
 
+	/** show a dialog to choose a sample file, start showing the given folder */
+	static std::string openSampleFile(const std::string& caption, const K::File& folder, QWidget* parent = 0);
 
 private:
 
 	/** hidden ctor. use static function! */
-	explicit SampleChooserDialog(QWidget *parent = 0);
+	explicit SampleChooserDialog(const K::File& startFolder, QWidget *parent = 0);
 
 
 	Ui::SampleChooserDialog *ui;

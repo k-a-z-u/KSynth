@@ -40,7 +40,7 @@ public:
 
 	/** shift this note by the given amount of notes [12 = octave] */
 	Note shift(int notes) {
-		return Note(noteNr + notes);
+		return Note( (unsigned int) (int(noteNr) + notes) );
 	}
 
 	/** change the current note nr and frequency */

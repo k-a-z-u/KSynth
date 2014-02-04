@@ -32,7 +32,7 @@ Slider1::Slider1(const std::string& title, int min, int max, int val, unsigned i
 	value.min = min;
 	value.max = max;
 	value.value = -1;
-	setValue(val);
+	_setValue(val);
 	this->mouseWheelSteps = mouseWheelSteps;
 }
 
@@ -50,6 +50,11 @@ void Slider1::setMouseWheelSteps(unsigned int steps) {
 }
 
 void Slider1::setValue(int v) {
+	if (mouse.isDown) {return;}
+	_setValue(v);
+}
+
+void Slider1::_setValue(int v) {
 
 	int oldValue = value.value;
 	if		(v < value.min)	{value.value = value.min;}
@@ -99,7 +104,7 @@ void Slider1::wheelEvent(QWheelEvent *event) {
 	int oldVal = getValue();
 	int newVal = oldVal + (steps * mouseWheelSteps);
 	if (oldVal != newVal) {
-		setValue( newVal );
+		_setValue( newVal );
 		emit onChange();
 	}
 }
@@ -114,7 +119,7 @@ void Slider1::recalc(int x, int y) {
 
 	// set the new value
 	int oldValue = getValue();
-	setValue(newValue);
+	_setValue(newValue);
 	newValue = getValue();
 
 	// value changed?
@@ -153,8 +158,5 @@ void Slider1::paintEvent (QPaintEvent* event) {
 	// slider
 	int y = size.way - int( float(value.value - value.min) * float(size.way) / float(value.max - value.min) );
 	p.drawImage(0,y, imgMain);
-
-
-
 
 }

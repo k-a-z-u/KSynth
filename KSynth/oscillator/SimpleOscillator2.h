@@ -138,7 +138,7 @@ private:
 	/** dtor */
 	~SimpleOscillator2LUT() {
 		for (int i = 0; i < int(SimpleOscillator2Mode::_END); ++i) {
-			delete lut[i];
+			delete[] lut[i];
 			lut[i] = nullptr;
 		}
 	}

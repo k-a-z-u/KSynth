@@ -30,6 +30,7 @@ MainWin::MainWin(Context& ctx, QWidget *parent) :
 	connect(ui->menuFileLoad, SIGNAL(triggered()), this, SLOT(load()));
 	connect(ui->menuFileImportMidi, SIGNAL(triggered()), this, SLOT(importMidi()));
 	connect(ui->menuFileSettings, SIGNAL(triggered()), this, SLOT(showSettings()));
+	connect(ui->menuFileExportSong, SIGNAL(triggered()), this, SLOT(exportSong()));
 
 	connect(ui->menuRackReset, SIGNAL(triggered()), this, SLOT(resetRack()));
 	connect(ui->menuTracksClear, SIGNAL(triggered()), this, SLOT(clearTracks()));
@@ -75,6 +76,10 @@ void MainWin::save() {
 
 void MainWin::showSettings() {
 	ctx.getController()->showSettings();
+}
+
+void MainWin::exportSong() {
+	ctx.getController()->exportSong();
 }
 
 void MainWin::importMidi() {

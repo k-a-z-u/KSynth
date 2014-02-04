@@ -49,6 +49,11 @@ void Knob::setValueFromParam(ParamValue val) {
 int Knob::getValue() const {return value.value;}
 
 void Knob::setValue(int v) {
+	if (mouseState.isDown) {return;}
+	_setValue(v);
+}
+
+void Knob::_setValue(int v) {
 
 	int oldValue = value.value;
 	if (v > value.max) {v = value.max;}
@@ -73,14 +78,17 @@ void Knob::mouseReleaseEvent (QMouseEvent* e) {
 	mouseState.isDown = false;
 }
 void Knob::mousePressEvent (QMouseEvent* e) {
-	mouseState.downValue = getValue();
 	mouseState.isDown = e->button() == Qt::LeftButton;
+	if (!mouseState.isDown) {return;}
+	mouseState.downValue = getValue();
 	mouseState.x = e->x();
 	mouseState.y = e->y();
 }
 
 #include <QToolTip>
 void Knob::mouseMoveEvent(QMouseEvent* e) {
+
+	if (!mouseState.isDown) {return;}
 
 	// 100 px = one complete rotation
 	int pixel = mouseState.y - e->y();
@@ -92,7 +100,7 @@ void Knob::mouseMoveEvent(QMouseEvent* e) {
 
 	// apply
 	int oldValue = getValue();
-	setValue(nextVal);
+	_setValue(nextVal);
 	int newValue = getValue();
 
 	// value changed?
@@ -113,7 +121,7 @@ void Knob::wheelEvent(QWheelEvent *event) {
 	int oldVal = getValue();
 	int newVal = oldVal + (steps * mouseWheelSteps);
 	if (oldVal != newVal) {
-		setValue( newVal );
+		_setValue( newVal );
 		emit onChange();
 	}
 }

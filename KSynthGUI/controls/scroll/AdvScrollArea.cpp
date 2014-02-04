@@ -98,6 +98,53 @@ void AdvScrollArea::addOverlayWidget(QWidget* overlay) {
 	overlay->raise();
 }
 
+unsigned int AdvScrollArea::getScrollAreaWidth() const {
+	return area->width();
+}
+
+unsigned int AdvScrollArea::getScrollAreaHeight() const {
+	return area->height();
+}
+
+
+unsigned int AdvScrollArea::getScrollX() const {
+	return (unsigned int) scrollH->value();
+}
+
+unsigned int AdvScrollArea::getScrollY() const {
+	return (unsigned int) scrollV->value();
+}
+
+
+void AdvScrollArea::setScrollX(int x) {
+	if (x < 0) {x = 0;}
+	if (x > scrollH->maximum()) {x = scrollH->maximum();}
+	scrollH->setValue(x);
+}
+
+void AdvScrollArea::setScrollY(int y) {
+	if (y < 0) {y = 0;}
+	if (y > scrollV->maximum()) {y = scrollV->maximum();}
+	scrollV->setValue(y);
+}
+
+
+void AdvScrollArea::ensureVisibleX(int x) {
+	int cw = getScrollAreaWidth();
+	int cx = getScrollX();
+	if (x < cx) {setScrollX(x - cw);}
+	if (x > cx + cw) {setScrollX(x);}
+}
+
+void AdvScrollArea::ensureVisibleY(int y) {
+	int ch = getScrollAreaHeight();
+	int cy = getScrollY();
+	scrollV->setValue(y);
+	if (y < cy) {setScrollX(y - ch);}
+	if (y > cy + ch) {setScrollY(y);}
+}
+
+
 
 #include <QEvent>
 bool AdvScrollArea::eventFilter(QObject* o, QEvent* e) {

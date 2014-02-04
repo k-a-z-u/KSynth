@@ -174,7 +174,14 @@ struct MidiEvent {
 
 	/** equals? */
 	bool operator == (const MidiEvent& other) const {
-		return memcmp(this, &other, sizeof(MidiEvent)) == 0;
+		//return memcmp(this, &other, sizeof(MidiEvent)) == 0;
+		//return memcmp(this, &other, 7) == 0;
+		return
+				(delay == other.delay) &&
+				(status == other.status) &&
+				(d1 == other.d1) &&
+				(d2 == other.d2);
+
 	}
 
 };

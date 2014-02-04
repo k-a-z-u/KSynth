@@ -25,8 +25,6 @@ struct TaskStatus {
 class Task : public QObject {
 	Q_OBJECT
 
-	friend class Tasks;
-
 public:
 
 	/**
@@ -38,6 +36,15 @@ public:
 
 	/** dtor */
 	virtual ~Task();
+
+	/** run the task */
+	void run();
+
+	/** delete the task after completion? */
+	bool deleteAfterCompletion() const {return deleteOnDone;}
+
+	/** the task's name */
+	const std::string getName() const {return name;}
 
 
 protected slots:
@@ -51,12 +58,13 @@ protected slots:
 	/** set both, progress string and value */
 	void setProgress(const std::string& msg, float val);
 
-protected:
+	/** an error occured */
+	void setError(const std::string& error);
+
+private:
 
 	/** the work is perforemd within this method */
 	virtual void exec() = 0;
-
-private:
 
 	/** the worker's current status */
 	TaskStatus status;
@@ -67,10 +75,20 @@ private:
 	/** delete the task after it executed? */
 	bool deleteOnDone;
 
+
 signals:
 
 	/** tasks progress has changed */
-	void onProgress(TaskStatus& status);
+	void onProgress(TaskStatus status);
+
+	/** the task is starting */
+	void onStart();
+
+	/** the task is done */
+	void onDone();
+
+	/** an error occured */
+	void onError(QString str);
 
 };
 

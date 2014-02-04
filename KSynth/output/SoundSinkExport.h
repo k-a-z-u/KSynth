@@ -15,8 +15,17 @@ class SoundSinkExport : public SoundSink {
 
 public:
 
+	/** dtor */
+	virtual ~SoundSinkExport() {;}
+
 	/** set the file to export to */
 	virtual void setFile(const K::File& file) = 0;
+
+	/**
+	 * get the extension for the resulting export-files.
+	 * without the leading ".". e.g. "wav"
+	 */
+	virtual std::string getFileExtension() = 0;
 
 };
 

@@ -2,7 +2,7 @@
 #define EDITORSHEETNOTE_H
 
 #include <QWidget>
-#include "EditorNote.h"
+#include "EditorSheetNoteModel.h"
 class EditorSheet;
 #include "Grabable.h"
 
@@ -10,8 +10,8 @@ class EditorSheet;
  * represents an editable note element within the sheet.
  * a note can be moved, deleted, created, resized, etc...
  *
- * this element uses two underlying MIDI events for note-on
- * and note-off.
+ * this element uses two underlying MIDI events:
+ * one for note-on, and one for note-off.
  *
  */
 class EditorSheetNote : public Grabable {
@@ -24,10 +24,7 @@ public:
 	 * @param sheet the EditorSheet this note belongs to (shall be displayed within)
 	 * @param note describes the note using two midi events. !! this struct will be copied !!
 	 */
-	explicit EditorSheetNote(EditorSheet& sheet, const EditorNote& note, QWidget *parent = 0);
-
-	/** update the note's size and position */
-	void updateSize();
+	explicit EditorSheetNote(EditorSheet& sheet, const EditorSheetNoteModel& model, QWidget *parent = 0);
 
 protected:
 
@@ -36,32 +33,25 @@ protected:
 	void focusInEvent(QFocusEvent*) override;
 	void focusOutEvent(QFocusEvent*) override;
 
-	//void mouseMoveEvent(QMouseEvent*) override;
-	//void mousePressEvent(QMouseEvent*) override;
-	//void mouseReleaseEvent(QMouseEvent*) override;
-
 	void onGrab(int x, int y, int w, int h) override;
 	void onGrabDone(int x, int y, int w, int h) override;
 
 	friend class EditorSheet;
+
 	/** mark the note as selected */
 	void setSelected(bool selected);
 
 	/** get the displayed MidiEvents (note on/note off) */
-	const EditorNote& getNote() const;
+	EditorSheetNoteModel& getModel();
+
 
 private:
-
-//	/** returns: 1: mouse within left-grab, 2: mouse within right grab, 0: not within grab */
-//	int mouseInGrab(const QPoint& pos);
-
-
 
 	/** the EditorSheet this note belongs to */
 	EditorSheet& sheet;
 
 	/** the note (described using two midi events */
-	EditorNote note;
+	EditorSheetNoteModel model;
 
 	/** is the note currently selected? */
 	bool selected;
@@ -70,9 +60,10 @@ private:
 	bool cached;
 
 
-signals:
-
 public slots:
+
+	/** update the note's size and position */
+	void updateSize();
 
 };
 

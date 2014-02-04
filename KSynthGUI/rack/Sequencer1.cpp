@@ -90,8 +90,8 @@ void Sequencer1::onPatternSelect() {
 }
 
 void Sequencer1::onValueChanged() {
-	setNumBars(elements.spnBars->getSelectedValue());
-	setGranulartity(elements.spnGranularity->getSelectedValue());
+	setNumBars( (unsigned int) elements.spnBars->getSelectedValue());
+	setGranulartity( (unsigned int) elements.spnGranularity->getSelectedValue());
 	mscaler.setBars(elements.spnBars->getSelectedValue());
 	mscaler.setGranularity(elements.spnGranularity->getSelectedValue());
 	mscaler.setOctave(elements.spnOctave->getSelectedValue());
@@ -104,7 +104,7 @@ void Sequencer1::resizeEvent(QResizeEvent* event) {
 	for (unsigned int y = 0; y < 4; ++y) {
 		for (unsigned int x = 0; x < 4; ++x) {
 			unsigned int idx = y*4 + x;
-			elements.chkPattern[idx]->setGeometry(672+x*18, 20+y*18,		0,0);
+			elements.chkPattern[idx]->setGeometry( int(672+x*18), int(20+y*18),		0,0);
 		}
 	}
 

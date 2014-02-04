@@ -13,6 +13,7 @@
 #include "CtrlHelper.h"
 
 #include "../SettingsDialog.h"
+#include "controller/SongExport.h"
 
 #include <KSynth/Generator.h>
 #include <KSynth/Sequencer.h>
@@ -22,6 +23,10 @@
 
 Controller::Controller(Context& ctx) : ctx(ctx) {
 	;
+}
+
+void Controller::messageError(const std::string& title, const std::string& text) {
+	QMessageBox::critical( (QWidget*) ctx.getMainWindow(), title.c_str(), text.c_str());
 }
 
 void Controller::exit() {
@@ -97,9 +102,22 @@ void Controller::load() {
 
 
 void Controller::showSettings() {
-	SettingsDialog* dlg = new SettingsDialog( *ctx.getSettings(), (QWidget*) ctx.getMainWindow() );
-	dlg->exec();
+	bool ok = SettingsDialog::show( *ctx.getSettings(), (QWidget*) ctx.getMainWindow() );
+	if (ok) {saveSettings();}
 }
+
+void Controller::loadSettings() {
+	std::string problems = ctx.getSettings()->load( K::File("settings.xml") );
+	if (!problems.empty()) {
+		std::string str = "the following problems occured:\n\n" + problems;
+		QMessageBox::information( (QWidget*) ctx.getMainWindow(), "loading settings", str.c_str());
+	}
+}
+
+void Controller::saveSettings() {
+	ctx.getSettings()->save( K::File("settings.xml") );
+}
+
 
 void Controller::addNewRackElement(const std::string str) {
 	RackElement* re = ctx.getRackFactory()->getByString(str, ctx);
@@ -133,6 +151,10 @@ void Controller::importMidi() {
 			ctx.getSequencer()->import(midi, 0);
 		}
 	} catch (...) {;}
+}
+
+void Controller::exportSong() {
+	ctx.getSongExporter()->showExportDialog();
 }
 
 

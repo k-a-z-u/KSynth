@@ -5,7 +5,7 @@
 #include <QModelIndex>
 
 
-SampleChooserDialog::SampleChooserDialog(QWidget *parent) :
+SampleChooserDialog::SampleChooserDialog(const K::File& startFolder, QWidget *parent) :
 	QDialog(parent), ui(new Ui::SampleChooserDialog) {
 
 	ui->setupUi(this);
@@ -25,7 +25,12 @@ SampleChooserDialog::SampleChooserDialog(QWidget *parent) :
 	fileModel = new QFileSystemModel(this);
 	fileModel->setFilter(QDir::NoDotAndDotDot | QDir::Files);
 	ui->listFiles->setModel(fileModel);
-	ui->listFiles->setRootIndex(fileModel->setRootPath( rootPath.c_str() ));
+	//ui->listFiles->setRootIndex(fileModel->setRootPath( rootPath.c_str() ));
+
+	// select start path
+	std::string startPath = startFolder.getAbsolutePath();
+	ui->treeFolders->setCurrentIndex(dirModel->index( startPath.c_str() ));
+	ui->listFiles->setRootIndex(fileModel->setRootPath( startPath.c_str() ));
 
 	// signals
 	connect(ui->btnCancel, SIGNAL(clicked()), this, SLOT(onCancel()));
@@ -45,8 +50,12 @@ SampleChooserDialog::~SampleChooserDialog() {
 }
 
 std::string SampleChooserDialog::openSampleFile(const std::string& caption, QWidget* parent) {
+	return openSampleFile(caption, K::File("samples"), parent);
+}
 
-	SampleChooserDialog dia(parent);
+std::string SampleChooserDialog::openSampleFile(const std::string& caption, const K::File& folder, QWidget* parent) {
+
+	SampleChooserDialog dia(folder, parent);
 	dia.setWindowTitle(caption.c_str());
 	dia.setModal(true);
 	dia.exec();
@@ -54,7 +63,6 @@ std::string SampleChooserDialog::openSampleFile(const std::string& caption, QWid
 	return (dia.current.valid) ? (dia.current.file.getAbsolutePath()) : ("");
 
 }
-
 
 
 void SampleChooserDialog::onCancel() {

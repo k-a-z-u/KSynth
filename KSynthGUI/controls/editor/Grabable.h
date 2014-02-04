@@ -13,6 +13,9 @@ enum class GrabStart {
 	NONE
 };
 
+/** the mouse must be moved at least by this amount to trigger events */
+#define GRAB_MIN_PIXEL		3;
+
 /**
  * this class provides grabbing (resizing/moving) for QWidgets
  * by capturing necessary mouse-events (press,release,move).
@@ -44,16 +47,16 @@ public:
 	/** capture mouse events */
 	bool eventFilter(QObject* o, QEvent* e) {
 		if (o != this) {return false;}
-		if (e->type() == QEvent::MouseMove)				{_mouseMove( (QMouseEvent*) e );}
-		if (e->type() == QEvent::MouseButtonPress)		{_mousePress( (QMouseEvent*) e );}
-		if (e->type() == QEvent::MouseButtonRelease)	{_mouseRelease( (QMouseEvent*) e );}
+		if (e->type() == QEvent::MouseMove)				{return _mouseMove( (QMouseEvent*) e );}
+		if (e->type() == QEvent::MouseButtonPress)		{return _mousePress( (QMouseEvent*) e ); }
+		if (e->type() == QEvent::MouseButtonRelease)	{return _mouseRelease( (QMouseEvent*) e );}
 		return false;
 	}
 
 private:
 
 	/** mouse moving */
-	void _mouseMove(QMouseEvent* e) {
+	bool _mouseMove(QMouseEvent* e) {
 
 		// change cursor?
 		if (!mouse.isDown) {
@@ -75,6 +78,10 @@ private:
 
 		// resize or move ?
 		if (mouse.isDown) {
+
+			// check minimum for required mouse movement
+			bool ok = std::abs(mouse.pos.x() - e->x()) + std::abs(mouse.pos.y() - e->y()) > GRAB_MIN_PIXEL;
+			if (!ok) {return false;}
 
 			QPoint diff = e->pos() - mouse.pos;
 			diff.setY( diff.y() / settings.snapY * settings.snapY );
@@ -101,24 +108,39 @@ private:
 
 			onGrab( mouse.newGeo.x(), mouse.newGeo.y(), mouse.newGeo.width(), mouse.newGeo.height() );
 
+			return true;
+
 		}
+
+		return false;
 
 	}
 
 	/** mouse-button pressed */
-	void _mousePress(QMouseEvent* e) {
+	bool _mousePress(QMouseEvent* e) {
 		mouse.isDown = e->button() == Qt::LeftButton;
 		mouse.pos = e->pos();
 		mouse.grab = mouseInGrab(e->pos());
 		mouse.oldGeo = geometry();
 		mouse.newGeo = geometry();
+		return true;
 	}
 
 	/** mouse-button released */
-	void _mouseRelease(QMouseEvent* e) {
+	bool _mouseRelease(QMouseEvent* e) {
 		Q_UNUSED(e);
-		mouse.isDown = false;
-		onGrabDone( mouse.newGeo.x(), mouse.newGeo.y(), mouse.newGeo.width(), mouse.newGeo.height() );
+		if (mouse.isDown) {
+			mouse.isDown = false;
+
+			// check minimum for required mouse movement
+			bool ok = std::abs(mouse.pos.x() - e->x()) + std::abs(mouse.pos.y() - e->y()) > GRAB_MIN_PIXEL;
+			if (ok) {
+				onGrabDone( mouse.newGeo.x(), mouse.newGeo.y(), mouse.newGeo.width(), mouse.newGeo.height() );
+				return true;
+			}
+
+		}
+		return false;
 	}
 
 	/** where was the element grabbed? (left/right/top/bottom) */
