@@ -85,7 +85,10 @@ SOURCES += main.cpp\
     model/SystemSettings.cpp \
     controller/SongExport.cpp \
     controls/editor/EditorHelper.cpp \
-    controls/editor/EditorSheetNoteModel.cpp
+    controls/editor/EditorSheetNoteModel.cpp \
+    controls/Image.cpp \
+    controls/NumberSpin.cpp \
+    rack/SamplePad1.cpp
 
 HEADERS  += \
     controls/Knob.h \
@@ -157,7 +160,13 @@ HEADERS  += \
     ../KSynth/output/SoundSinkHardware.h \
     controls/editor/EditorSheetNoteModel.h \
     controls/editor/EditorHelper.h \
-    controls/editor/SelectionRect.h
+    controls/editor/SelectionRect.h \
+    misc/PixelFont.h \
+    controls/Image.h \
+    controls/NumberSpin.h \
+    ../KSynth/tts/TTSProvider.h \
+    rack/SamplePad1.h \
+    ../KSynth/sampler/SimpleSamplePad.h
 
 FORMS    += \
     SynthWin.ui \
@@ -199,6 +208,7 @@ HEADERS += \
         ../lib/KLib/os/*
 
 QMAKE_CFLAGS += -D_7ZIP_ST
+QMAKE_CXXFLAGS += -DWITH_7Z
 
 # add KSynth
 INCLUDEPATH += \
@@ -219,7 +229,8 @@ HEADERS += \
         ../KSynth/pattern/*.h \
         ../KSynth/sampler/*.h \
         ../KSynth/sampler/formats/*.h \
-        ../KSynth/synth/*.h
+        ../KSynth/synth/*.h \
+        ../KSynth/tts/*.h
 
 
 # linux specific build steps
@@ -268,14 +279,30 @@ LAME {
     LIBS += -lmp3lame
 }
 
+# compile libfftw3 support (e.g. for spectrum analysis)
 FFTW3 {
     message("using FFTW3")
     QMAKE_CXXFLAGS += -DWITH_FFTW3
     LIBS += -lfftw3
 }
 
+# compile support for ZLib (e.g. for loading/saving compressed workspaces)
 ZLIB {
     message("using ZLIB")
-    QMAKE_CXXFLAGS += -DWWITH_ZLIB
+    QMAKE_CXXFLAGS += -DWITH_ZLIB
     LIBS += -lz
+}
+
+# compile support for FLite TTS engine?
+TTS_FLITE {
+    message("using TTS FLITE")
+    QMAKE_CXXFLAGS += -DWITH_TTS_FLITE
+    LIBS += -lflite_cmu_us_kal16 -lflite_usenglish -lflite_cmulex -lflite
+}
+
+# compile support for ESpeak TTS engine?
+TTS_ESPEAK {
+     message("using TTS ESPEAK")
+    QMAKE_CXXFLAGS += -DWITH_TTS_ESPEAK
+    LIBS += -lespeak
 }
