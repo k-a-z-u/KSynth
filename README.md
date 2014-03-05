@@ -4,7 +4,7 @@ Additionally the code should work on several operating-systems such as Linux, Wi
 
 # Screenshots
 
-![Screenshot](http://imageshack.com/a/img849/2286/aos6.png)
+![Screenshot](http://i.imgur.com/KvpLZai.png)
 
 # Structure
 The code is distributed among two parts:
