@@ -13,12 +13,19 @@ public:
 	static QImage getForOscFunction(SimpleOscillator2Mode mode, unsigned int w, unsigned int h);
 
 	/** get QImage for the given number */
-	static QImage getForNumber(int number, unsigned int w, unsigned int h);
+	static QImage getForNumber(int number, int w = -1, int h = -1);
 
 
 	/** add a LED look */
 	static void LEDify(QImage& img);
 
+	/** add a LED look */
+	static void LEDify2(QImage& img);
+
+private:
+
+	/** draw the digit "digit" at position (sx,sy) using the given painter */
+	static void drawDigit(QPainter& p, char digit, int sx, int sy);
 
 };
 

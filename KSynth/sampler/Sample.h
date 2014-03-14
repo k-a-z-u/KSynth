@@ -97,7 +97,7 @@ private:
 	void convert(std::vector<Amplitude>* vec, SampleRate oldsr, SampleRate newsr) {
 
 		// create a new vector for the converted PCM data
-		SampleFrame samples = (unsigned int) (vec->size() * newsr / oldsr) - 1;
+		SampleFrame samples = (unsigned int) (vec->size() * newsr / oldsr);
 		std::vector<Amplitude> nvec;
 		nvec.resize(samples);
 
@@ -111,6 +111,9 @@ private:
 			SampleFrame oldSample2 = (unsigned int) std::ceil(oldSample);
 			float blend1 = 1.0f - (oldSample - float(oldSample1));
 			float blend2 = 1.0f - blend1;
+
+			// end of vector?
+			if (oldSample2 >= vec->size()) {break;}
 
 			nvec[newSample] = (vec->at(oldSample1) * blend1) + (vec->at(oldSample2) * blend2);
 

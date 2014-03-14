@@ -18,6 +18,12 @@ public:
 	/** set the control's color */
 	void setColor(QColor c);
 
+	/** get the last mouse event (e.g. to check whether "shift" is pressed) */
+	QMouseEvent* getLastEvent();
+
+	/** render a bigger version? */
+	void setBig(bool big);
+
 protected:
 
 	void paintEvent (QPaintEvent* event) override;
@@ -32,6 +38,12 @@ private:
 
 	/** mouse down? */
 	bool isDown;
+
+	/** last mouse event (e.g. to check whether shift is pressed) */
+	QMouseEvent* lastEvt;
+
+	/** render a bigger version? */
+	bool big;
 
 signals:
 

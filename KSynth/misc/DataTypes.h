@@ -29,6 +29,9 @@ typedef float Time;
 /** "time" in multiples of 128th notes */
 typedef unsigned int TimeBase128;
 
+/** "time" in multiples of 4th notes */
+typedef unsigned int TimeBase4;
+
 /** same as TimeBase128 but also allows negative numbers */
 typedef int TimeOffset128;
 

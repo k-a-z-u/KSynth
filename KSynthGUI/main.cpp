@@ -26,6 +26,7 @@
 #include "rack/Mixer1.h"
 #include "rack/DrumComputer1.h"
 #include "rack/MasterTarget1.h"
+#include "rack/SamplePad1.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -165,6 +166,8 @@ public:
 			Synth1* s6 = new Synth1(ctx); s6->setUserName("synth 6");		ctx.getRack()->add(s6);
 			setProgress("loading drums", 0.9f);
 			DrumComputer1* drums = new DrumComputer1(ctx); drums->setUserName("drums");	ctx.getRack()->add(drums);
+			SamplePad1 * sp1 = new SamplePad1(ctx); sp1->setUserName("sample pad 1"); ctx.getRack()->add(sp1);
+
 
 			ctx.getGenerator()->getBinder().addBinding(0, s1, 0, mixer);
 			ctx.getGenerator()->getBinder().addBinding(1, s1, 1, mixer);
@@ -178,8 +181,14 @@ public:
 			ctx.getGenerator()->getBinder().addBinding(1, s5, 9, mixer);
 			ctx.getGenerator()->getBinder().addBinding(0, s6, 10, mixer);
 			ctx.getGenerator()->getBinder().addBinding(1, s6, 11, mixer);
+			ctx.getGenerator()->getBinder().addBinding(0, sp1, 14, mixer);
+			ctx.getGenerator()->getBinder().addBinding(1, sp1, 15, mixer);
+			ctx.getGenerator()->getBinder().addBinding(0, drums, 16, mixer);
+			ctx.getGenerator()->getBinder().addBinding(1, drums, 17, mixer);
+
 			ctx.getGenerator()->getBinder().addBinding(0, mixer, 0, ctx.getMasterTarget());
 			ctx.getGenerator()->getBinder().addBinding(1, mixer, 1, ctx.getMasterTarget());
+
 
 			ctx.getSequencer()->setBeatsPerMinute(85);
 
@@ -190,6 +199,7 @@ public:
 			ctx.getSequencer()->bind(4, s4);
 			ctx.getSequencer()->bind(5, s5);
 			ctx.getSequencer()->bind(6, s6);
+
 
 			mixer->setParameter( (int) SimpleMixerParams::MASTER_VOLUME, 0.15f);
 

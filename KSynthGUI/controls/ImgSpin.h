@@ -13,11 +13,14 @@ public:
 
 	explicit ImgSpin(QWidget *parent = 0);
 
+
 	/** remove all entries from the spinner */
 	void clear();
 
 	/** add a new entry */
 	void add(const QImage& img, int value = 0);
+
+
 
 	/** get the currently selected index */
 	unsigned int getSelectedIndex();

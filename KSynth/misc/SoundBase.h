@@ -20,58 +20,6 @@
 #include <vector>
 
 
-//class SoundBase;
-//
-///**
-// * one endpoint of a binding identified by a device and a port-index.
-// * a binding consists of two endpoints: source and destination.
-// */
-//struct BindingEndpoint {
-//
-//	/** the port's index */
-//	unsigned int idx;
-//
-//	/** the device */
-//	SoundBase* dev;
-//
-//	/** equals? */
-//	bool operator == (BindingEndpoint& be) const {
-//		return (idx == be.idx) && (dev == be.dev);
-//	}
-//
-//	/** ctor */
-//	BindingEndpoint(unsigned int idx, SoundBase* dev) : idx(idx), dev(dev) {;}
-//
-//};
-//
-///**
-// * represents one binding from outputPort@SourceDevice -> inputPort@DestinationDevice
-// */
-//struct Binding {
-//
-//	BindingEndpoint src;
-//	BindingEndpoint dst;
-//
-//	/** equals? */
-//	bool operator == (Binding& b) const {
-//		return (src == b.src) && (dst == b.dst);
-//	}
-//
-//	/** ctor */
-//	Binding(unsigned int srcIdx, SoundBase* src, unsigned int dstIdx, SoundBase* dst) :
-//		src(srcIdx, src), dst(dstIdx, dst) {;}
-//
-//};
-//
-//class BindingException : public std::exception {
-//public:
-//	BindingException(const std::string& msg) : msg(msg) {;}
-//	const char* what() const throw() override {return msg.c_str();}
-//private:
-//	std::string msg;
-//};
-
-
 /**
  * base class for all sound generators and sound filters.
  *
@@ -104,7 +52,6 @@ public:
 	virtual void process(Amplitude** inputs, Amplitude** outputs) = 0;
 
 
-
 	/** the number of input channels for this device */
 	virtual unsigned int getNumInputs() {return numInputs;}
 
@@ -127,90 +74,12 @@ public:
 	}
 
 
-
 	/** how many samples to process on every process() call */
 	SampleFrame getSamplesPerProcess() {return SNDBASE_BLK_SIZE;}
 
 	/** the sample-rate used within the application */
 	SampleRate getSampleRate() {return 48000;}
 
-
-//
-//	/**
-//	 * add a new binding from srcIdx-th output of src to the dstIdx-th input of dst;
-//	 * @param srcIdx the output channel of the source device
-//	 * @param src the source device
-//	 * @param dstIdx the input channel of the destination device
-//	 * @param dst the destination device
-//	 */
-//	static void addBinding(unsigned int srcIdx, SoundBase* src, unsigned int dstIdx, SoundBase* dst) {
-//
-//		// check whether src is already bound
-//		for (Binding& b : src->bindings) {
-//			if (b.src.dev == src && b.src.idx == srcIdx) {
-//				throw BindingException("source is already bound!");
-//			}
-//		}
-//
-//		// check whether dst is already bound
-//		for (Binding& b : dst->bindings) {
-//			if (b.dst.dev == dst && b.dst.idx == dstIdx) {
-//				throw BindingException("destination is already bound!");
-//			}
-//		}
-//
-//		// create binding
-//		Binding b(srcIdx, src, dstIdx, dst);
-//
-//		// add binding to both, source and destination
-//		dst->bindings.push_back(b);
-//		src->bindings.push_back(b);
-//
-//	}
-//
-//	/**
-//	 * delete an existing binding from srcIdx-th output of src to the dstIdx-th input of dst;
-//	 * @param srcIdx the output channel of the source device
-//	 * @param src the source device
-//	 * @param dstIdx the input channel of the destination device
-//	 * @param dst the destination device
-//	 */
-//	static void deleteBinding(unsigned int srcIdx, SoundBase* src, unsigned int dstIdx, SoundBase* dst) {
-//
-//		Binding b(srcIdx, src, dstIdx, dst);
-//
-//		for (unsigned int i = 0; i < src->bindings.size(); ++i) {
-//			if (src->bindings[i] == b) {src->bindings.erase(src->bindings.begin()+i); break;}
-//		}
-//
-//		for (unsigned int i = 0; i < dst->bindings.size(); ++i) {
-//			if (dst->bindings[i] == b) {dst->bindings.erase(dst->bindings.begin()+i); break;}
-//		}
-//
-//	}
-//
-//
-//
-//	/** get a list of all bindings for this device */
-//	std::vector<Binding> getBindings() {
-//		return bindings;
-//	}
-//
-//	/** get the device bound to my given output channel */
-//	BindingEndpoint getBindingToOutputChannel(unsigned int idx) {
-//		for (Binding& b : bindings) {
-//			if (b.src.dev == this && b.src.idx == idx) {return b.dst;}
-//		}
-//		return BindingEndpoint(0, nullptr);
-//	}
-//
-//	/** get the device bound to my given input channel */
-//	BindingEndpoint getBindingToInputChannel(unsigned int idx) {
-//		for (Binding& b : bindings) {
-//			if (b.dst.dev == this && b.dst.idx == idx) {return b.src;}
-//		}
-//		return BindingEndpoint(0, nullptr);
-//	}
 
 
 	/** get the number of parameters this elements uses */
@@ -239,6 +108,23 @@ public:
 		(void) p;
 		(void) name;
 	}
+
+	/**
+	 * chunked data can be used to store various other datatypes
+	 * which cannot be represented using the setParameter() API
+	 */
+	virtual std::string getChunkData() const {
+		return "";
+	}
+
+	/**
+	 * chunked data can be used to store various other datatypes
+	 * which cannot be represented using the setParameter() API
+	 */
+	virtual void setChunkData(const std::string& data) {
+		(void) data;
+	}
+
 
 	/** VU meter */
 	virtual Volume getVU() {return 0;}

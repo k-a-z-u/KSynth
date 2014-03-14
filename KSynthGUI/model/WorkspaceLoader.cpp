@@ -178,6 +178,17 @@ void WorkspaceLoader::loadRackElements(XMLElement* nRack, StatusCallback sc) {
 			sb->setParameterName(idx, name);
 
 		}
+
+		// get chunk data
+		tinyxml2::XMLElement* nChunks = nRackElement->FirstChildElement("Chunks");
+		if (nChunks) {
+			tinyxml2::XMLElement* nChunk = nChunks->FirstChildElement("Chunk");
+			if (nChunk) {
+				std::string str = nChunk->GetText();
+				sb->setChunkData(str);
+			}
+		}
+
 	}
 
 }

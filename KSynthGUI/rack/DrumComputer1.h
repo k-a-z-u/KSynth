@@ -11,6 +11,8 @@ class Knob;
 class VUMeter;
 class Slider1;
 class LED1;
+class Image;
+class NumberSpin;
 
 class QPushButton;
 class QLabel;
@@ -71,10 +73,17 @@ private:
 			QLabel* lblFile;
 			CheckBox* chkEdit;
 			Knob* kVol;
+			Knob* kOffset;
 			LED1* ledBeat;
 		};
 		Bank banks[8];
 		CheckBoxGroup* grpBanks;
+
+		/** pattern length selection */
+		NumberSpin* spnPatternLength;
+
+		/** pattern's base (e.g. 4th notes) */
+		NumberSpin* spnPatternBase;
 
 		/** select the active beats for a bank+pattern */
 		ColorButton* chkBeat[16*2];
@@ -90,11 +99,10 @@ private:
 		struct Memory {
 
 			unsigned int used;
-			QImage img;
-			QLabel* lbl;
+			Image* imgGui;
 
 			/** ctor */
-			Memory() : used(1), img(), lbl(nullptr) {;}
+			Memory() : used(1), imgGui(nullptr) {;}
 
 		} memory;
 

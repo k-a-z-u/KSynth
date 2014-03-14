@@ -5,7 +5,7 @@
 #include <QModelIndex>
 
 
-SampleChooserDialog::SampleChooserDialog(const K::File& startFolder, QWidget *parent) :
+SampleChooserDialog::SampleChooserDialog(const K::File& lastFile, QWidget *parent) :
 	QDialog(parent), ui(new Ui::SampleChooserDialog) {
 
 	ui->setupUi(this);
@@ -28,9 +28,19 @@ SampleChooserDialog::SampleChooserDialog(const K::File& startFolder, QWidget *pa
 	//ui->listFiles->setRootIndex(fileModel->setRootPath( rootPath.c_str() ));
 
 	// select start path
-	std::string startPath = startFolder.getAbsolutePath();
+	std::string startPath = "";
+	std::string startFile = "";
+	if (lastFile.isFolder()) {
+		startPath = lastFile.getAbsolutePath();
+	} else {
+		startPath = lastFile.getParent().getAbsolutePath();
+		startFile = lastFile.getAbsolutePath();
+	}
 	ui->treeFolders->setCurrentIndex(dirModel->index( startPath.c_str() ));
 	ui->listFiles->setRootIndex(fileModel->setRootPath( startPath.c_str() ));
+	if (!startFile.empty()) {
+		ui->listFiles->setCurrentIndex(fileModel->index( startFile.c_str() ));
+	}
 
 	// signals
 	connect(ui->btnCancel, SIGNAL(clicked()), this, SLOT(onCancel()));

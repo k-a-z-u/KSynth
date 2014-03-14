@@ -70,13 +70,14 @@ private:
 		if (memcmp(buf+36, "data", 4) != 0) {throw WaveFileException("'data' tag missing'", f);}
 		len = *((uint32_t*) (buf+40));
 
-		if (bits != 16) {throw WaveFileException("currently only 16 bits is supported", f);}
+		if (bits != 8 && bits != 16 && bits != 24) {throw WaveFileException("bogus bit-value detected", f);}
 
 		// read the PCM data
 		uint8_t* data = (uint8_t*) malloc(len);
 		fseek(handle, 44, SEEK_SET);
 		size_t bytesRead = fread(data, 1, len, handle);
 		if (bytesRead != len)  {throw WaveFileException("could not read data part", f);}
+
 
 		// parse PCM data
 		unsigned int done = 0;
@@ -85,10 +86,21 @@ private:
 
 				Amplitude a = 0;
 
-				if (bits == 16) {
-					int v = *((int16_t*) (data+done)) ;
-					a = float(v) / 65535.0f * 2.0f;
+				if (bits == 8) {
+					int v = int ( data[done+0] << 0 );
+					a = Amplitude(v) / Amplitude(128);
+					done += 1;
+
+				} else if (bits == 16) {
+					int v = int ( (data[done+0] << 0) | (data[done+1] << 8) ) << 16 >> 16;
+					a = Amplitude(v) / Amplitude(32768);
 					done += 2;
+
+				} else if (bits == 24) {
+					int v = int ( (data[done+0] << 0) | (data[done+1] << 8) | (data[done+2] << 16) ) << 8 >> 8;
+					a = Amplitude(v) / Amplitude(8388608);
+					done += 3;
+
 				}
 
 				if (chan == 0) {ch1.push_back(a);}

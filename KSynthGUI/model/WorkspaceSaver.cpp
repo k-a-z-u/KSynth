@@ -107,9 +107,11 @@ void WorkspaceSaver::add(const RackElement* elem, tinyxml2::XMLDocument* doc, ti
 	nElement->SetAttribute("user_name", sb->getUserName().c_str());
 	nElement->SetAttribute("id", ids[elem]);
 
+	// export parameters
 	tinyxml2::XMLElement* nParams = doc->NewElement("Parameters");
 	nElement->InsertEndChild(nParams);
 
+	// store each individual parameter
 	for (unsigned int i = 0; i < sb->getNumParameters(); ++i) {
 		tinyxml2::XMLElement* nParam = doc->NewElement("Parameter");
 		nParams->InsertEndChild(nParam);
@@ -118,6 +120,18 @@ void WorkspaceSaver::add(const RackElement* elem, tinyxml2::XMLDocument* doc, ti
 		nParam->SetAttribute("value", sb->getParameter(i));
 	}
 
+	// export chunk data
+	std::string data = sb->getChunkData();
+	if (!data.empty()) {
+		tinyxml2::XMLElement* nChunks = doc->NewElement("Chunks");
+		nElement->InsertEndChild(nChunks);
+
+		tinyxml2::XMLElement* nChunk = doc->NewElement("Chunk");
+		nChunks->InsertEndChild(nChunk);
+
+		tinyxml2::XMLText* nChunkData = doc->NewText( data.c_str() );
+		nChunk->InsertEndChild(nChunkData);
+	}
 
 }
 

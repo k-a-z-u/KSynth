@@ -40,6 +40,11 @@ void ImgSpin::paintEvent(QPaintEvent* event) {
 
 }
 
+void ImgSpin::clear() {
+	entries.clear();
+}
+
+
 void ImgSpin::add(const QImage& img, int value) {
 
 	entries.push_back(Entry(img, value));

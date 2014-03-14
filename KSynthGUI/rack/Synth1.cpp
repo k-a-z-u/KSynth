@@ -252,8 +252,4 @@ void Synth1::paintEvent(QPaintEvent* event) {
 	static QImage imgBg = Skin::getImage("skin/synth1.png", "PNG");
 	p.drawImage(0,0, imgBg);
 
-	//QColor cA(128,128,128);
-	//p.setBrush(cA);
-	//p.drawRect(0,0,this->width()-1,this->height()-1);
-
 }

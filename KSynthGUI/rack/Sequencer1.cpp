@@ -48,13 +48,13 @@ Sequencer1::Sequencer1(Context& ctx, QWidget *parent) :
 	connect(elements.spnOctave, SIGNAL(onChange()), this, SLOT(onValueChanged()));
 
 	for (unsigned int i = 1; i <= 4; ++i) {
-		elements.spnBars->add(Helper::getForNumber(i, 22,22), i);
+		elements.spnBars->add(Helper::getForNumber(i), i);
 	}
 	for (unsigned int i = 1; i <= 6; ++i) {
-		elements.spnOctave->add(Helper::getForNumber(i, 22,22), i);
+		elements.spnOctave->add(Helper::getForNumber(i), i);
 	}
 	for (unsigned int i = 2; i <= 8; ++i) {
-		elements.spnGranularity->add(Helper::getForNumber(i, 22,22), i);
+		elements.spnGranularity->add(Helper::getForNumber(i), i);
 	}
 
 }

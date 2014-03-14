@@ -2,7 +2,7 @@
 
 #include <QPainter>
 #include <QMessageBox>
-
+#include "PixelFont.h"
 
 QImage Helper::getForOscFunction(SimpleOscillator2Mode mode, unsigned int w, unsigned int h) {
 
@@ -46,38 +46,87 @@ QImage Helper::getForOscFunction(SimpleOscillator2Mode mode, unsigned int w, uns
 
 	p.end();
 
-	LEDify(img);
+	LEDify2(img);
 
 	return img;
 
 }
 
-QImage Helper::getForNumber(int number, unsigned int w, unsigned int h) {
+QImage Helper::getForNumber(int number, int w, int h) {
+
+	// number to strng and size calculation
+	std::string num = std::to_string(number);
+	if (w == -1) {w = (int) num.length() * 7 * 2 + 4;}
+	if (h == -1) {h = 8 * 2 + 4;}
 
 	// the image
-	QImage img(int(w), int(h), QImage::Format_ARGB32);
+	QImage img(w, h, QImage::Format_ARGB32);
 	img.fill(0x00000000);
 
 	// painter
-	static QPainter p;
+	QPainter p;
 	p.begin(&img);
+
 	p.setRenderHint(QPainter::Antialiasing, true);
 
-	// font
-	static QFont font; font.setPixelSize( int(h) ); font.setBold(true);
-	p.setFont(font);
+	int sx = 3;
+	int sy = 3;
 
-	// color
-	static QColor cTxt(255,0,0);
-	p.setPen(cTxt);
+	for (char c : num) {
+		Helper::drawDigit(p, c, sx,sy);
+		sx += 14;
+	}
 
-	p.drawText(0, h*7/8, QString::number(number));
 
 	p.end();
-
-	LEDify(img);
+	LEDify2(img);
 
 	return img;
+
+}
+
+
+void Helper::drawDigit(QPainter& p, char digit, int sx, int sy) {
+
+	static const uint8_t* letters[32] = {
+		LETTER_NEG, nullptr, nullptr,
+		LETTER_0, LETTER_1, LETTER_2, LETTER_3, LETTER_4,
+		LETTER_5, LETTER_6, LETTER_7, LETTER_8, LETTER_9
+	};
+
+	static QPen pen; pen.setColor(QColor(255,0,0));; pen.setWidthF(2.0f);
+	p.setPen(pen);
+
+	unsigned int idx = digit - '-';
+	for (int y = 0; y < 8; ++y) {
+		for (int x = 0; x < 6; ++x) {
+			if ( letters[idx][y] & (1 << (5-x)) ) {
+				p.drawPoint(sx+x*2, sy+y*2);
+			}
+		}
+	}
+
+}
+
+void Helper::LEDify2(QImage &img) {
+
+	QPainter p;
+	p.begin(&img);
+	int w = img.width();
+	int h = img.height();
+	static QPen p1(QColor(255,255,255, 32));
+	static QPen p2(QColor(0,0,0, 48));
+	static QPen p3(QColor(0,0,0, 96));
+
+	for (int x = 0; x < w; x+=2) {
+		for (int y = 0; y < h; y+=2) {
+			p.setPen(p1); p.drawPoint(x+0,y+0);
+			p.setPen(p2); p.drawPoint(x+1,y+0);
+			p.setPen(p2); p.drawPoint(x+0,y+1);
+			p.setPen(p3); p.drawPoint(x+1,y+1);
+		}
+	}
+	p.end();
 
 }
 
@@ -86,17 +135,12 @@ void Helper::LEDify(QImage& img) {
 	// create a copy
 	QImage img2 = img;
 
-
-
 	// painter
 	static QPainter p;
 	p.begin(&img);
 
-
-
 	int w = img.width();
 	int h = img.height();
-
 
 	// clear original
 	img.fill(0x00000000);
@@ -137,10 +181,10 @@ void Helper::LEDify(QImage& img) {
 	pen.setWidth(1);
 	p.setPen(pen);
 
-//	// draw vertical grid
+	//	// draw vertical grid
 	for (int x = 0; x < w; x += 2) {p.drawLine(x,0,x,h);}
 
-//	// draw horizontal grid
+	//	// draw horizontal grid
 	for (int y = 0; y < h; y += 2) {p.drawLine(0,y,w,y);}
 
 	p.end();
