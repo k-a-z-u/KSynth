@@ -17,7 +17,9 @@
  * this should be a power of 2 as those values allow bit-masking (&)
  * instead of modulo (%) for region clamping.
  */
-#define SO_LUT_SIZE		65536
+#define SO_LUT_SIZE		(64*1024)
+//#define SO_LUT_SIZE		(4*1024)
+
 
 
 /**
@@ -38,6 +40,7 @@ enum class SimpleOscillator2Mode {
 	_END,
 };
 
+#include "../fx/BiquadFilter.h"
 
 /**
  * provides some generator functions converting phase [0:1] to an amplitude.
@@ -47,8 +50,8 @@ struct SimpleOscillator2Func {
 	/** slightly smoothes the given funtion to reduce aliasing effects */
 	static Amplitude smooth( Amplitude (*generator) (float phase), float phase ) {
 		Amplitude ret = 0;
-		for (int i = -5; i <= 5; ++i) {ret += generator(phase + 1.0f + float(i) * 0.01f);}
-		return ret / 10;
+		for (int i = -10; i <= 10; i+=2) {ret += generator(phase + 1.0f + float(i) * 0.01f);}
+		return ret / 20;
 	}
 
 
@@ -64,7 +67,20 @@ struct SimpleOscillator2Func {
 	static Amplitude square(const float phase)		{return (Amplitude)  1.0 - (Amplitude) 2.0 * (std::fmod(phase,1.0) > (Amplitude)0.5);}
 
 	/** slightly smothed square -> less aliasing */
-	static Amplitude squareNoAlias(const float phase) {return smooth(&square, phase);}
+	static Amplitude squareNoAlias(const float phase) {
+
+		// this is the complex square function by using several sine-waveforms
+		// by reducing the number of those waveforms we reduce aliasing effects
+		double sum = 0;
+		for (unsigned int i = 1; i < 30;++i) {
+			double a = std::sin(2.0 * K_PI * (2.0*i-1) * 1.0 * phase);
+			double b = (2.0*i-1);
+			sum += a / b;
+		}
+		sum *= 4;
+		sum /= K_PI;
+		return (float) sum;
+	}
 
 
 	/** create a saw-tooth wave */
@@ -203,7 +219,13 @@ public:
 		return generator(phase);
 	}
 
+	/** clamp phase to [0;1] */
+	float toPhase(float phase) const {
+		return phase - float(int(phase));
+	}
+
 	Amplitude getLUT(float phase) const {
+		//unsigned int idx = (unsigned int) (toPhase(phase) * SO_LUT_SIZE);
 		unsigned int idx = (unsigned int) (phase * SO_LUT_SIZE) % SO_LUT_SIZE;
 		return lut[idx];
 	}

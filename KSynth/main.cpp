@@ -6,6 +6,23 @@
  */
 
 
+#include "test/Test.h"
+
+int main(int argc, char** argv) {
+
+#ifdef WITH_TESTS
+	//::testing::GTEST_FLAG(filter) = "*Midi*";
+	::testing::InitGoogleTest(&argc, argv);
+	return RUN_ALL_TESTS();
+#else
+	return 0;
+#endif
+
+}
+
+
+
+/*
 #include "huell/ADSR.h"
 
 #include "oscillator/SimpleOscillator.h"
@@ -580,76 +597,76 @@ int main(int argc, char **argv) {
 
 	gen.stop();
 
-	/*
-	unsigned int sample = 0;
-	double sec = 0;
 
-	while(true) {
+//	unsigned int sample = 0;
+//	double sec = 0;
 
-		// get current position in milliseconds
-		int midiMs = sec * 1000.0 * speed;
+//	while(true) {
 
-
-		// process each track
-		for (Track& track : tracks) {
-
-			if (midiMs > track.nextEvent) {
-
-				again:;
-
-				// convert midi note nr to Hz
-				//double freq = track.next.n.getFrequency();
-				std::cout << "track(" << track.trackNr << ")\t";
-				std::cout << "time(" << track.nextEvent << ")\t";
-				std::cout << "cmd(" << (int) track.evt.getType() << ")\t";
-				std::cout << "d1(" << (int) track.evt.d1 << ")\t";
-				std::cout << "d2(" << (int) track.evt.d2 << ")\t";
-				std::cout << std::endl;
-				//std::cout << "note(" << Note(track.next.n.getNoteNr() <<  ", " << freq << " Hz)\t";
-				//std::cout << "vol(" << track.next.vol << ")" << std::endl;
-
-				if (track.evt.status) {
-					if (track.evt.getType() == MidiEventType::NOTE_OFF) {
-						//|| (track.evt.getType() == MidiEventType::NOTE_ON && track.evt.d2 == 0) ) {
-						track.synth.stopNote( Note(track.evt.d1), sec);
-						std::cout << "stop" << std::endl;
-					} else if (track.evt.getType() == MidiEventType::NOTE_ON) {
-						track.synth.startNote( Note(track.evt.d1), sec, track.evt.d2 / 127.0);
-						std::cout << "start" << std::endl;
-					}
-				}
-				//} else if (track.next.cmd == 176) {
-				//track.synth.startNote(track.next.n, sec, track.next.vol);
-				//}
-
-				// get next event
-				track.evt = mid.getTrack(track.trackNr).popEvent();
-
-				if (!track.evt.status) {std::cout << "EOT?" << std::endl; track.nextEvent += 10000000; continue;}
-
-				// multiple events?
-				if (!track.evt.delay) {goto again;}
-
-				//if (track.evt.delay > 200) {track.evt.delay = 200;}
-
-				// shedule next event
-				track.nextEvent += track.evt.delay;
-
-			}
-
-		}
+//		// get current position in milliseconds
+//		int midiMs = sec * 1000.0 * speed;
 
 
-		// sample
-		doSample(m1, snd, sec, fmt, sample);
-		//if ( (t.sample % 4096) == 0) {
-		//	usleep(100);
-		//}
+//		// process each track
+//		for (Track& track : tracks) {
 
-		if (midiMs > 60*1000) {break;}
+//			if (midiMs > track.nextEvent) {
 
-	}
-	 */
+//				again:;
+
+//				// convert midi note nr to Hz
+//				//double freq = track.next.n.getFrequency();
+//				std::cout << "track(" << track.trackNr << ")\t";
+//				std::cout << "time(" << track.nextEvent << ")\t";
+//				std::cout << "cmd(" << (int) track.evt.getType() << ")\t";
+//				std::cout << "d1(" << (int) track.evt.d1 << ")\t";
+//				std::cout << "d2(" << (int) track.evt.d2 << ")\t";
+//				std::cout << std::endl;
+//				//std::cout << "note(" << Note(track.next.n.getNoteNr() <<  ", " << freq << " Hz)\t";
+//				//std::cout << "vol(" << track.next.vol << ")" << std::endl;
+
+//				if (track.evt.status) {
+//					if (track.evt.getType() == MidiEventType::NOTE_OFF) {
+//						//|| (track.evt.getType() == MidiEventType::NOTE_ON && track.evt.d2 == 0) ) {
+//						track.synth.stopNote( Note(track.evt.d1), sec);
+//						std::cout << "stop" << std::endl;
+//					} else if (track.evt.getType() == MidiEventType::NOTE_ON) {
+//						track.synth.startNote( Note(track.evt.d1), sec, track.evt.d2 / 127.0);
+//						std::cout << "start" << std::endl;
+//					}
+//				}
+//				//} else if (track.next.cmd == 176) {
+//				//track.synth.startNote(track.next.n, sec, track.next.vol);
+//				//}
+
+//				// get next event
+//				track.evt = mid.getTrack(track.trackNr).popEvent();
+
+//				if (!track.evt.status) {std::cout << "EOT?" << std::endl; track.nextEvent += 10000000; continue;}
+
+//				// multiple events?
+//				if (!track.evt.delay) {goto again;}
+
+//				//if (track.evt.delay > 200) {track.evt.delay = 200;}
+
+//				// shedule next event
+//				track.nextEvent += track.evt.delay;
+
+//			}
+
+//		}
+
+
+//		// sample
+//		doSample(m1, snd, sec, fmt, sample);
+//		//if ( (t.sample % 4096) == 0) {
+//		//	usleep(100);
+//		//}
+
+//		if (midiMs > 60*1000) {break;}
+
+//	}
+
 
 
 	snd.finalize();
@@ -658,4 +675,5 @@ int main(int argc, char **argv) {
 
 }
 
+*/
 

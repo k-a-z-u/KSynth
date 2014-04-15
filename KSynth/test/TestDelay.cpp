@@ -18,14 +18,14 @@ TEST(Delay, run) {
 	const int behind = srate * delay;
 
 	AudioFormat fmt(2, srate, 16);
-	Delay d(fmt);
+	Delay d(srate);
 	//d.setDelayImmediately(delay);
 	d.setDelay(delay);
 
 	for (unsigned int i = 0; i < 1000; ++i) {
 		AudioData ad1(i);
 		AudioData ad2 = d.filter(ad1);
-		EXPECT_EQ(ad1.left , ad2.left + behind);
+		ASSERT_EQ(ad1.left , ad2.left + behind);
 	}
 
 

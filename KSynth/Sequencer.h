@@ -159,8 +159,8 @@ public:
 	/** attach the given midi to the sequencer */
 	void import(MidiFile midi, int offset) {
 
-		std::cout << "SPEED: " << midi.getSpeed() << std::endl;
-		float speed = float(midi.getSpeed()) / 128.0f; //
+		std::cout << "tick-div: " << midi.getTickDiv() << std::endl;
+		float tickDiv = float(midi.getTickDiv()) / 128.0f;
 
 		for (const MidiTrack& mt : midi.getTracks()) {
 
@@ -181,7 +181,7 @@ public:
 
 				// convert delay from relative to absolute
 				MidiEvent evtN = evt;
-				evtN.delay = (unsigned int) ( float(lastDelay + evt.delay) / speed );
+				evtN.delay = (unsigned int) ( float(lastDelay + evt.delay) / tickDiv );
 				lastDelay += evt.delay;
 
 				// append event to track

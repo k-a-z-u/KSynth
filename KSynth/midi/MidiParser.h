@@ -75,7 +75,7 @@ private:
 		// check signature
 		if (memcmp(buf+0, "MThd", 4)) {throw MidiParserException("this is not a midi file", file);}
 
-		// read the whole file
+		// read all chunks within the midi-file until EOF
 		head = buf;
 		do {
 			readChunk();
@@ -86,7 +86,7 @@ private:
 	/** read the next chunk within the file */
 	void readChunk() {
 
-		// type of the chunk
+		// type of the chunk ("MTrk" or "MThd")
 		std::string type((const char*)(head), 4);			head += 4;
 
 		// length of the chunk
@@ -112,45 +112,47 @@ private:
 		std::cout << "header" << std::endl;
 		if (length != 6) {throw MidiParserException("header length != 6 is currently not supported", file);}
 
-		// midi type
-        midiType = K::Endian::bigToHost( *((uint16_t*)(head)) );			head += 2;
-		if (midiType > 1) {throw MidiParserException("midi-type != 0/1 is currently not supported", file);}
+		// midi type (currently only 0/1 are supported)
+		dst.version = K::Endian::bigToHost( *((uint16_t*)(head)) );			head += 2;
+		if (dst.version > 1) {throw MidiParserException("midi-type != 0/1 is currently not supported", file);}
 
-		// number of tracks
+		// number of tracks (version 0 must have only 1 track!)
         numTracks = K::Endian::bigToHost( *((uint16_t*)(head)) );			head += 2;
+		if (dst.version == 0 && numTracks != 1) {throw MidiParserException("midi-type is 0 but file contains more than one channel!", file);}
 
-		// speed
-        dst.speed = K::Endian::bigToHost( *((uint16_t*)(head)) );			head += 2;
-
-		// if midi type is v0, the file must contain only ONE track! (v1 contains one track per channel)
-		if (midiType == 0 && numTracks != 1) {
-			throw MidiParserException("midi-type is 0 but file contains more than one channel!", file);
-		}
+		// delta time unit (negative value = bit15 set = SMPTE -> currently not supported)
+		int16_t unit = K::Endian::bigToHost( *((uint16_t*)(head)) );		head += 2;
+		if (unit < 0) {throw MidiParserException("negative delta times are currently not supported", file);}
+		dst.tickDiv = unit;
 
 	}
 
 	/** parse data for one track */
 	void readTrack(unsigned int length) {
-		if (midiType == 0)	{readTrackV0(length);}
-		else 				{readTrackV1(length);}
+		std::cout << "track" << std::endl;
+		if (dst.version == 0)	{readTrackV0(length);}
+		else					{readTrackV1(length);}
 	}
 
 
 	/**
-	 * midi V0 contains only one track.
+	 * midi V0 contains only ONE track.
 	 * for better editing we will create one track per channel
 	 * and split events into multiple tracks (max 16)
 	 */
 	void readTrackV0(unsigned int length) {
 
+		// max 16 tracks are allowed (equals number of midi channels)
 		MidiTrack track[16];
 
 		// check the length of the track data
 		uint8_t* start = head;
 
-		do {
+		// temporals
+		MidiEvent evt;
+		unsigned int cnt = 0;
 
-			MidiEvent evt;
+		do {
 
 			// the delay of the event
 			evt.delay = readVarLen();
@@ -166,6 +168,8 @@ private:
 				unsigned int chan = evt.getChannel();
 				track[chan].add(evt);
 			}
+
+			++cnt;
 
 		} while ((head-start) < length);
 
@@ -185,9 +189,11 @@ private:
 		// check the length of the track data
 		uint8_t* start = head;
 
-		do {
+		// temporals
+		MidiEvent evt;
+		unsigned int cnt = 0;
 
-			MidiEvent evt;
+		do {
 
 			// the delay of the event
 			evt.delay = readVarLen();
@@ -200,6 +206,8 @@ private:
 			else if	( (evt.status&0xF0) == 0xF)		{++head; readTrackSystem();}
 			else									{readTrackOther(evt); track.add(evt);}
 
+			++cnt;
+
 		} while ((head-start) < length);
 
 		// append track to file
@@ -207,27 +215,71 @@ private:
 
 	}
 
-	void readTrackMeta(MidiTrack& dst) {
+	void readTrackMeta(MidiTrack& trk) {
+
 		std::cout << " meta:\t";
 		uint8_t type = *head++;
 		unsigned int len = readVarLen();
-		if		(type == 0x2F && len == 0x00) {std::cout << "end of track" << std::endl;}
-		else if	(type == 0x54 && len == 0x05) {
-			std::cout << "SMPTE offset" << std::endl;
-		} else if (type == 0x58 && len == 0x04) {
-			std::cout << "Time signature" << std::endl;
-		} else if (type == 0x59 && len == 0x02) {
-			std::cout << "Key signature" << std::endl;
-		} else if (type == 0x51 && len == 0x03) {
-			std::cout << "Tempo" << std::endl;
-		} else if (type == 0x3) {
-			dst.name = std::string( (const char*)(head), len );
-		} else {
-			std::cout << "(" << (int)type << ")\t";
-			std::string content((const char*)(head), len);
-			std::cout << '"' << content << '"' << std::endl;
+
+		switch (type) {
+
+			case 0x02:
+				std::cout << "copyright notice" << std::endl;
+				break;
+
+			case 0x03:
+				std::cout << "track name" << std::endl;
+				trk.name = std::string( (const char*)(head), len );
+				break;
+
+			case 0x04:
+				std::cout << "instrument name" << std::endl;
+				break;
+
+			case 0x05:
+				std::cout << "lyric" << std::endl;
+				break;
+
+			case 0x06:
+				std::cout << "marker" << std::endl;
+				break;
+
+			case 0x07:
+				std::cout << "cue point" << std::endl;
+				break;
+
+			case 0x51:
+				std::cout << len << std::endl;
+				std::cout << "Tempo" << std::endl;
+				break;
+
+			case 0x54:
+				std::cout << "SMPTE offset" << std::endl;
+				break;
+
+			case 0x58:
+				std::cout << "Time signature" << std::endl;
+				break;
+
+			case 0x59:
+				std::cout << "Key signature" << std::endl;
+				break;
+
+			case 0x2F:
+				std::cout << "end of track" << std::endl;
+				break;
+
+			default:
+				std::cout << "(" << (int)type << ")\t";
+				std::string content((const char*)(head), len);
+				std::cout << '"' << content << '"' << std::endl;
+				break;
+
 		}
+
+		// proceed
 		head += len;
+
 	}
 
 	// TODO!
@@ -302,9 +354,6 @@ private:
 
 	/** the number of tracks within the file */
 	int numTracks;
-
-	/** the type of the midi file (0, 1 is supported) */
-	int midiType;
 
 };
 

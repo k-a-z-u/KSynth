@@ -11,7 +11,7 @@
 #ifdef WITH_TESTS
 #include "Test.h"
 
-#include "../lib/misc/RingBuffer.h"
+#include "../fx/RingBuffer.h"
 
 TEST(Ringbuffer, PushPop) {
 

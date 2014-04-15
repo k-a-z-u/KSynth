@@ -18,10 +18,7 @@ MasterTarget1::MasterTarget1(Context& ctx, QWidget *parent) :
 	elements.vuLeft = new VUMeter(this);	elements.vuLeft->setOrientation(VUMeterOrientation::HORIZONTAL);
 	lcd.setParent(this);
 
-#ifdef WITH_FFTW3
 	fft = new FFTAnalyzer(getSampleRate());
-#endif
-
 
 	elements.connector = new PinConnector(ctx, this, this);
 	label->setVisible(false);
@@ -29,16 +26,12 @@ MasterTarget1::MasterTarget1(Context& ctx, QWidget *parent) :
 }
 
 MasterTarget1::~MasterTarget1() {
-#ifdef WITH_FFTW3
 	delete fft;	fft = nullptr;
-#endif
 }
 
 void MasterTarget1::process(Amplitude** inputs, Amplitude** outputs) {
 	MasterTarget::process(inputs, outputs);
-#ifdef WITH_FFTW3
 	for (unsigned int i = 0; i < getSamplesPerProcess(); ++i) {fft->push(outputs[0][i]);}
-#endif
 }
 
 void MasterTarget1::refresh() {
@@ -46,12 +39,9 @@ void MasterTarget1::refresh() {
 	elements.vuLeft->setValue(getVULeft());
 	elements.vuRight->setValue(getVURight());
 
-#ifdef WITH_FFTW3
 	lcd.setValues(fft->get());
-#endif
 
 }
-
 
 void MasterTarget1::onRackAttach() {
 	// register as main sound target

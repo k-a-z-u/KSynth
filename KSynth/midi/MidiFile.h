@@ -20,7 +20,7 @@ class MidiFile {
 public:
 
 	/** ctor */
-	MidiFile() : speed(0) {;}
+	MidiFile() : tickDiv(0) {;}
 
 	/** get track by number */
 	MidiTrack& getTrack(unsigned int idx) {
@@ -32,8 +32,14 @@ public:
 		return tracks;
 	}
 
-	int getSpeed() {
-		return speed;
+	/** get the number of ticks per delta-time (?) */
+	unsigned int getTickDiv() const {
+		return tickDiv;
+	}
+
+	/** the midi's version number (normally 0 or 1) */
+	unsigned int getVersion() const {
+		return version;
 	}
 
 private:
@@ -48,8 +54,11 @@ private:
 	/** all tracks within this file */
 	std::vector<MidiTrack> tracks;
 
-	/** ??? */
-	int speed;
+	/** the number of ticks to use per delta-time (?) */
+	unsigned int tickDiv;
+
+	/** the midi version */
+	unsigned int version;
 
 };
 

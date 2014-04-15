@@ -4,13 +4,14 @@
 #include "RackElement.h"
 #include <KSynth/output/MasterTarget.h>
 #include <KSynth/misc/Units.h>
+//#include <KLib/math/dsp/DFT.h>
 
 class VUMeter;
 class FFTAnalyzer;
 class PinConnector;
 #include <QPainter>
 #include <QVector>
-
+#include <iostream>
 class FFTLCD : public QWidget {
 
 public:
@@ -28,11 +29,16 @@ public:
 		values.resize(next.size());
 		for (unsigned int i = 0; i < next.size(); ++i) {
 
+			//if (next[i] != next[i]) {continue;}
+
 			float percent = float(i) / float(next.size());
-			float scale = std::pow(percent+0.2f, 2.5f);
+			float scale = float(1.0 + std::pow(percent, 1.5f));
 			float v = next[i] * scale;
 
-			if (v >= values[i]) {values[i] = v;} else {values[i] *= 0.7f;}
+			v = -std::log(next[i]);
+			if (v > 10) {v = 10;}
+			v = 10 - v;
+			if (v >= values[i]) {values[i] = v;} else {values[i] *= 0.75f;}
 
 		}
 		emit repaint();
@@ -51,9 +57,7 @@ protected:
 		p.setPen(paint.pen);
 
 		// find max
-		//static float max = 0.001f;
-		//for (float d : values) {if (d > max) {max = d;}}
-		float max = 4;
+		float max = 16;
 
 		// render
 		float pStep = 3.0f / float(width());
@@ -63,11 +67,12 @@ protected:
 		for (float percent = 0; percent <= 1.0; percent += pStep) {
 
 			// rescale
-			float pScale = float( std::pow(percent, 2) );
+			//float pScale = std::pow( (percent*0.7+0.3), 5);
+			float pScale = float( std::pow(percent, 1.8) );
 			unsigned int idx = (unsigned int) (float(values.size()) * pScale);
 
 			float v = values.at(idx);
-			if (v < 0 || v > 100) {continue;}
+			//if (v < 0 || v > 100) {continue;}
 			int y1 = h - int( float(h) * v / max * 0.95);
 			p.drawLine(x-1, h, x-1, y1);
 			x += 3;
@@ -103,10 +108,10 @@ private:
 	} elements;
 
 
-#ifdef WITH_FFTW3
+	/** perform pcm -> fft */
 	FFTAnalyzer* fft;
-#endif
 
+	/** render fft into a LCD */
 	FFTLCD lcd;
 
 public:

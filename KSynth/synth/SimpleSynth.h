@@ -36,17 +36,20 @@
 struct SimpleSynthNoteDescription : public NoteDescription {
 
 	/** current phase for OSC1 */
-	double curPhase1;
+	float curPhase1;
 
 	/** current phase for OSC2 */
-	double curPhase2;
+	float curPhase2;
+
+	/** integral over OSC1 amplitude (for FM) */
+	float fmArea;
 
 	/** filtering for each note (due to huell curves) */
 	std::shared_ptr<BiquadFilter> bq;
 
 	/** ctor */
 	SimpleSynthNoteDescription(Note note, Volume vol) :
-		NoteDescription(note, vol), curPhase1(0), curPhase2(0), bq(new BiquadFilter()) {
+		NoteDescription(note, vol), curPhase1(0), curPhase2(0), fmArea(0), bq(new BiquadFilter()) {
 		;
 	}
 
@@ -114,7 +117,7 @@ public:
 
 	/** ctor */
 	SimpleSynth() :
-		SoundSource(2), useRingMod(false), mix(0.5), agc(getSampleRate(), getSamplesPerProcess()) {
+		SoundSource(2), useRingMod(false), mix(0.5), fm(0.0), agc(getSampleRate(), getSamplesPerProcess()) {
 
 		osc[0].osc.setMode(SimpleOscillator2Mode::SQUARE_NO_ALIAS);
 		osc[1].osc.setMode(SimpleOscillator2Mode::SQUARE_NO_ALIAS);
@@ -129,17 +132,16 @@ public:
 	/** dtor */
 	~SimpleSynth() {;}
 
-	void setParameter(Param p, ParamValue v) override {
-		SimpleSynthParams pp = (SimpleSynthParams) p;
-		switch (pp) {
+	void setParameter(SimpleSynthParams ssp, ParamValue v) {
+		switch (ssp) {
 
-			case SimpleSynthParams::OSC_HUELL_A:			adsr.setAttack( (unsigned int) (v * 100) ); break;
-			case SimpleSynthParams::OSC_HUELL_D:			adsr.setDecay( (unsigned int) (v * 100) ); break;
+			case SimpleSynthParams::OSC_HUELL_A:			adsr.setAttack( (unsigned int) (v * 250) ); break;
+			case SimpleSynthParams::OSC_HUELL_D:			adsr.setDecay( (unsigned int) (v * 250) ); break;
 			case SimpleSynthParams::OSC_HUELL_S:			adsr.setSustain(v); break;
 			case SimpleSynthParams::OSC_HUELL_R:			adsr.setRelease( (unsigned int) (v * 1000) ); break;
 
-			case SimpleSynthParams::FILTER_HUELL_A:			filter.adsr.setAttack( (unsigned int) (v * 100) ); break;
-			case SimpleSynthParams::FILTER_HUELL_D:			filter.adsr.setDecay( (unsigned int) (v * 100) ); break;
+			case SimpleSynthParams::FILTER_HUELL_A:			filter.adsr.setAttack( (unsigned int) (v * 250) ); break;
+			case SimpleSynthParams::FILTER_HUELL_D:			filter.adsr.setDecay( (unsigned int) (v * 250) ); break;
 			case SimpleSynthParams::FILTER_HUELL_S:			filter.adsr.setSustain(v); break;
 			case SimpleSynthParams::FILTER_HUELL_R:			filter.adsr.setRelease( (unsigned int) (v * 1000) ); break;
 
@@ -165,7 +167,7 @@ public:
 			case SimpleSynthParams::OUTPUT_VOLUME:			masterGain = Units::valueToGain(v); break;
 
 			case SimpleSynthParams::OSC_MIX:				mix = v; break;
-			case SimpleSynthParams::OSC_FM:					fm = v.asFloat(0.0f, 1.0f); break;
+			case SimpleSynthParams::OSC_FM:					fm = v.asFloat(0.0f, 0.1f); break;
 
 			case SimpleSynthParams::LFO1_MODE:				lfo[0].osc.setMode((SimpleOscillator2Mode) v.asInt(0, (int) SimpleOscillator2Mode::_END-1)); break;
 			case SimpleSynthParams::LFO1_FREQUENCY:			lfo[0].freq = v.asFloat(0.0f, 10.0f); break;
@@ -179,18 +181,17 @@ public:
 		}
 	}
 
-	ParamValue getParameter(Param p) const override {
 
-		SimpleSynthParams pp = (SimpleSynthParams) p;
-		switch (pp) {
+	ParamValue getParameter(SimpleSynthParams ssp) const {
+		switch (ssp) {
 
-			case SimpleSynthParams::OSC_HUELL_A:			return ParamValue(0u, 100u, adsr.getAttack());
-			case SimpleSynthParams::OSC_HUELL_D:			return ParamValue(0u ,100u, adsr.getDecay());
+			case SimpleSynthParams::OSC_HUELL_A:			return ParamValue(0u, 250u, adsr.getAttack());
+			case SimpleSynthParams::OSC_HUELL_D:			return ParamValue(0u ,250u, adsr.getDecay());
 			case SimpleSynthParams::OSC_HUELL_S:			return adsr.getSustain();
 			case SimpleSynthParams::OSC_HUELL_R:			return ParamValue(0u, 1000u, adsr.getRelease());
 
-			case SimpleSynthParams::FILTER_HUELL_A:			return ParamValue(0u, 100u, filter.adsr.getAttack());
-			case SimpleSynthParams::FILTER_HUELL_D:			return ParamValue(0u, 100u, filter.adsr.getDecay());
+			case SimpleSynthParams::FILTER_HUELL_A:			return ParamValue(0u, 250u, filter.adsr.getAttack());
+			case SimpleSynthParams::FILTER_HUELL_D:			return ParamValue(0u, 250u, filter.adsr.getDecay());
 			case SimpleSynthParams::FILTER_HUELL_S:			return filter.adsr.getSustain();
 			case SimpleSynthParams::FILTER_HUELL_R:			return ParamValue(0u, 1000u, filter.adsr.getRelease());
 
@@ -216,7 +217,7 @@ public:
 			case SimpleSynthParams::OUTPUT_VOLUME:			return Units::gainToValue(masterGain);
 
 			case SimpleSynthParams::OSC_MIX:				return mix;
-			case SimpleSynthParams::OSC_FM:					return ParamValue(0.0f, 1.0f, fm);
+			case SimpleSynthParams::OSC_FM:					return ParamValue(0.0f, 0.f, fm);
 
 			case SimpleSynthParams::LFO1_MODE:				return ParamValue(0, (int)SimpleOscillator2Mode::_END-1, (int) lfo[0].osc.getMode());
 			case SimpleSynthParams::LFO1_FREQUENCY:			return ParamValue(0.0f, 10.0f, lfo[0].freq);
@@ -227,6 +228,14 @@ public:
 
 			default: return 0.0f;
 		}
+	}
+
+	void setParameter(Param p, ParamValue v) override {
+		setParameter( (SimpleSynthParams) p, v );
+	}
+
+	ParamValue getParameter(Param p) const override {
+		return getParameter( (SimpleSynthParams) p );
 	}
 
 	const std::string getParameterName(Param p) const override {
@@ -298,12 +307,12 @@ public:
 	void processNote(Amplitude* output, SimpleSynthNoteDescription& nd, bool stopped, Frequency freq1, Frequency freq2) {
 
 		// calculate frequency for OSC1 / OSC2
-		double f1 = nd.note.shift(osc[0].octave * 12 + (int) osc[0].semi).getFrequency() * osc[0].fine;
-		double f2 = nd.note.shift(osc[1].octave * 12 + (int) osc[1].semi).getFrequency() * osc[1].fine;
+		float f1 = (osc[0].fromKeyboard) ? (nd.note.shift(osc[0].octave * 12 + (int) osc[0].semi).getFrequency() * osc[0].fine) : (freq1);
+		float f2 = (osc[1].fromKeyboard) ? (nd.note.shift(osc[1].octave * 12 + (int) osc[1].semi).getFrequency() * osc[1].fine) : (freq2);
 
 		// LFO
-		float curPhaseLfo1 = float(lfo[0].age) * lfo[0].freq * lfo[0].osc.getLUTmultiplier(getSampleRate());
-		Amplitude lfoAmplitude = lfo[0].osc.getLUTint( (unsigned int) curPhaseLfo1 );
+		const float curPhaseLfo1 = float(lfo[0].age) * lfo[0].freq * lfo[0].osc.getLUTmultiplier(getSampleRate());
+		const Amplitude lfoAmplitude = lfo[0].osc.getLUTint( (unsigned int) curPhaseLfo1 );
 
 		lfo[0].applyTo = SS_LFO_AMPLITUDE;
 
@@ -321,12 +330,12 @@ public:
 		}
 
 		// calculate phase (int value for LUT) increment per sample
-		double phaseInc1 = f1 / getSampleRate();// * osc[0].osc.getLUTmultiplier(getSampleRate());
-		double phaseInc2 = f2 / getSampleRate();// * osc[1].osc.getLUTmultiplier(getSampleRate());
+		const float phaseInc1 = f1 / (float) getSampleRate();// * osc[0].osc.getLUTmultiplier(getSampleRate());
+		const float phaseInc2 = f2 / (float) getSampleRate();// * osc[1].osc.getLUTmultiplier(getSampleRate());
 
-		// calculate phase-offset (int value for LUT)
-		double phaseOffset1 = osc[0].phaseOffset;// * double(osc[0].osc.getLUTsize());
-		double phaseOffset2 = osc[1].phaseOffset;// * double(osc[1].osc.getLUTsize());
+		// set the phase-offset between [0;1]
+		const float phaseOffset1 = osc[0].phaseOffset;// * double(osc[0].osc.getLUTsize());
+		const float phaseOffset2 = osc[1].phaseOffset;// * double(osc[1].osc.getLUTsize());
 
 
 		// adjust the note's filter
@@ -334,18 +343,30 @@ public:
 		float filterFreq = filter.freq + filter.adsr.get(stopped, nd.age) * (1.0f - filter.freq);
 		nd.bq->setLowPassResonance(filterFreq, filter.res);
 
+		// add phase-offset now (and remove it later)
+		// this is slightly faster (few percent) but les numerically stable!
+		nd.curPhase1 += phaseOffset1;
+		nd.curPhase2 += phaseOffset2;
+
+		const Volume volA1 = mix;
+		const Volume volA2 = 1.0f - mix;
+
 		// process each sample
 		for (unsigned int i = 0; i < getSamplesPerProcess(); ++i) {
 
+			// adjust note's age
+			++nd.age;
+
 			// huell-curve factor
-			Volume huellVolume = adsr.get(stopped, nd.age + i);
+			Volume huellVolume = adsr.get(stopped, nd.age);
 			Volume v = huellVolume * nd.vol;
 
 			// get both amplitudes
 			//Amplitude a2 = osc[1].osc.getLUTint( (unsigned int) (nd.curPhase2 + phaseOffset2) );
 			//Amplitude a1 = osc[0].osc.getLUTint( (unsigned int) (nd.curPhase1 + phaseOffset1 + a2 * ) );
-			Amplitude a2 = osc[1].osc.getLUT( float (nd.curPhase2 + phaseOffset2) );
-			Amplitude a1 = osc[0].osc.getLUT( float (nd.curPhase1 + phaseOffset1 + a2 * fm) );
+			Amplitude a2 = osc[1].osc.getLUT( (nd.curPhase2) );
+			nd.fmArea += a2;
+			Amplitude a1 = osc[0].osc.getLUT( (nd.curPhase1 + (nd.fmArea*fm) ) );
 
 			// update phases
 			nd.curPhase1 += phaseInc1;
@@ -355,15 +376,19 @@ public:
 			if (useRingMod) {a1 *= a2;}
 
 			// final amplitude
-			Amplitude a = (a1 * mix + a2 * (1.0f-mix)) * v * ampModLFO;
+			Amplitude a = (a1 * volA1 + a2 * volA2) * v * ampModLFO;
 
 			// filter
+			// TODO: SPEED UP
 			output[i] += nd.bq->filter(0, a);
 
 		}
 
-		// adjust ages
-		nd.age += getSamplesPerProcess();
+		nd.curPhase1 -= phaseOffset1;
+		nd.curPhase2 -= phaseOffset2;
+
+		// adjust notes age
+		//nd.age += getSamplesPerProcess();
 
 	}
 
@@ -376,10 +401,10 @@ public:
 
 		// first: set fixed oscillator frequency
 		// those values will be overwritten if note's frequency is determined by keyboard input
-//		Frequency freq1 = osc[0].freq * osc[0].fine / getSampleRate();
-//		Frequency freq2 = osc[1].freq * osc[1].fine / getSampleRate();
-		Frequency freq1 = 0;
-		Frequency freq2 = 0;
+		Frequency freq1 = Note(osc[0].octave * 12 + osc[0].semi).getFrequency() * osc[0].fine;
+		Frequency freq2 = Note(osc[1].octave * 12 + osc[1].semi).getFrequency() * osc[1].fine;
+//		Frequency freq1 = 0;
+//		Frequency freq2 = 0;
 
 		//		// calculate final frequency for each active / fading note
 		//		for (SimpleSynthNoteDescription& nd : notes.active.getEntries()) {
@@ -503,7 +528,7 @@ private:
 		unsigned int semi;
 
 		/** the fine to play, or the offset when using keyboard's note */
-		double fine;
+		float fine;
 
 		/** the phase-offset for this OSC */
 		float phaseOffset;

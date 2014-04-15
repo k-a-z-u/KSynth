@@ -8,10 +8,8 @@
 #ifndef FFTANALYZER_H_
 #define FFTANALYZER_H_
 
-#ifdef WITH_FFTW3
-
-#include <fftw3.h>
-//#include "../lib/gnuplot/Gnuplot.h"
+#include <KLib/math/dsp/dft/FFT.h>
+#include <KLib/math/dsp/window/DSPWindowBlackman.h>
 
 /**
  * print spectrum analysis of the
@@ -19,39 +17,49 @@
  */
 class FFTAnalyzer {
 
+#define FFT_SIZE	1024
+
 public:
 
 	/** ctor */
-	FFTAnalyzer(SampleRate sRate) : sRate(sRate), size(sRate / 10), header(0) {
-
-		// create the plan
-		in = fftw_alloc_real(size);
-		out = fftw_alloc_complex(size/2+1);
-		plan = fftw_plan_dft_r2c_1d(size, in, out, FFTW_MEASURE | FFTW_PRESERVE_INPUT);
-
+	FFTAnalyzer(SampleRate sRate) : sRate(sRate), fft(FFT_SIZE), header(0) {
+		in.resize(FFT_SIZE);
+		fftComplex.resize(FFT_SIZE);
+		fftResult.resize(FFT_SIZE/2+1);
+		fft.resize(FFT_SIZE);
 	}
 
 	/** dtor */
 	~FFTAnalyzer() {
-		fftw_free(in);				in = nullptr;
-		fftw_free(out);				out = nullptr;
-		fftw_destroy_plan(plan);	plan = nullptr;
+		;
 	}
 
 	void push(Amplitude a) {
-		in[header] = a;
-		++header;
-		if ( header == size ) {
-			fftw_execute(plan);
-			header = 0;
+		if (header < FFT_SIZE) {
+			in[header] = a;
+			++header;
 		}
 	}
 
 	/** get values as vector */
 	std::vector<float> get() {
-		std::vector<float> vec;
-		for (unsigned int i = 0; i < size / 3; ++i) {vec.push_back( std::fabs(out[i][0]) );}
-		return vec;
+
+		// apply windowing function to improve the FFT result
+		window.apply( in.data() );
+
+		// get fft
+		fft.getComplexFFT( in.data(), fftComplex.data() );
+
+		// adjust values
+		for (unsigned int i = 0; i < FFT_SIZE/2+1; ++i) {
+			fftResult[i] = std::sqrt( std::abs( fftComplex[i].real() * fftComplex[i].real() ) );
+		}
+
+		// re-enable adding and return result
+		memset(in.data(), 0, sizeof(float)*FFT_SIZE);
+		header = 0;
+		return fftResult;
+
 	}
 
 
@@ -60,19 +68,15 @@ private:
 
 	/** the size to calculate the FFT over */
 	SampleRate sRate;
-	unsigned int size;
 
-	/** the plan to use for calculating the FFT */
-	fftw_plan plan;
-
-	double* in;
-	fftw_complex* out;
+	K::FFT fft;
+	std::vector<float> in;
+	std::vector<K::Complex<float>> fftComplex;
+	std::vector<float>fftResult;
+	K::DSPWindowBlackman<float, FFT_SIZE> window;
 
 	unsigned int header;
 
 };
-
-#endif
-
 
 #endif /* FFTANALYZER_H_ */
