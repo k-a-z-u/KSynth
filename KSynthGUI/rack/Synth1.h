@@ -14,6 +14,8 @@ class VUMeter;
 class PinConnector;
 class TextLabel;
 
+#include "../controls/CheckBoxGroup.h"
+
 class Synth1 : public RackElement, public SimpleSynth {
 	Q_OBJECT
 
@@ -70,10 +72,12 @@ private:
 		GOSC gosc[2];
 
 
+		/** LFO settings */
 		struct GLFO {
 			ImgSpin* spnMode;
 			Knob* kFreq;
 			Knob* kAmount;
+			ImgSpin* spnTarget;
 		};
 		GLFO glfo[2];
 
@@ -82,6 +86,7 @@ private:
 
 		VUMeter* vuMeter;
 
+		Knob* kStereo;
 		PinConnector* con;
 		TextLabel* label;
 

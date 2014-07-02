@@ -8,6 +8,7 @@
 #include <KSynth/midi/MidiParser.h>
 #include <KSynth/Sequencer.h>
 #include <KSynth/Generator.h>
+#include <KSynth/fx/Phaser.h>
 
 #include "SynthWin.h"
 #include "SequencerWidget.h"
@@ -27,6 +28,12 @@
 #include "rack/DrumComputer1.h"
 #include "rack/MasterTarget1.h"
 #include "rack/SamplePad1.h"
+#include "rack/Reverb1.h"
+#include "rack/Phaser1.h"
+
+#include <KSynth/fx/StereoExpander.h>
+
+#include "KSynth/fx/Vocoder.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -141,7 +148,10 @@ public:
 
 		// TESTING
 		//K::File f("/data/midi/superMario/smwintro.mid");
-		K::File f("/data/midi/duke1.mid");
+		//K::File f("/data/midi/duke1.mid");
+		//K::File f("/apps/workspaces/KSynth/_build/mainmenu.mid");
+		K::File f("/apps/workspaces/KSynth/_build/ylvis-the_fox_what_does_the_fox_say.mid");
+
 		if (f.isFile()) {
 
 			setProgress("loading midi", 0.1f);
@@ -150,8 +160,43 @@ public:
 			MidiParser(f, midi);
 			ctx.getSequencer()->import(midi,0);
 
+			/*
+			SequencerTrack* st = new SequencerTrack();
+			MidiEvent me1, me2;
+			me1.setType(MidiEventType::NOTE_ON);
+			me1.setDelay(10);
+			me1.setData1(69);
+			me1.setData2(100);
+			me2.setType(MidiEventType::NOTE_OFF);
+			me2.setDelay(10000);
+			me2.setData1(69);
+			me2.setData2(0);
+
+
+			st->getEvents()->add(me1);st->getEvents()->add(me2);
+			ctx.getSequencer()->addTrack(new SequencerTrack());
+			ctx.getSequencer()->addTrack(st);
+			ctx.getSequencer()->addTrack(new SequencerTrack());
+			ctx.getSequencer()->addTrack(new SequencerTrack());
+			ctx.getSequencer()->addTrack(new SequencerTrack());
+			ctx.getSequencer()->addTrack(new SequencerTrack());
+			ctx.getSequencer()->addTrack(new SequencerTrack());
+			*/
+
+
+
+			Vocoder* voc = new Vocoder();
+
+
+			Reverb1* rev = new Reverb1(ctx);								ctx.getRack()->add(rev);
+
 			setProgress("loading mixer", 0.2f);
 			Mixer1* mixer = new Mixer1(ctx); mixer->setUserName("mixer");	ctx.getRack()->add(mixer);
+
+			Phaser1* ph = new Phaser1(ctx); ctx.getRack()->add(ph);
+
+			//StereoExpander* se = new StereoExpander();
+
 			setProgress("loading synth", 0.3f);
 			Synth1* s1 = new Synth1(ctx); s1->setUserName("synth 1");		ctx.getRack()->add(s1);
 			setProgress("loading synth", 0.4f);
@@ -169,6 +214,7 @@ public:
 			SamplePad1 * sp1 = new SamplePad1(ctx); sp1->setUserName("sample pad 1"); ctx.getRack()->add(sp1);
 
 
+
 			ctx.getGenerator()->getBinder().addBinding(0, s1, 0, mixer);
 			ctx.getGenerator()->getBinder().addBinding(1, s1, 1, mixer);
 			ctx.getGenerator()->getBinder().addBinding(0, s2, 2, mixer);
@@ -183,12 +229,30 @@ public:
 			ctx.getGenerator()->getBinder().addBinding(1, s6, 11, mixer);
 			ctx.getGenerator()->getBinder().addBinding(0, sp1, 14, mixer);
 			ctx.getGenerator()->getBinder().addBinding(1, sp1, 15, mixer);
-			ctx.getGenerator()->getBinder().addBinding(0, drums, 16, mixer);
-			ctx.getGenerator()->getBinder().addBinding(1, drums, 17, mixer);
+			//ctx.getGenerator()->getBinder().addBinding(0, drums, 16, mixer);
+			//ctx.getGenerator()->getBinder().addBinding(1, drums, 17, mixer);
 
-			ctx.getGenerator()->getBinder().addBinding(0, mixer, 0, ctx.getMasterTarget());
-			ctx.getGenerator()->getBinder().addBinding(1, mixer, 1, ctx.getMasterTarget());
+			ctx.getGenerator()->getBinder().addBinding(0, mixer, 0, ph);
+			ctx.getGenerator()->getBinder().addBinding(1, mixer, 1, ph);
 
+			/*
+			drums->loadSample("/data/test.wav", 0);
+			ctx.getGenerator()->getBinder().addBinding(0, drums, 0, voc);
+			ctx.getGenerator()->getBinder().addBinding(1, drums, 1, voc);
+			ctx.getGenerator()->getBinder().addBinding(0, rev, 2, voc);
+			ctx.getGenerator()->getBinder().addBinding(1, rev, 3, voc);
+			ctx.getGenerator()->getBinder().addBinding(0, voc, 0, ctx.getMasterTarget());
+			ctx.getGenerator()->getBinder().addBinding(1, voc, 1, ctx.getMasterTarget());
+			*/
+
+			ctx.getGenerator()->getBinder().addBinding(0, ph, 0, rev);
+			ctx.getGenerator()->getBinder().addBinding(1, ph, 1, rev);
+
+			//ctx.getGenerator()->getBinder().addBinding(0, rev, 0, se);
+			//ctx.getGenerator()->getBinder().addBinding(1, rev, 1, se);
+
+			ctx.getGenerator()->getBinder().addBinding(0, rev, 0, ctx.getMasterTarget());
+			ctx.getGenerator()->getBinder().addBinding(1, rev, 1, ctx.getMasterTarget());
 
 			ctx.getSequencer()->setBeatsPerMinute(85);
 
@@ -199,7 +263,6 @@ public:
 			ctx.getSequencer()->bind(4, s4);
 			ctx.getSequencer()->bind(5, s5);
 			ctx.getSequencer()->bind(6, s6);
-
 
 			mixer->setParameter( (int) SimpleMixerParams::MASTER_VOLUME, 0.15f);
 

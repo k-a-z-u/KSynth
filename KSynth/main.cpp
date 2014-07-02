@@ -7,11 +7,31 @@
 
 
 #include "test/Test.h"
+#include "mixer/SimpleMixer.h"
 
 int main(int argc, char** argv) {
 
+	//SimpleMixer sm;
+	//sm.setParameter(SimpleMixerParams::SLOT1_HIGH_PASS, 0.5f);
+
+//	Units::paramToLogFreqFact(0.0f);
+//	Units::paramToLogFreqFact(0.1f);
+//	Units::paramToLogFreqFact(0.2f);
+//	Units::paramToLogFreqFact(0.3f);
+//	Units::paramToLogFreqFact(0.4f);
+//	Units::paramToLogFreqFact(0.5f);
+//	Units::paramToLogFreqFact(0.6f);
+//	Units::paramToLogFreqFact(0.7f);
+//	Units::paramToLogFreqFact(0.8f);
+//	Units::paramToLogFreqFact(0.9f);
+//	Units::paramToLogFreqFact(1.0f);
+
+//	exit(0);
+
+
 #ifdef WITH_TESTS
-	//::testing::GTEST_FLAG(filter) = "*Midi*";
+	::testing::GTEST_FLAG(filter) = "*Reverb*";
+	//::testing::GTEST_FLAG(filter) = "*Buffer*";
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 #else

@@ -12,20 +12,8 @@
 #include <vector>
 
 #include "../misc/DataTypes.h"
+#include "MidiConstants.h"
 
-/**
- * all possible midi-events as enum
- */
-enum class MidiEventType {
-	NOTE_OFF,
-	NOTE_ON,
-	POLYPHONIC_KEY_PRESSURE,
-	CONTROL_CHANGE,
-	PROGRAM_CHANGE,
-	CHANNEL_PRESSURE,
-	PITCH_WHEEL_CHANGE,
-	META,
-};
 
 /**
  * represents one midi event with its

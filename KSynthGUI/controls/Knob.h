@@ -66,18 +66,20 @@ signals:
 private:
 
 	/** track mouse-state */
-	struct {
+	struct MS {
 		int x;
 		int y;
 		bool isDown;
 		int downValue;
+		MS() : x(0), y(0), isDown(0), downValue(0) {;}
 	} mouseState;
 
 	/** the knob's value */
-	struct {
+	struct V {
 		int value;
 		int min;
 		int max;
+		V() : value(0), min(0), max(0) {;}
 	} value;
 
 	/** the number of steps the controll will move when the mouse-wheel is used */

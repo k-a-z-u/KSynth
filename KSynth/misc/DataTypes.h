@@ -58,11 +58,11 @@ struct ParamValue {
 	ParamValue(float min, float max, float val) : val( (val-min) / (max-min) ) {;}
 	ParamValue(bool en) : val(en?1:0) {;}
 
-	operator float()					{return val;}
-	bool asBool()						{return val >= 0.5;}
-	int asInt(int min, int max)			{return min + (int) std::round( float(max-min) * val);}
-	unsigned int asUInt(unsigned int min, unsigned int max) {return min + (unsigned int) std::round( float(max-min) * val);}
-	float asFloat(float min, float max)	{return min + (max-min) * val;}
+	operator float() const											{return val;}
+	bool asBool() const												{return val >= 0.5;}
+	int asInt(int min, int max) const								{return min + (int) std::round( float(max-min) * val);}
+	unsigned int asUInt(unsigned int min, unsigned int max) const	{return min + (unsigned int) std::round( float(max-min) * val);}
+	float asFloat(float min, float max) const						{return min + (max-min) * val;}
 
 private:
 	float val;

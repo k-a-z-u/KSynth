@@ -23,7 +23,8 @@ QMAKE_CXXFLAGS += -std=c++11
 #QMAKE_CXXFLAGS += -Weffc++
 QMAKE_CXXFLAGS += -Wall -Wextra -pedantic
 QMAKE_CXXFLAGS += -Wconversion -Werror=return-type -Wreorder -Werror=reorder
-QMAKE_CXXFLAGS += -Werror=uninitialized -Wno-c99-extensions -Wno-sign-conversion
+QMAKE_CXXFLAGS += -Werror=uninitialized -Wno-sign-conversion
+#QMAKE_CXXFLAGS += -Wno-c99-extensions
 QMAKE_CXXFLAGS += -isystem "/usr/include/qt4"
 
 
@@ -88,7 +89,10 @@ SOURCES += main.cpp\
     controls/editor/EditorSheetNoteModel.cpp \
     controls/Image.cpp \
     controls/NumberSpin.cpp \
-    rack/SamplePad1.cpp
+    rack/SamplePad1.cpp \
+    rack/Reverb1LCD.cpp \
+    controls/LCD.cpp \
+    rack/Phaser1.cpp
 
 HEADERS  += \
     controls/Knob.h \
@@ -166,7 +170,12 @@ HEADERS  += \
     controls/NumberSpin.h \
     ../KSynth/tts/TTSProvider.h \
     rack/SamplePad1.h \
-    ../KSynth/sampler/SimpleSamplePad.h
+    ../KSynth/sampler/SimpleSamplePad.h \
+    ../KSynth/fx/DelayBufferFixed.h \
+    ../KSynth/fx/AllPassReverb.h \
+    rack/Reverb1LCD.h \
+    controls/LCD.h \
+    rack/Phaser1.h
 
 FORMS    += \
     SynthWin.ui \
@@ -213,24 +222,25 @@ QMAKE_CXXFLAGS += -DWITH_7Z
 # add KSynth
 INCLUDEPATH += \
         ../
+
 HEADERS += \
-        ../KSynth/*.h \
-        ../KSynth/analyzer/*.h \
-        ../KSynth/fx/*.h \
-        ../KSynth/huell/*.h \
-        ../KSynth/midi/*.h \
-        ../KSynth/midi/rt/*.h \
-        ../KSynth/midi/rt/devices/*.h \
-        ../KSynth/misc/*.h \
-        ../KSynth/mixer/*.h \
-        ../KSynth/notes/*.h \
-        ../KSynth/oscillator/*.h \
-        ../KSynth/output/*.h \
-        ../KSynth/pattern/*.h \
-        ../KSynth/sampler/*.h \
-        ../KSynth/sampler/formats/*.h \
-        ../KSynth/synth/*.h \
-        ../KSynth/tts/*.h
+		$$files(../KSynth/*.h) \
+		$$files(../KSynth/analyzer/*.h) \
+		$$files(../KSynth/fx/*.h) \
+		$$files(../KSynth/huell/*.h) \
+		$$files(../KSynth/midi/*.h) \
+		$$files(../KSynth/midi/rt/*.h) \
+		$$files(../KSynth/midi/rt/devices/*.h) \
+		$$files(../KSynth/misc/*.h) \
+		$$files(../KSynth/mixer/*.h) \
+		$$files(../KSynth/notes/*.h) \
+		$$files(../KSynth/oscillator/*.h) \
+		$$files(../KSynth/output/*.h) \
+		$$files(../KSynth/pattern/*.h) \
+		$$files(../KSynth/sampler/*.h) \
+		$$files(../KSynth/sampler/formats/*.h) \
+		$$files(../KSynth/synth/*.h) \
+		$$files(../KSynth/tts/*.h)
 
 
 # linux specific build steps

@@ -27,7 +27,7 @@ QImage Helper::getForOscFunction(SimpleOscillator2Mode mode, unsigned int w, uns
 	const int dh = h-6;
 	const int step = 1;
 
-	for (int x = 0; x < w-1; x += step) {
+	for (int x = 0; x < int(w)-1; x += step) {
 		float a1 = osc.get((float)(x+0   ) / (float) w);
 		float a2 = osc.get((float)(x+step) / (float) w);
 		int y1 = int( float(h/2) + a1 * float(dh/2) );
@@ -46,6 +46,25 @@ QImage Helper::getForOscFunction(SimpleOscillator2Mode mode, unsigned int w, uns
 
 	p.end();
 
+	LEDify2(img);
+
+	return img;
+
+}
+
+QImage Helper::getForString(const std::string& str, int w, int h) {
+
+	// the image
+	QImage img(w, h, QImage::Format_ARGB32);
+	img.fill(0x00000000);
+
+	// painter
+	QPainter p;
+	p.begin(&img);
+
+	p.drawText(0,10,str.c_str());
+
+	p.end();
 	LEDify2(img);
 
 	return img;

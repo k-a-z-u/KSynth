@@ -482,7 +482,7 @@ public:
 		return "SimpleDrumComputer";
 	}
 
-	bool getOutputProperties(unsigned int idx, PinProperties* properties) override {
+	bool getOutputProperties(const unsigned int idx, PinProperties* properties) const override {
 		switch(idx) {
 			case 0:	properties->name = "output (left)"; return true;
 			case 1:	properties->name = "output (right)"; return true;
@@ -566,7 +566,7 @@ protected:
 	 * @param vol the volume for the playback
 	 */
 	void addBeatFor(unsigned int bank, Volume vol) {
-		SampleFrame offset = (SampleFrame) (samples[bank].s.getNumFrames() * samples[bank].startOffset);
+		SampleFrame offset = SampleFrame( float(samples[bank].s.getNumFrames()) * samples[bank].startOffset);
 		notes.push_back(SimpleDrumComputerNote(&samples[bank].s, offset, samples[bank].gain * vol * masterGain));
 	}
 

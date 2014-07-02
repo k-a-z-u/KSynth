@@ -54,7 +54,7 @@ public:
 		return 0;
 	}
 
-	bool getInputProperties(unsigned int idx, PinProperties* properties) override {
+	bool getInputProperties(const unsigned int idx, PinProperties* properties) const override {
 		switch(idx) {
 		case 0: properties->name = "input (left)"; return true;
 		case 1: properties->name = "input (right)"; return true;
@@ -62,7 +62,7 @@ public:
 		return false;
 	}
 
-	bool getOutputProperties(unsigned int idx, PinProperties* properties) override {
+	bool getOutputProperties(const unsigned int idx, PinProperties* properties) const override {
 		(void) idx;
 		(void) properties;
 		return false;

@@ -204,9 +204,9 @@ public:
 	}
 
 
-	void setParameter(Param p, ParamValue v) override {
-		SimpleMixerParams pp = (SimpleMixerParams) p;
-		switch (pp) {
+	void setParameter( const SimpleMixerParams smp, const ParamValue v ) {
+
+		switch (smp) {
 
 		case SimpleMixerParams::SLOT1_VOLUME:		sources[0].gain = Units::valueToGain(v); break;
 		case SimpleMixerParams::SLOT2_VOLUME:		sources[1].gain = Units::valueToGain(v); break;
@@ -253,6 +253,12 @@ public:
 		default:				break;
 
 		}
+
+	}
+
+	void setParameter(Param p, ParamValue v) override {
+		SimpleMixerParams smp = (SimpleMixerParams) p;
+		setParameter(smp, v);
 	}
 
 	ParamValue getParameter(Param p) const override {
@@ -357,14 +363,14 @@ public:
 		}
 	}
 	unsigned int getNumParameters() const override {
-		return (int) SimpleMixerParams::_END - 1;
+		return (int) SimpleMixerParams::_END;
 	}
 
 	std::string getProductString() const override {
 		return "SimpleMixer";
 	}
 
-	bool getInputProperties(unsigned int idx, PinProperties* properties) override {
+	bool getInputProperties(const unsigned int idx, PinProperties* properties) const override {
 		switch(idx) {
 		case 0:		properties->name = "input ch1 (left)"; break;
 		case 1:		properties->name = "input ch1 (right)"; break;
@@ -388,7 +394,7 @@ public:
 		return true;
 	}
 
-	bool getOutputProperties(unsigned int idx, PinProperties* properties) override {
+	bool getOutputProperties(const unsigned int idx, PinProperties* properties) const override {
 		switch(idx) {
 		case 0:
 			properties->name = "output (left)";

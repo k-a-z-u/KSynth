@@ -8,7 +8,7 @@
 #ifndef DELAY_H_
 #define DELAY_H_
 
-#include "../fx/RingBuffer.h"
+#include "../fx/RingBufferFixed.h"
 #include "../misc/SoundProcessor.h"
 #include "../misc/AudioFormat.h"
 //#include <list>
@@ -115,7 +115,7 @@ private:
 	SoundSource* src;
 
 	/** the history buffer */
-	RingBuffer<AudioData, 65536> buffer;
+	RingBufferFixed<AudioData, 65536> buffer;
 
 	unsigned int bufSize;
 

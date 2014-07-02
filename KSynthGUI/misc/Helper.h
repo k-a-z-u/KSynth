@@ -15,6 +15,9 @@ public:
 	/** get QImage for the given number */
 	static QImage getForNumber(int number, int w = -1, int h = -1);
 
+	/** get QImage for the given string */
+	static QImage getForString(const std::string& str, int w, int h);
+
 
 	/** add a LED look */
 	static void LEDify(QImage& img);

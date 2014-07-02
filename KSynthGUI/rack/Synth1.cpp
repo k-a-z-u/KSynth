@@ -60,15 +60,37 @@ Synth1::Synth1(Context& ctx, QWidget *parent) :
 	elements.glfo[0].spnMode = new ImgSpin(this);
 	elements.glfo[0].kFreq = new Knob("freq", 0, 100, 0, 5, this);
 	elements.glfo[0].kAmount = new Knob("amount", 0, 100, 0, 5, this);
+	elements.glfo[0].spnTarget = new ImgSpin(this);
 
+	elements.kStereo = new Knob("stereo", 0, 100, 0, 5, this);
 
 	elements.cRingMod = new CheckBox("rmod", true, this);
 
+	// available waveforms
 	for (int i = 0; i < (int) SimpleOscillator2Mode::_END; ++i) {
 		elements.gosc[0].spnMode->add(Helper::getForOscFunction((SimpleOscillator2Mode) i, 30,24), 0);
 		elements.gosc[1].spnMode->add(Helper::getForOscFunction((SimpleOscillator2Mode) i, 30,24), 0);
 		elements.glfo[0].spnMode->add(Helper::getForOscFunction((SimpleOscillator2Mode) i, 30,24), 0);
 	}
+
+	// available LFO targets
+	//for (int i = 0; i < (int) SimpleSynthLFOTargets::_END; ++i) {
+	{
+		int w = 90;
+		int h = 24;
+		elements.glfo[0].spnTarget->add(Helper::getForString("OSC1 Freq", w,h));
+		elements.glfo[0].spnTarget->add(Helper::getForString("OSC1 Phase", w,h));
+		elements.glfo[0].spnTarget->add(Helper::getForString("OSC2 Freq", w,h));
+		elements.glfo[0].spnTarget->add(Helper::getForString("OSC2 Phase", w,h));
+		elements.glfo[0].spnTarget->add(Helper::getForString("OSC1/2 Freq", w,h));
+		elements.glfo[0].spnTarget->add(Helper::getForString("OSC1/2 Phase", w,h));
+		elements.glfo[0].spnTarget->add(Helper::getForString("OSC1/2 Amp", w,h));
+		elements.glfo[0].spnTarget->add(Helper::getForString("FM", w,h));
+		elements.glfo[0].spnTarget->add(Helper::getForString("Filter Freq", w,h));
+		elements.glfo[0].spnTarget->add(Helper::getForString("Mix", w,h));
+	}
+
+
 
 	elements.vuMeter = new VUMeter(this);
 
@@ -103,6 +125,7 @@ Synth1::Synth1(Context& ctx, QWidget *parent) :
 	elements.glfo[0].kAmount->connectTo((int) SimpleSynthParams::LFO1_AMOUNT, this, SLOT(onParamChange()));
 	elements.glfo[0].kFreq->connectTo((int) SimpleSynthParams::LFO1_FREQUENCY, this, SLOT(onParamChange()));
 	elements.glfo[0].spnMode->connectTo((int) SimpleSynthParams::LFO1_MODE, this, SLOT(onParamChange()));
+	elements.glfo[0].spnTarget->connectTo((int) SimpleSynthParams::LFO1_TARGET, this, SLOT(onParamChange()));
 
 	elements.kMix->connectTo((int) SimpleSynthParams::OSC_MIX, this, SLOT(onParamChange()));
 	elements.kFM->connectTo((int) SimpleSynthParams::OSC_FM, this, SLOT(onParamChange()));
@@ -112,6 +135,7 @@ Synth1::Synth1(Context& ctx, QWidget *parent) :
 	elements.kFilterFreq->connectTo((int) SimpleSynthParams::FILTER_FREQUENCY, this, SLOT(onParamChange()));
 	elements.kFilterRes->connectTo((int) SimpleSynthParams::FILTER_RESONANCE, this, SLOT(onParamChange()));
 
+	elements.kStereo->connectTo((int) SimpleSynthParams::STEREO_DELAY, this, SLOT(onParamChange()));
 	//connect(elements.label, SIGNAL(valueChanged()), this, SIGNAL(userNameChanged()));
 
 	refresh();
@@ -183,6 +207,8 @@ void Synth1::refresh() {
 	elements.kMix->setValueFromParam(getParameter(elements.kMix->getParamType()));
 	elements.kFM->setValueFromParam(getParameter(elements.kFM->getParamType()));
 
+	elements.kStereo->setValueFromParam(getParameter(elements.kStereo->getParamType()));
+
 }
 
 void Synth1::resizeEvent(QResizeEvent* event) {
@@ -215,9 +241,6 @@ void Synth1::resizeEvent(QResizeEvent* event) {
 
 	elements.gosc[0].kOctave->setGeometry(	sx+s*0,	8,		0,0);
 	elements.gosc[1].kOctave->setGeometry(	sx+s*0,	56,		0,0);
-	elements.glfo[0].kFreq->setGeometry(	sx+s*0,	104,	0,0);
-
-	elements.glfo[0].kAmount->setGeometry(	sx+s*1,	104,	0,0);
 
 	elements.gosc[0].kSemi->setGeometry(	sx+s*1,	8,		0,0);
 	elements.gosc[1].kSemi->setGeometry(	sx+s*1,	56,		0,0);
@@ -231,12 +254,19 @@ void Synth1::resizeEvent(QResizeEvent* event) {
 	elements.gosc[1].kPhase->setGeometry(sx+s*3,	56,		0,0);
 
 	elements.gosc[0].chkKey->setGeometry(sx+s*4,	8+4,	0,0);
-	elements.gosc[1].chkKey->setGeometry(sx+s*4,	56+4,	0,0);
+	elements.gosc[1].chkKey->setGeometry(sx+s*4,	56+4,	0,0);	
 
 	elements.kMix->setGeometry(267,56, 0,0);
 	elements.kFM->setGeometry(267,24, 0,0);
 	elements.cRingMod->setGeometry(262,16, 20,20);
 
+	sx -= 8;
+	elements.glfo[0].kFreq->setGeometry(		sx+s*0,	104,	0,0);
+	elements.glfo[0].kAmount->setGeometry(		sx+s*1,	104,	0,0);
+	elements.glfo[0].spnTarget->setGeometry(		sx+s*2, 104,	90,20);
+
+
+	elements.kStereo->setGeometry(700,8,0,0);
 	elements.con->setGeometry(727+4,8, 0,0);
 	label->setGeometry(723+4,45, 32,92);
 

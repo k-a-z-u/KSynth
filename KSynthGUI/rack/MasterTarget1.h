@@ -9,86 +9,83 @@
 class VUMeter;
 class FFTAnalyzer;
 class PinConnector;
-#include <QPainter>
-#include <QVector>
+class LCD;
 #include <iostream>
-class FFTLCD : public QWidget {
+
+
+
+/** provides falloff and scaling for frequency spectrum */
+class FFTFalloff {
 
 public:
 
-	FFTLCD() {
-		setMinimumSize(138, 26);
-		setMaximumSize(138, 26);
-		paint.dashes << 0.5f << 0.5f;
-		paint.pen.setColor(QColor(255,255,255,180));
-		paint.pen.setDashPattern(paint.dashes);
-		paint.pen.setWidth(2);
+	FFTFalloff(unsigned int numVals) : numVals(numVals) {
+		cur.resize(numVals);
 	}
 
-	void setValues(std::vector<float> next) {
-		values.resize(next.size());
+	/** get FFT array idx by given percentage using a "logarithmic" frequency scale */
+	unsigned int percentToIdx(float percent, int fftSize) {
+		int min = int(float(fftSize) * 100.0f / 48000.0f);
+		int max = int(float(fftSize) * 30000.0f / 48000.0f);
+		percent = std::pow(percent, 1.8f);
+		return (unsigned int) ( min + int( float(max-min) * percent ) );
+	}
+
+	/** get the current values */
+	void setValues( std::vector<float> next ) {
+
+		unsigned int maxIdx = (unsigned int) next.size();
+
+		// scale values. increase values at the end of the spectrum.
 		for (unsigned int i = 0; i < next.size(); ++i) {
 
-			//if (next[i] != next[i]) {continue;}
-
 			float percent = float(i) / float(next.size());
-			float scale = float(1.0 + std::pow(percent, 1.5f));
+			float scale = float(0.5 + percent*2);
 			float v = next[i] * scale;
-
-			v = -std::log(next[i]);
-			if (v > 10) {v = 10;}
-			v = 10 - v;
-			if (v >= values[i]) {values[i] = v;} else {values[i] *= 0.75f;}
+			if (v > 16) {v = 16;}
+			next[i] = v;
 
 		}
-		emit repaint();
-	}
 
-protected:
+		// combine values to some bands
+		for (unsigned int i = 0; i < numVals; ++i) {
+
+			float percent1 = float(i+1) / float(numVals+1);
+			float percent2 = float(i+2) / float(numVals+1);
+
+			// rescale frequencies to show more low and less high frequencies
+			unsigned int idx0 = percentToIdx(percent1, (int) next.size());//2 + (unsigned int) (float(next.size()-2) * float( std::pow(percent1, 1.8) ));
+			unsigned int idx1 = percentToIdx(percent2, (int) next.size())-1;//2 + (unsigned int) (float(next.size()-2) * float( std::pow(percent2, 1.8) )) - 1;
+
+			if (idx1 <= idx0) {idx1 = idx0+1;}
+			if (idx1 >= maxIdx) {idx1 = maxIdx-1;}
 
 
-	void paintEvent(QPaintEvent* event) override {
+			// get max value for this band
+			float v = 0;
+			for (unsigned int i = idx0; i < idx1; ++i) {
+				float tmp = next.at(i);
+				if (tmp > v) {v = tmp;}
+			}
 
-		if (values.empty()) {return;}
+			// map to range of [0;1]
+			v /= 16;
 
-		Q_UNUSED(event);
-		QPainter p(this);
+			// store the value or falloff
+			if (cur[i] > v) {cur[i] *= 0.9f;} else {cur[i] = v;}
 
-		p.setPen(paint.pen);
-
-		// find max
-		float max = 16;
-
-		// render
-		float pStep = 3.0f / float(width());
-		unsigned int x = 0;
-		int h = height();
-
-		for (float percent = 0; percent <= 1.0; percent += pStep) {
-
-			// rescale
-			//float pScale = std::pow( (percent*0.7+0.3), 5);
-			float pScale = float( std::pow(percent, 1.8) );
-			unsigned int idx = (unsigned int) (float(values.size()) * pScale);
-
-			float v = values.at(idx);
-			//if (v < 0 || v > 100) {continue;}
-			int y1 = h - int( float(h) * v / max * 0.95);
-			p.drawLine(x-1, h, x-1, y1);
-			x += 3;
 		}
 
+
 	}
+
+	/** get the modified values */
+	const std::vector<float>& getValues() const {return cur;}
 
 private:
 
-	std::vector<float> values;
-
-	struct {
-		QVector<qreal> dashes;
-		QPen pen;
-	} paint;
-
+	unsigned int numVals;
+	std::vector<float> cur;
 
 };
 
@@ -98,13 +95,11 @@ class MasterTarget1 : public RackElement, public MasterTarget {
 
 private:
 
+	/** all UI elements */
 	struct {
-
 		VUMeter* vuLeft;
 		VUMeter* vuRight;
-
 		PinConnector* connector;
-
 	} elements;
 
 
@@ -112,7 +107,8 @@ private:
 	FFTAnalyzer* fft;
 
 	/** render fft into a LCD */
-	FFTLCD lcd;
+	FFTFalloff fftFalloff;
+	LCD* lcd;
 
 public:
 

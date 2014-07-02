@@ -2,11 +2,16 @@
 #define REVERB1_H
 
 #include "RackElement.h"
-#include <KSynth/fx/Reverb.h>
+#include <KSynth/fx/AllPassReverb.h>
 
 class Knob;
+class LCD;
+class QPushButton;
+class PinConnector;
 
-class Reverb1 : public RackElement, public Reverb {
+#include <KLib/math/dsp/dft/FFT.h>
+
+class Reverb1 : public RackElement, public AllPassReverb {
 	Q_OBJECT
 
 public:
@@ -17,10 +22,6 @@ public:
 	/** dtor */
 	~Reverb1();
 
-	//std::string getDeviceType() const override;
-
-	//RackElement* createFromPrototype(Context& ctx) const override;
-
 	void refresh() override;
 
 protected:
@@ -29,21 +30,59 @@ protected:
 
 	void resizeEvent(QResizeEvent* event) override;
 
-	struct {
-
-		Knob* kDry;
-		Knob* kNum;
+	struct Gate {
 		Knob* kDelay;
+		Knob* kPosGain;
+		Knob* kNegGain;
+	};
 
+	struct {
+		Gate gates[4];
+		Knob* kDryWet;
 	} elements;
 
+	PinConnector* connector;
 
+	QPushButton* btn;
+
+	/** LCD impulse-response / frequency update */
+	struct Analysis {
+
+		LCD* lcd;
+
+		std::vector<float> vec1;
+		std::vector<float> vec2;
+		std::vector<float> vec3;
+
+		K::FFT fft;
+
+		bool needsUpdate;
+
+		unsigned int size;
+
+		unsigned int mode;
+
+		/** ctor */
+		Analysis() : fft(65536), needsUpdate(false), size(65536), mode(0) {
+			vec1.resize(65536);
+			vec2.resize(65536);
+			vec3.resize(96);
+		}
+
+	} analysis;
+
+private:
+
+	void showImpulseResponse();
 
 signals:
 
-public slots:
+private slots:
 
-	void onValueChanged();
+	/** called when a ui element is changed */
+	void onParamChange();
+
+	void onToggleLCDmode();
 
 };
 

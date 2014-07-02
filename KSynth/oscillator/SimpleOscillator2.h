@@ -93,6 +93,9 @@ struct SimpleOscillator2Func {
 	/** inverted sawtooth */
 	static Amplitude invSaw(const float phase)	{return -saw(phase);}
 
+	/** noise function */
+	static Amplitude noise(const float phase)	{(void) phase; return float(rand()) / float(RAND_MAX) * 2.0f - 1.0f;}
+
 	/** create a smothed inverted sawtooth -> less aliasing */
 	static Amplitude invSawNoAlias(const float phase)	{return smooth(&invSaw, phase);}
 
@@ -201,7 +204,7 @@ public:
 			case SimpleOscillator2Mode::INV_SAW_NO_ALIAS:	generator = &SimpleOscillator2Func::invSawNoAlias;	break;
 
 			case SimpleOscillator2Mode::TRIANGLE:			generator = &SimpleOscillator2Func::null;			break;
-			case SimpleOscillator2Mode::NOISE:				generator = &SimpleOscillator2Func::null;			break;
+			case SimpleOscillator2Mode::NOISE:				generator = &SimpleOscillator2Func::noise;			break;
 			case SimpleOscillator2Mode::_END:				break;
 		}
 

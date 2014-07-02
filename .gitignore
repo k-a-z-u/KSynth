@@ -4,3 +4,5 @@
 
 # exclude build-folder
 _build
+
+*CMakeLists.txt.user

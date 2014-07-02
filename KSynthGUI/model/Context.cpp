@@ -38,6 +38,9 @@ Context::Context(QApplication& app) :
 	// the factory to create RackElements by a type-name
 	rackFactory = new RackFactory(*this);
 
+	// ensure we have a midi binder even when no midi devices exist.
+	midiBinder = new MidiBinder();
+
 	// set-up the midi backend
 	midi = new RtMidiWrapper();
 	try {
@@ -47,7 +50,6 @@ Context::Context(QApplication& app) :
 
 		// create binder for MidiEvent->ParamChange
 		// and add the binder as event listener
-		midiBinder = new MidiBinder();
 		midi->addListener(midiBinder);
 
 	} catch (RtMidiException& e) {

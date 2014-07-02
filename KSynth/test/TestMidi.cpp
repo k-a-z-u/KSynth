@@ -20,7 +20,7 @@ TEST(Midi, parse) {
 	MidiFile mf;
 	MidiParser p(f, mf);
 
-	std::cout << "Version: " << mf.getVersion() << std::endl;
+	std::cout << "Version: " << (int)mf.getVersion() << std::endl;
 
 }
 

@@ -53,21 +53,21 @@ public:
 
 
 	/** the number of input channels for this device */
-	virtual unsigned int getNumInputs() {return numInputs;}
+	virtual unsigned int getNumInputs() const {return numInputs;}
 
 	/** the number of output channels for this device */
-	virtual unsigned int getNumOutputs() {return numOutputs;}
+	virtual unsigned int getNumOutputs() const {return numOutputs;}
 
 
 	/** get properties for the input pin identified by idx */
-	virtual bool getInputProperties(unsigned int idx, PinProperties* properties) {
+	virtual bool getInputProperties(const unsigned int idx, PinProperties* properties) const {
 		(void) idx;
 		(void) properties;
 		return false;
 	}
 
 	/** get properties for the output pin identified by idx */
-	virtual bool getOutputProperties(unsigned int idx, PinProperties* properties) {
+	virtual bool getOutputProperties(const unsigned int idx, PinProperties* properties) const {
 		(void) idx;
 		(void) properties;
 		return false;
@@ -75,10 +75,10 @@ public:
 
 
 	/** how many samples to process on every process() call */
-	SampleFrame getSamplesPerProcess() {return SNDBASE_BLK_SIZE;}
+	SampleFrame getSamplesPerProcess() const {return SNDBASE_BLK_SIZE;}
 
 	/** the sample-rate used within the application */
-	SampleRate getSampleRate() {return 48000;}
+	SampleRate getSampleRate() const {return 48000;}
 
 
 
@@ -86,25 +86,25 @@ public:
 	virtual unsigned int getNumParameters() const = 0;
 
 	/** set the value v (between [0,1]) of parameter p */
-	virtual void setParameter(Param p, ParamValue v) {
+	virtual void setParameter(const Param p, const ParamValue v) {
 		(void) p;
 		(void) v;
 	}
 
 	/** get the value (between [0,1]) of a parameter p */
-	virtual ParamValue getParameter(Param p) const {
+	virtual ParamValue getParameter(const Param p) const {
 		(void) p;
 		return ParamValue(0.0f);
 	}
 
 	/** get the name (string) for the given parameter */
-	virtual const std::string getParameterName(Param p) const {
+	virtual const std::string getParameterName(const Param p) const {
 		(void) p;
 		return "NOT IMPLEMENTED";
 	}
 
 	/** set the given parameter's name */
-	virtual void setParameterName(Param p, const std::string& name) {
+	virtual void setParameterName(const Param p, const std::string& name) {
 		(void) p;
 		(void) name;
 	}
@@ -136,7 +136,7 @@ protected:
 
 
 	/** ctor: the number of input/output channels */
-	SoundBase(unsigned int numInputs, unsigned int numOutputs) :
+	SoundBase(const unsigned int numInputs, const unsigned int numOutputs) :
 		outputs(nullptr), inputs(nullptr), numInputs(numInputs), numOutputs(numOutputs), hash(0) {
 
 		// the output buffer will be lazy-loaded (malloced) only when
@@ -218,10 +218,10 @@ private:
 
 
 	/** the number of input channels */
-	unsigned int numInputs;
+	const unsigned int numInputs;
 
 	/** the number of output channels */
-	unsigned int numOutputs;
+	const unsigned int numOutputs;
 
 
 	/** "hash" value to ensure the output is only rendered once */

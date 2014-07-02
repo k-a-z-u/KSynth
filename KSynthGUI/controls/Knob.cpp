@@ -30,8 +30,8 @@ Knob::Knob(const std::string& title, int min, int max, int val, unsigned int mou
 	this->mouseWheelSteps = mouseWheelSteps;
 	value.min = min;
 	value.max = max;
-	value.value = -1;
-	setValue(val);
+	value.value = 9999999;	// to force an update
+	_setValue(val);
 }
 
 

@@ -19,10 +19,12 @@ class SoundProcessor : public SoundBase {
 public:
 
 	/** ctor */
-	SoundProcessor(unsigned int numInputs, unsigned int numOutputs) :
+	SoundProcessor(const unsigned int numInputs, const unsigned int numOutputs) :
 		SoundBase(numInputs, numOutputs) {;}
 
 	virtual ~SoundProcessor() {;}
+
+
 
 
 };

@@ -10,6 +10,7 @@
 
 #include <KLib/fs/File.h>
 #include "MidiTrack.h"
+#include "MidiConstants.h"
 
 /**
  * represents one midi-file with its
@@ -38,8 +39,13 @@ public:
 	}
 
 	/** the midi's version number (normally 0 or 1) */
-	unsigned int getVersion() const {
+	MidiVersion getVersion() const {
 		return version;
+	}
+
+	/** remove all tracks from the midi file */
+	void deleteTracks() {
+		tracks.clear();
 	}
 
 private:
@@ -58,7 +64,7 @@ private:
 	unsigned int tickDiv;
 
 	/** the midi version */
-	unsigned int version;
+	MidiVersion version;
 
 };
 

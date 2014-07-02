@@ -59,10 +59,11 @@ private:
 	unsigned int mouseWheelSteps;
 
 	/** the slider's value */
-	struct {
+	struct V {
 		int value;
 		int min;
 		int max;
+		V() : value(0), min(0), max(0) {;}
 	} value;
 
 	/** sizeing information */
@@ -76,9 +77,9 @@ private:
 		int trackL;			// track inset from the left
 	} size;
 
-	struct Mouse {
+	struct M {
 		bool isDown;
-		Mouse() : isDown(false) {;}
+		M() : isDown(false) {;}
 	} mouse;
 
 	/** the slider's title */

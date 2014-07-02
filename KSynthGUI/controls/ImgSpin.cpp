@@ -55,15 +55,14 @@ void ImgSpin::add(const QImage& img, int value) {
 }
 
 void ImgSpin::onNext() {
-	if (entries.size() <= curIdx +1) {return;}
-	++curIdx;
+	//if (entries.size() <= curIdx +1) {return;}
+	if (curIdx >= entries.size()-1) {curIdx = 0;} else {++curIdx;}
 	emit repaint();
 	emit onChange();
 }
 
 void ImgSpin::onPrev() {
-	if (curIdx == 0) {return;}
-	--curIdx;
+	if (curIdx == 0) {curIdx = (unsigned int) (entries.size()-1);} else {--curIdx;}
 	emit repaint();
 	emit onChange();
 }

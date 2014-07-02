@@ -5,35 +5,32 @@
  *      Author: kazu
  */
 
-#ifndef RINGBUFFER_H_
-#define RINGBUFFER_H_
+#ifndef RINGBUFFERFIXED_H
+#define RINGBUFFERFIXED_H
 
 #include <vector>
 
-template <typename T, int size> class RingBuffer {
+/**
+ * represents a very basic ringbuffer based on a template class.
+ * for best performance, the SIZE argument SHOULD be a power of two!
+ */
+template <typename T, int size> class RingBufferFixed {
 
 public:
 
 	/** ctor */
-	RingBuffer() : numUsed(0), head(0), tail(0) {
-//		resize(size);
+	RingBufferFixed() : numUsed(0), head(0), tail(0) {
 		buffer = (T*) malloc(size * sizeof(T));
 		memset(buffer, 0, size * sizeof(T));
 	}
 
 	/** dtor */
-	~RingBuffer() {
+	~RingBufferFixed() {
 		free(buffer); buffer = nullptr;
 	}
 
-//	/** resize the ringbuffer */
-//	void resize(unsigned int size) {
-//		buffer = (T*) realloc(buffer, size * sizeof(T));
-//		this->bufSize = size;
-//	}
-
 	/** add a new value to the end of the buffer */
-	void push(T val) {
+	void push(const T val) {
 		++head;
 		head %= size;
 		buffer[head] = val;
@@ -51,15 +48,15 @@ public:
 		return buffer[head];
 	}
 
-	/** peek for the next entries to fetch. peekBehin(0) returns the tail */
-	T peekBehind(int numEntries) {
+	/** peek for the next entries to fetch. peekBehind(0) returns the tail */
+	T peekBehind(const int numEntries) {
 		unsigned int idx = (head + numEntries);// - numEntries + buffer.size();
 		idx %= size;
 		return buffer[idx];
 	}
 
 	/** peek for entries behind the head. numEntries=0 return the head's value */
-	T peekBehindHead(int numEntries) {
+	T peekBehindHead(const int numEntries) {
 		unsigned int idx = ((int)head - numEntries + size) % size;
 		return buffer[idx];
 	}
@@ -68,13 +65,13 @@ public:
 	T pop() {
 		++tail;
 		tail %= size;
-		T ret = buffer[tail];
+		const T ret = buffer[tail];
 		--numUsed;
 		return ret;
 	}
 
 	/** get the number of used elements */
-	unsigned int bytesUsed() {
+	unsigned int bytesUsed() const {
 		return numUsed;
 	}
 
@@ -82,9 +79,14 @@ public:
 	 * set the number of used bytes.
 	 * this will also move the tail behind the head's postion
 	 */
-	void setUsed(unsigned int used) {
+	void setUsed(const unsigned int used) {
 		this->numUsed = used;
 		this->tail = ((int)this->head - used + size) % size;
+	}
+
+	/** return the ring-buffer's size (from template argument) */
+	unsigned int getSize() const {
+		return size;
 	}
 
 private:
@@ -104,4 +106,4 @@ private:
 };
 
 
-#endif /* RINGBUFFER_H_ */
+#endif // RINGBUFFERFIXED_H

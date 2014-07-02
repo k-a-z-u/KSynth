@@ -11,14 +11,14 @@
 #ifdef WITH_TESTS
 #include "Test.h"
 
-#include "../fx/RingBuffer.h"
+#include "../fx/RingBufferFixed.h"
 
-TEST(Ringbuffer, PushPop) {
+TEST(RingbufferFixed, PushPop) {
 
 	const int SIZE = 0xFFFF+1;
 	const int MAX = 0x123;
 
-	RingBuffer<int, SIZE> rb;
+	RingBufferFixed<int, SIZE> rb;
 	int cnt = 0;
 
 	for (unsigned int rep = 0; rep < 1000; ++rep) {
@@ -39,9 +39,9 @@ TEST(Ringbuffer, PushPop) {
 
 }
 
-TEST(Ringbuffer, peek) {
+TEST(RingbufferFixed, peek) {
 
-	RingBuffer<int, 0xFFFF+1> rb;
+	RingBufferFixed<int, 0xFFFF+1> rb;
 
 	for (unsigned int j = 0; j < 2000; ++j) {
 
