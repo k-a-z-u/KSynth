@@ -254,7 +254,9 @@ linux-g++ | linux-g++-64 | linux-g++-32 | unix {
     }
 
     PULSE_AUDIO {
-
+        message("using Pulseaudio")
+        QMAKE_CXXFLAGS += -DWITH_PULSE_AUDIO
+        LIBS += -lpulse -lpulse-simple
     }
 
 }
