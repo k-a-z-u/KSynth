@@ -2,7 +2,7 @@
 #define TTSPROVIDERFLITE_H
 
 #ifdef WITH_TTS_FLITE
-
+#include "flite/flite.h"
 #include "TTSProvider.h"
 
 
