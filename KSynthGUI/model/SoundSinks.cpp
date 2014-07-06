@@ -2,6 +2,7 @@
 
 #include <KSynth/output/SoundSinkHardwareNull.h>
 #include <KSynth/output/SoundSinkHardwareAlsa.h>
+#include <KSynth/output/SoundSinkHardwarePulse.h>
 #include <KSynth/output/SoundSinkHardwareWaveOut.h>
 
 #include <KSynth/output/SoundSinkExportWave.h>
@@ -63,6 +64,13 @@ SoundSinks::SoundSinks() {
 	}
 #endif
 
+#if defined(WITH_PULSE_AUDIO)
+	{
+		std::unique_ptr<SoundSinkHardwarePulse> ptr(new SoundSinkHardwarePulse());
+		hardware.push_back( std::move(ptr) );
+	}
+#endif
+
 #if defined(WITH_COREAUDIO)
 	{
 		;
@@ -73,12 +81,6 @@ SoundSinks::SoundSinks() {
 	{
 		std::unique_ptr<SoundSink> ptr(new SoundSinkWaveOut());
 		hardware.push_back( std::move(ptr) );
-	}
-#endif
-
-#if defined(WITH_PULSE_AUDIO)
-	{
-		;
 	}
 #endif
 
