@@ -6,6 +6,7 @@
 
 #include "../model/Context.h"
 #include "Rack.h"
+#include "RackWidget.h"
 #include "../controls/TextLabel.h"
 #include "../misc/Skin.h"
 
@@ -15,12 +16,22 @@ class RightClickMenuRackElement : public RightClickMenuListener {
 public:
 	RightClickMenuRackElement(RackElement* re) : re(re) {;}
 	void onRightClickMenu(QMenu& menu) override {
+
 		SoundBase* sb = dynamic_cast<SoundBase*>(re);
 		if (!re || !sb) {return;}
 		menu.addAction( (re->getProductString() + ": "+ re->getUserName()).c_str(), 0, 0)->setDisabled(true);
 		menu.addSeparator();
+
+		// delete this rack element
 		QAction* actDel = menu.addAction("delete", re, SLOT(deleteMe()));
 		actDel->setIcon(Skin::getIcon("skin/icons/delete.png"));
+
+		// move this rack-element up by one position
+		menu.addAction("move up", re, SLOT(moveUp()));
+
+		// move this rack-element down by one position
+		menu.addAction("move down", re, SLOT(moveDown()));
+
 	}
 private:
 	RackElement* re;
@@ -50,6 +61,14 @@ Context& RackElement::getContext() {
 
 void RackElement::deleteMe() {
 	ctx.getRack()->remove(this);
+}
+
+void RackElement::moveUp() {
+	ctx.getRack()->moveUp(this);
+}
+
+void RackElement::moveDown() {
+	ctx.getRack()->moveDown(this);
 }
 
 void RackElement::setSize(unsigned int width, unsigned int height) {

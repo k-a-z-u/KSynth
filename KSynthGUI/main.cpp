@@ -156,32 +156,37 @@ public:
 
 			setProgress("loading midi", 0.1f);
 
-			MidiFile midi;
-			MidiParser(f, midi);
-			ctx.getSequencer()->import(midi,0);
+			if (1 == 0) {
 
-			/*
-			SequencerTrack* st = new SequencerTrack();
-			MidiEvent me1, me2;
-			me1.setType(MidiEventType::NOTE_ON);
-			me1.setDelay(10);
-			me1.setData1(69);
-			me1.setData2(100);
-			me2.setType(MidiEventType::NOTE_OFF);
-			me2.setDelay(10000);
-			me2.setData1(69);
-			me2.setData2(0);
+				MidiFile midi;
+				MidiParser(f, midi);
+				ctx.getSequencer()->import(midi,0);
+
+			} else {
+
+				SequencerTrack* st = new SequencerTrack();
+				MidiEvent me1, me2;
+				me1.setType(MidiEventType::NOTE_ON);
+				me1.setDelay(10);
+				me1.setData1(69);
+				me1.setData2(100);
+				me2.setType(MidiEventType::NOTE_OFF);
+				me2.setDelay(10000);
+				me2.setData1(69);
+				me2.setData2(0);
 
 
-			st->getEvents()->add(me1);st->getEvents()->add(me2);
-			ctx.getSequencer()->addTrack(new SequencerTrack());
-			ctx.getSequencer()->addTrack(st);
-			ctx.getSequencer()->addTrack(new SequencerTrack());
-			ctx.getSequencer()->addTrack(new SequencerTrack());
-			ctx.getSequencer()->addTrack(new SequencerTrack());
-			ctx.getSequencer()->addTrack(new SequencerTrack());
-			ctx.getSequencer()->addTrack(new SequencerTrack());
-			*/
+				st->getEvents()->add(me1);st->getEvents()->add(me2);
+				ctx.getSequencer()->addTrack(new SequencerTrack());
+				ctx.getSequencer()->addTrack(st);
+				ctx.getSequencer()->addTrack(new SequencerTrack());
+				ctx.getSequencer()->addTrack(new SequencerTrack());
+				ctx.getSequencer()->addTrack(new SequencerTrack());
+				ctx.getSequencer()->addTrack(new SequencerTrack());
+				ctx.getSequencer()->addTrack(new SequencerTrack());
+
+			}
+
 
 
 

@@ -36,6 +36,13 @@ public:
 	void reset();
 
 
+	/** move the given rack-element up by one position */
+	void moveUp(RackElement* e);
+
+	/** move the given rack-element down by one position */
+	void moveDown(RackElement* e);
+
+
 	/** enable / disable refreshing */
 	void setRefreshing(bool enabled);
 

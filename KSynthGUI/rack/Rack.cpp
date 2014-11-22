@@ -137,6 +137,14 @@ void Rack::reset() {
 
 }
 
+void Rack::moveUp(RackElement* e) {
+	rw.moveUp(e);
+}
+
+void Rack::moveDown(RackElement* e) {
+	rw.moveDown(e);
+}
+
 void Rack::run() {
 
 	while (running) {

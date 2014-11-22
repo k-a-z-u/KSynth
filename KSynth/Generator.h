@@ -206,7 +206,7 @@ public:
 		// cleanup
 		seq->stop();
 		sink->finalize();
-		thread.detach();
+		//thread.detach();
 		enabled = false;
 
 	}

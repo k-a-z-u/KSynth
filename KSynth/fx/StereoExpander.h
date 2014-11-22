@@ -14,9 +14,16 @@ public:
 	}
 
 	void process(Amplitude** inputs, Amplitude** outputs) override {
-		for (unsigned int i = 0; i < getSamplesPerProcess(); ++i) {
-			gate.process(inputs[0][i], outputs[0][i], outputs[1][i]);
+
+		if (gate.getWidth() < 0.01) {
+			outputs[0] = inputs[0];
+			outputs[1] = inputs[1];
+		} else {
+			for (unsigned int i = 0; i < getSamplesPerProcess(); ++i) {
+				gate.process(inputs[0][i], inputs[1][i], outputs[0][i], outputs[1][i]);
+			}
 		}
+
 	}
 
 	virtual unsigned int getNumParameters() const override {

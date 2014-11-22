@@ -27,24 +27,36 @@ public:
 
 	void setWidth(float w) {
 		this->width = w;
-		bqLeft.setHighShelf(0.35f, 1.0f, 1.0f*w);
-		bqRight.setLowShelf(0.35f, 1.0f, 1.0f/w);
-		delay.setDelay( (int) (48.0f*w) );
+		float tmp = 1 + w * 4;
+		bqLeft.setHighShelf(0.35f, 1.0f, 1.0f*tmp);
+		bqRight.setLowShelf(0.35f, 1.0f, 1.0f/tmp);
+		delay.setDelay( (int) (w * 40.0f) );
 	}
 
 	float getWidth() const {
 		return width;
 	}
 
-	void process(Amplitude in, Amplitude& o1, Amplitude& o2) {
-		Amplitude l = bqLeft.filter(0, in);
-		Amplitude r = bqRight.filter(0, in);
-		delay.push(r);
-		r = delay.pop();
-		Amplitude l1 = l + (-r) * 0.15f;
-		Amplitude r1 = r + (-l) * 0.15f;
-		o1 = l1 + (-r1) * 0.15f;
-		o2 = r1 + (-l1) * 0.15f;
+	void process(Amplitude i1, Amplitude i2, Amplitude& o1, Amplitude& o2) {
+
+		if (width < 0.01f) {
+
+			o1 = i1;
+			o2 = i2;
+
+		} else {
+
+			Amplitude l = bqLeft.filter(0, i1);
+			Amplitude r = bqRight.filter(0, i2);
+			delay.push(l);
+			l = delay.pop();
+			Amplitude l1 = l + (-r) * 0.15f;
+			Amplitude r1 = r + (-l) * 0.15f;
+			o1 = l1 + (-r1) * 0.15f;
+			o2 = r1 + (-l1) * 0.15f;
+
+		}
+
 	}
 
 

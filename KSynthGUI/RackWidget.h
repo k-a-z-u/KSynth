@@ -1,6 +1,11 @@
 #ifndef RACKWIDGET_H
 #define RACKWIDGET_H
 
+/**
+  * this is the GUI representation of the Rack
+  * containing all synths, mixers, fx, etc. as sub-widgets
+  */
+
 #include <QDockWidget>
 
 class Context;
@@ -23,6 +28,14 @@ public:
 	/** dtor */
 	~RackWidget();
 
+
+	/** move the given rack-element up by one position */
+	void moveUp(RackElement* e);
+
+	/** move the given rack-element down by one position */
+	void moveDown(RackElement* e);
+
+
 private:
 
 	/** only the Rack is allowed to add entries here */
@@ -41,6 +54,7 @@ private:
 	Context& ctx;
 
 	QVBoxLayout* lay;
+
 
 };
 

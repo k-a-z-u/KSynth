@@ -72,10 +72,18 @@ signals:
 	void userNameChanged();
 
 
-public slots:
+private slots:
+
+	friend class Rack;
 
 	/** delete this element */
 	void deleteMe();
+
+	/** move this rack-element up by one position */
+	void moveUp();
+
+	/** move this rack-element down by one position */
+	void moveDown();
 
 
 private slots:

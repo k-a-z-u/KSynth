@@ -102,12 +102,11 @@ public:
 
 	void push(const Amplitude** outputs, const SampleFrame frames) override {
 
+		// currently only 16 bit unsigned is supported...
 		for (SampleFrame i = 0; i < frames; ++i) {
 
-			numBytes += fmt.bits/8;
-
-			uint16_t sLeft = amplitudeToI16(outputs[0][i]);
-			uint16_t sRight = amplitudeToI16(outputs[1][i]);
+			const uint16_t sLeft = amplitudeToI16(outputs[0][i]);
+			const uint16_t sRight = amplitudeToI16(outputs[1][i]);
 
 			if (fmt.numChannels == 1) {
 				out->write(sLeft);
@@ -117,6 +116,9 @@ public:
 			}
 
 		}
+
+		// increment the number of used data bytes
+		numBytes += (fmt.bits/8) * fmt.numChannels * frames;
 
 	}
 

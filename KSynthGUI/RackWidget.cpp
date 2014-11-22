@@ -1,3 +1,8 @@
+/**
+  * this is the GUI representation of the Rack
+  * containing all synths, mixers, fx, etc. as sub-widgets
+  */
+
 #include "RackWidget.h"
 #include "ui_RackWidget.h"
 
@@ -5,6 +10,7 @@
 #include "model/Context.h"
 
 #include <QVBoxLayout>
+//#include <QListWidget>
 
 RackWidget::RackWidget(Context& ctx, QWidget *parent) :
 	QDockWidget(parent), ui(new Ui::RackWidget), ctx(ctx) {
@@ -21,10 +27,11 @@ RackWidget::RackWidget(Context& ctx, QWidget *parent) :
 //	ui->scrollArea->setLayout(lay0);
 
 	QWidget* w = new QWidget(nullptr);
-	lay = new QVBoxLayout(ui->scrollArea);
-	lay->setSpacing(1);
+	//w = new QListWidget(nullptr);
+	lay = new QVBoxLayout(w);
+	lay->setSpacing(2);
 	lay->setMargin(0);
-	w->setLayout(lay);
+//	w->setLayout(lay);
 	ui->scrollArea->setWidget(w);
 
 	//QVBoxLayout* layScroll = new QVBoxLayout(ui->scrollArea);
@@ -41,6 +48,20 @@ RackWidget::~RackWidget() {
 
 void RackWidget::add(RackElement* e) {
 	lay->addWidget(e);
+}
+
+void RackWidget::moveUp(RackElement* e) {
+	int pos = lay->indexOf(e);
+	if (pos == 0) {return;}
+	lay->removeWidget(e);
+	lay->insertWidget(pos-1, e);
+}
+
+void RackWidget::moveDown(RackElement* e) {
+	int pos = lay->indexOf(e);
+	if (pos == lay->count() -1) {return;}
+	lay->removeWidget(e);
+	lay->insertWidget(pos+1, e);
 }
 
 void RackWidget::remove(RackElement* e) {

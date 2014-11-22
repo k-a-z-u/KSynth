@@ -204,7 +204,7 @@ public:
 			case SimpleSynthParams::FILTER_FREQUENCY:		filter.freq = v; break;
 			case SimpleSynthParams::FILTER_RESONANCE:		filter.res = v;	break;
 
-			case SimpleSynthParams::STEREO_DELAY:			stereo.setWidth(v.asFloat(0.0f, 5.0f));	break;
+			case SimpleSynthParams::STEREO_DELAY:			stereo.setWidth(v);	break;
 
 
 			default: break;
@@ -258,7 +258,7 @@ public:
 			case SimpleSynthParams::FILTER_FREQUENCY:		return filter.freq;
 			case SimpleSynthParams::FILTER_RESONANCE:		return filter.res;
 
-			case SimpleSynthParams::STEREO_DELAY:			return ParamValue(0.0f, 5.0f, stereo.getWidth());
+			case SimpleSynthParams::STEREO_DELAY:			return stereo.getWidth();
 
 			default: return 0.0f;
 		}
@@ -511,7 +511,8 @@ public:
 		for (unsigned int i = 0; i < getSamplesPerProcess(); ++i) {
 
 			const float l = outputs[0][i] * mul;
-			stereo.process(l, outputs[0][i], outputs[1][i]);
+			const float r = l;
+			stereo.process(l,r, outputs[0][i], outputs[1][i]);
 
 			//outputs[0][i] *= mul;
 			//stereo.push(outputs[0][i]);
