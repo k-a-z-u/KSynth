@@ -1,11 +1,11 @@
 #ifndef TTS_H
 #define TTS_H
 
-#include "flite/flite.h"
-
 #include "../sampler/Sample.h"
 #include "../misc/DataTypes.h"
+#include "TTSProvider.h"
 #include "TTSProviderESpeak.h"
+#include "TTSProviderFlite.h"
 
 
 /**
@@ -23,7 +23,8 @@ public:
 
 	/** get sample for the given string */
 	Sample toSample(const std::string& str) {
-		return prov.speak(str);
+		if(prov != nullptr){return Sample();}
+		return prov->speak(str);
 	}
 
 
@@ -31,7 +32,12 @@ private:
 
 	/** ctor */
 	TTS() {
-
+#ifdef WITH_TTS_ESPEAK
+		this->prov = (TTSProvider)new TTSProviderESpeak();
+#endif
+#ifdef WITH_TTS_FLITE
+		this->prov = (TTSProvider)new TTSProviderFlite();
+#endif
 	}
 
 	/** hidden copy ctor */
@@ -40,8 +46,7 @@ private:
 	/** hidden assignment op */
 	TTS& operator == (const TTS&);
 
-
-	TTSProviderESpeak prov;
+	TTSProvider* prov = nullptr;
 
 };
 
